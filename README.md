@@ -1,6 +1,6 @@
 ### iceZ0mb1e
 
-iceZ0mb1e aims to build a complete TV80 based demonstration system-on-chip using complete open source FPGA toolchain flow (http://www.clifford.at/yosys/) including firmware compilation with SDCC.
+iceZ0mb1e aims to build a TV80 based demonstration system-on-chip using complete open source FPGA toolchain flow (http://www.clifford.at/yosys/) including firmware compilation with SDCC.
 
 ### iceZ0mb1e consists of following parts
 * TV80 CPU (https://opencores.org/project,tv80,overview)
