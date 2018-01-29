@@ -29,9 +29,15 @@ sudo apt-get install build-essential clang bison flex libreadline-dev gawk tcl-d
 ```
 
 Get yosys, icestorm and arachne-pnr (latest version supports Lattice UltraPlus):
-```git clone https://github.com/cliffordwolf/icestorm.git```
-```git clone https://github.com/cseed/arachne-pnr.git```
-```git clone https://github.com/cliffordwolf/yosys.git```
+```
+git clone https://github.com/cliffordwolf/icestorm.git
+```
+```
+git clone https://github.com/cseed/arachne-pnr.git
+```
+```
+git clone https://github.com/cliffordwolf/yosys.git
+```
 
 Compile toolchain:
 ```
