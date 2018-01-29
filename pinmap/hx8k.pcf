@@ -1,0 +1,13 @@
+set_io D1 B5
+set_io D2 B4
+set_io D3 A2
+set_io D4 A1
+set_io D5 C5
+set_io D6 C4
+set_io D7 B3
+set_io D8 C3
+
+set_io clk J3
+
+set_io rxd B10
+set_io txd B12

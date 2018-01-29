@@ -1,0 +1,8 @@
+set_io LED_R 41
+set_io LED_G 39
+set_io LED_B 40
+
+set_io debug 26
+
+set_io rxd 23
+set_io txd 25

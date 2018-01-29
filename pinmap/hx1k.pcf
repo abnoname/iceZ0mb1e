@@ -1,0 +1,13 @@
+set_io D1 99
+set_io D2 98
+set_io D3 97
+set_io D4 96
+set_io D5 95
+set_io D6 101
+set_io D7 102
+set_io D8 104
+
+set_io clk 21
+
+set_io rxd 9
+set_io txd 8
