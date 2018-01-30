@@ -18,6 +18,12 @@ No special blocks are used, so every comparable FPGA in size would fit.
 ### Test Firmware
 The included test firmware will check the RAM size and write some data to IO ports (blink LEDs). Simple UART access with 9600-8N1 is provided.
 
+### Address Map
+* ROM = 0x0000 - 0x1FFF (8192 Byte)
+* RAM = 0x2000 - 0x2FFF (4096 Byte)
+* 16450 UART Base IO = 0x18
+* Parallel Base IO = 0x40
+
 ### Build for Target
 * UltraPlus 5K (default target): ```make firmware && make fpga && make flash```
 * HX8K: ```make firmware TARGET=8k && make fpga TARGET=8k && make flash TARGET=8k```
