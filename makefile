@@ -23,45 +23,51 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-SRC 			=	./tv80/rtl/core/tv80_alu.v \
-					./tv80/rtl/core/tv80_core.v \
-					./tv80/rtl/core/tv80_mcode.v \
-					./tv80/rtl/core/tv80n.v \
-					./tv80/rtl/core/tv80_reg.v \
-					./tv80/rtl/core/tv80s.v
-SRC				+=	./tv80/rtl/uart/T16450.v
-SRC				+=	./rtl/uart16540toZ80.v
-SRC				+=	./rtl/simpleio.v
-SRC				+=	./rtl/membram.v
-SRC				+=	./rtl/iceZ0mb1e.v
-TESTBENCH		= 	./testbench/tb_top.v
-FIRMWARE_DIR	=	./firmware/
+#Hardware
+SRC = ./tv80/rtl/core/tv80_alu.v \
+		./tv80/rtl/core/tv80_core.v \
+		./tv80/rtl/core/tv80_mcode.v \
+		./tv80/rtl/core/tv80n.v \
+		./tv80/rtl/core/tv80_reg.v \
+		./tv80/rtl/core/tv80s.v
+SRC += ./tv80/rtl/uart/T16450.v
+SRC += ./rtl/uart16540toZ80.v
+SRC += ./rtl/simpleio.v
+SRC += ./rtl/membram.v
+SRC += ./rtl/iceZ0mb1e.v
+TESTBENCH = ./testbench/tb_top.v
 
-TARGET			=	5k
-TEST			=	_def_test_off
+#Software
+FIRMWARE_DIR = ./firmware
+FIRMWARE_IMG = iceZ0mb1e
+CODE_LOCATION = 0x0200
+DATA_LOCATION = 0x2000
+
+#Default
+TARGET = 5k
 
 ifeq ($(TARGET),1k)
-	SRC				+=	./top/hx1k.v
-	ARACHNEFLAGS	= -d 1k
-	FPGA_PINMAP		= ./pinmap/hx1k.pcf
+	SRC += ./top/hx1k.v
+	ARACHNEFLAGS = -d 1k
+	FPGA_PINMAP = ./pinmap/hx1k.pcf
 else ifeq ($(TARGET),icezum)
-	SRC				+=	./top/icezum.v
-	ARACHNEFLAGS	= -d 1k
-	FPGA_PINMAP		= ./pinmap/icezum.pcf	
+	SRC += ./top/icezum.v
+	ARACHNEFLAGS = -d 1k
+	FPGA_PINMAP = ./pinmap/icezum.pcf
 else ifeq ($(TARGET),5k)
-	SRC				+=	./top/upduino.v
-	ARACHNEFLAGS	= -d 5k	
-	FPGA_PINMAP		= ./pinmap/upduino.pcf
-	ICEPROG_PARAM	= -d i:0x0403:0x6014
+	SRC += ./top/upduino.v
+	ARACHNEFLAGS = -d 5k
+	FPGA_PINMAP = ./pinmap/upduino.pcf
+	ICEPROG_PARAM = -d i:0x0403:0x6014
 else ifeq ($(TARGET),8k)
-	SRC				+=	./top/hx8k.v
-	ARACHNEFLAGS	= -d 8k
-	FPGA_PINMAP		= ./pinmap/hx8k.pcf
+	SRC += ./top/hx8k.v
+	ARACHNEFLAGS = -d 8k
+	FPGA_PINMAP = ./pinmap/hx8k.pcf
 else
 	##
 endif
 
-#TOOL OUTPUT
+#Tool Output
 VCD_OUT = ./simulation/test.vcd	#THIS NEEDS TO MATCH THE OUTPUT FILE FROM YOUR TESTBENCH
 COMPILE_OUT = ./synthesis/_compiler.out
 SYNTH_OUT = ./synthesis/_synth_output.v
@@ -70,7 +76,7 @@ FPGA_TXT_OUT = ./synthesis/_fpga.txt
 FPGA_EX_OUT = ./synthesis/_fpga.ex
 FPGA_BIN_OUT = ./synthesis/_fpga.bin
 
-#TOOLS
+#Tools
 COMPILER = iverilog
 SIMULATOR = vvp
 VIEWER = gtkwave
@@ -81,7 +87,7 @@ ICEPACK = icepack
 ICEPROG = sudo iceprog $(ICEPROG_PARAM)
 QFLOW = qflow
 
-#TOOL OPTIONS
+#Tool Options
 COFLAGS = -v -o
 SFLAGS = -v
 SOUTPUT = -lxt
@@ -89,25 +95,28 @@ SOUTPUT = -lxt
 ###############################################################################
 
 .PHONY: firmware
-firmware :
+firmware:
 	$(MAKE) -C $(FIRMWARE_DIR) clean
-	$(MAKE) -C $(FIRMWARE_DIR)
+	$(MAKE) -C $(FIRMWARE_DIR) FIRMWARE_IMG=$(FIRMWARE_IMG) CODE_LOCATION=$(CODE_LOCATION) DATA_LOCATION=$(DATA_LOCATION)
 
 compile : $(TESTBENCH) $(SRC)
-	$(COMPILER)			-v $(TESTBENCH) $(SRC) -o $(COMPILE_OUT)
+	$(COMPILER) -v $(TESTBENCH) $(SRC) -o $(COMPILE_OUT)
 
 sim: $(COMPILE_OUT)
-	$(SIMULATOR) 		$(SFLAGS) $(COMPILE_OUT) $(SOUTPUT)
-	$(VIEWER) 			$(VCD_OUT)
+	$(SIMULATOR) $(SFLAGS) $(COMPILE_OUT) $(SOUTPUT)
+	$(VIEWER) $(VCD_OUT)
 
-fpga: $(SRC) $(FPGA_PINMAP)
-	$(YOSYS) 			-q -o $(SYNTH_OUT) -f "verilog -D$(TEST)" -p "synth_ice40 -blif $(FPGA_BLIF_OUT);" $(SRC)
-	$(ARACHNEPNR) 		$(ARACHNEFLAGS) -p $(FPGA_PINMAP) $(FPGA_BLIF_OUT) -o $(FPGA_TXT_OUT)
-	$(ICEBOXEXPLAIN) 	$(FPGA_TXT_OUT) > $(FPGA_EX_OUT)
-	$(ICEPACK) 			$(FPGA_TXT_OUT) $(FPGA_BIN_OUT)
+fpga: $(SRC) $(FPGA_PINMAP) firmware
+	$(YOSYS) -q -o $(SYNTH_OUT) \
+		-f "verilog -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\"" \
+		-p "synth_ice40 -blif $(FPGA_BLIF_OUT);" \
+		$(SRC)
+	$(ARACHNEPNR) $(ARACHNEFLAGS) -p $(FPGA_PINMAP) $(FPGA_BLIF_OUT) -o $(FPGA_TXT_OUT)
+	$(ICEBOXEXPLAIN) $(FPGA_TXT_OUT) > $(FPGA_EX_OUT)
+	$(ICEPACK) $(FPGA_TXT_OUT) $(FPGA_BIN_OUT)
 
 flash: $(FPGA_BIN_OUT)
-	$(ICEPROG) 			$(FPGA_BIN_OUT)
+	$(ICEPROG) $(FPGA_BIN_OUT)
 
 clean:
 	$(MAKE) -C $(FIRMWARE_DIR) clean
@@ -124,4 +133,3 @@ $(VCD_OUT): $(COMPILE_OUT)
 
 $(COMPILE_OUT): $(TESTBENCH) $(SRC)
 	$(COMPILER) $(COFLAGS) $(COMPILE_OUT) $(TESTBENCH) $(SRC)
-

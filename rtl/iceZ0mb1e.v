@@ -116,7 +116,7 @@ module iceZ0mb1e (
 		.rd_cs		(ram_rd_cs)
 	);
 
-	membram #(13, "firmware/firmware.vhex", 2**13-1) rom
+	membram #(13, `__def_fw_img, 2**13-1) rom
 	(
 		.data_out	(data_in),
 		.wr_clk		(),

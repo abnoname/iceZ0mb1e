@@ -23,39 +23,44 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-PROJECTNAME = firmware
+# usage e.g.:
+# make FIRMWARE_IMG=test CODE_LOCATION=0x0200 DATA_LOCATION=0x1000
 
+ARCH = mz80
 OBJ = crt0.rel ioport.rel main.rel
 
-CODE_LOCATION = 0x0200
-DATA_LOCATION = 0x2000
+all: $(FIRMWARE_IMG).bin $(FIRMWARE_IMG).hex $(FIRMWARE_IMG).vhex $(FIRMWARE_IMG).dasm
 
-all: $(PROJECTNAME).bin $(PROJECTNAME).hex $(PROJECTNAME).vhex $(PROJECTNAME).dasm
+#Tools
+CC = sdcc
+ASM = sdasz80
+DASM = z80dasm
+PACKIHX = packihx
+SRECCAT = srec_cat
 
 #Compile Files:
 %.rel : %.c
-	sdcc -mz80 -c $^
+	$(CC) -$(ARCH) -c $^
 
 %.rel : %.s
-	sdasz80 -glos $^
+	$(ASM) -glos $^
 
 #Linker
-$(PROJECTNAME).hex: $(OBJ)
-	sdcc -mz80 $^ --no-std-crt0 --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION) -o _temp.ihx
-	packihx < _temp.ihx > $(PROJECTNAME).hex
+$(FIRMWARE_IMG).hex: $(OBJ)
+	$(CC) -$(ARCH) $^ --no-std-crt0 --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION) -o _temp.ihx
+	$(PACKIHX) < _temp.ihx > $(FIRMWARE_IMG).hex
 
 #Output
-$(PROJECTNAME).bin: $(PROJECTNAME).hex
-	srec_cat $(PROJECTNAME).hex -intel -o $(PROJECTNAME).bin -binary
+$(FIRMWARE_IMG).bin: $(FIRMWARE_IMG).hex
+	$(SRECCAT) $(FIRMWARE_IMG).hex -intel -o $(FIRMWARE_IMG).bin -binary
 
-$(PROJECTNAME).vhex: $(PROJECTNAME).hex
-	srec_cat $(PROJECTNAME).hex -intel -o $(PROJECTNAME).vhex -VMem 8
+$(FIRMWARE_IMG).vhex: $(FIRMWARE_IMG).hex
+	$(SRECCAT) $(FIRMWARE_IMG).hex -intel -o $(FIRMWARE_IMG).vhex -VMem 8
 
 #Disassembler
-$(PROJECTNAME).dasm: $(PROJECTNAME).bin
-	z80dasm -t -g 0x0 -l $(PROJECTNAME).bin -o $(PROJECTNAME).dasm
+$(FIRMWARE_IMG).dasm: $(FIRMWARE_IMG).bin
+	z80dasm -t -g 0x0 -l $(FIRMWARE_IMG).bin -o $(FIRMWARE_IMG).dasm
 
 #Clean:
 clean:
 	rm -f *\.rel *\.ihx *\.sym *\.lst *\.map *\.noi *\.bin *\.dasm *\.asm *\.lnk *\.rel *\.def *\.hex *\.vhex *\.html *\.lk
-
