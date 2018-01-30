@@ -27,11 +27,10 @@
 #include "register.h"
 #include "ioport.h"
 
-volatile char start = 0;
-volatile unsigned char *addr;
-volatile char buffer[128];
-volatile unsigned int last_usable_addr = 0;
-volatile char free = 0;
+char start = 0;
+unsigned char *addr;
+unsigned int last_usable_addr = 0;
+char free = 0;
 
 void putchar(char cin)
 {
@@ -43,14 +42,6 @@ char getchar()
 {
     while ((in(uart_lsr) & (1 << 0)) == 0);
     return in(uart_rbr);
-}
-
-void out_string(char *str)
-{
-    while (*str != 0)
-    {
-        putchar(*str++);
-    }
 }
 
 void Initialize_16450()
@@ -70,14 +61,13 @@ void main ()
 
     Initialize_16450();
 
-    out_string("iceZ0mb1e SoC by abnoname\r\n");
+    printf("iceZ0mb1e SoC by abnoname\r\n");
 
     out(port_a, in(port_a) | 0x01);
-    out(port_b, 0x54);    
-    sprintf(buffer, "Readback port_a = 0x%X, port_b = 0x%X \n\r", 
+    out(port_b, 0x54);
+    printf("Readback port_a = 0x%X, port_b = 0x%X \n\r",
         in(port_a), in(port_b)
-    ); 
-    out_string(buffer);
+    );
 
 	last_usable_addr = 0;
     addr = &free;
@@ -87,18 +77,18 @@ void main ()
         *(addr) = 0xAA;
         if(*(addr) != 0xAA)
         {
-            last_usable_addr = (int)addr;
             break;
         }
+        last_usable_addr = (int)addr;
         addr += 1;
     }
 
-    sprintf(buffer, "ready, start = 0x%X, last usable = 0x%X, ramsize = %u\n\r", 
+    printf("ready, start = 0x%X, last usable = 0x%X, ramsize = %u\n\r",
         (int)&start, last_usable_addr, last_usable_addr-(int)&start
     );
-    out_string(buffer);
 
     out(port_a, 0x02);
+
     while(1)
     {
         uart_rx = getchar();
