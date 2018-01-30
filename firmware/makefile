@@ -59,7 +59,7 @@ $(FIRMWARE_IMG).vhex: $(FIRMWARE_IMG).hex
 
 #Disassembler
 $(FIRMWARE_IMG).dasm: $(FIRMWARE_IMG).bin
-	z80dasm -t -g 0x0 -l $(FIRMWARE_IMG).bin -o $(FIRMWARE_IMG).dasm
+	$(DASM) -t -g 0x0 -l $(FIRMWARE_IMG).bin -o $(FIRMWARE_IMG).dasm
 
 #Clean:
 clean:
