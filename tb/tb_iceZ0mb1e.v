@@ -23,39 +23,32 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-module membram #(
-    parameter ADDR_WIDTH = 15,
-	parameter MEM_HEX = "",
-	parameter MEM_INIT = 0
-) (
-    wr_clk,
-    data_in,
-    wr_cs,
-    addr,
-    data_out,
-    rd_cs
-);
-    input wr_clk;
-    input[7:0] data_in;
-    input wr_cs;
-    input[ADDR_WIDTH-1:0] addr;
-    inout[7:0] data_out;
-    input rd_cs;
+`timescale 1us/1us
 
-    assign data_out = (rd_cs) ? mem_8[addr] : 8'bz;
+module tb_iceZ0mb1e;
 
-    reg [7:0] mem_8 [0:(1 << ADDR_WIDTH)-1];
     initial begin
-        if( MEM_INIT > 0 ) begin
-            $readmemh(MEM_HEX, mem_8);
-        end
+        $dumpfile(`__def_vcd_file);
+        $dumpvars(0, tb_iceZ0mb1e);
+
+        # 1E6 $finish;
     end
 
-    always @(posedge wr_clk)
-    begin
-        if (wr_cs) begin
-            mem_8[addr] <= data_in;
-        end
-    end
+    reg clk = 0;
+    always #1 clk = !clk;
+
+    inout [7:0] port_a;
+    inout [7:0] port_b;
+    wire rx;
+    wire tx;
+
+    iceZ0mb1e t1 (
+        .clk        (clk),
+        .txd        (tx),
+        .rxd        (rx),
+        .port_a     (port_a),
+        .port_b     (port_b),
+        .debug      ()
+    );
 
 endmodule

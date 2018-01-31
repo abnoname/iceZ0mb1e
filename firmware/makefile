@@ -23,44 +23,56 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+###############################################################################
 # usage e.g.:
 # make FIRMWARE_IMG=test CODE_LOCATION=0x0200 DATA_LOCATION=0x1000
-
+###############################################################################
 ARCH = mz80
 OBJ = crt0.rel ioport.rel main.rel
 
 all: $(FIRMWARE_IMG).bin $(FIRMWARE_IMG).hex $(FIRMWARE_IMG).vhex $(FIRMWARE_IMG).dasm
 
-#Tools
+###############################################################################
+# Tools
+###############################################################################
 CC = sdcc
 ASM = sdasz80
 DASM = z80dasm
 PACKIHX = packihx
 SRECCAT = srec_cat
 
-#Compile Files:
+###############################################################################
+# Compile Files
+###############################################################################
 %.rel : %.c
 	$(CC) -$(ARCH) -c $^
 
 %.rel : %.s
 	$(ASM) -glos $^
 
-#Linker
+###############################################################################
+# Linker
+###############################################################################
 $(FIRMWARE_IMG).hex: $(OBJ)
 	$(CC) -$(ARCH) $^ --no-std-crt0 --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION) -o _temp.ihx
 	$(PACKIHX) < _temp.ihx > $(FIRMWARE_IMG).hex
 
-#Output
+###############################################################################
+# Output
+###############################################################################
 $(FIRMWARE_IMG).bin: $(FIRMWARE_IMG).hex
 	$(SRECCAT) $(FIRMWARE_IMG).hex -intel -o $(FIRMWARE_IMG).bin -binary
 
 $(FIRMWARE_IMG).vhex: $(FIRMWARE_IMG).hex
-	$(SRECCAT) $(FIRMWARE_IMG).hex -intel -o $(FIRMWARE_IMG).vhex -VMem 8
+	#crop hex file to real ROM size
+	$(SRECCAT) $(FIRMWARE_IMG).hex -intel -crop 0x0 $(DATA_LOCATION) -o $(FIRMWARE_IMG).vhex -VMem 8
 
-#Disassembler
+###############################################################################
+# Disassembler
+###############################################################################
 $(FIRMWARE_IMG).dasm: $(FIRMWARE_IMG).bin
 	$(DASM) -t -g 0x0 -l $(FIRMWARE_IMG).bin -o $(FIRMWARE_IMG).dasm
 
-#Clean:
+###############################################################################
 clean:
 	rm -f *\.rel *\.ihx *\.sym *\.lst *\.map *\.noi *\.bin *\.dasm *\.asm *\.lnk *\.rel *\.def *\.hex *\.vhex *\.html *\.lk

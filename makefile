@@ -23,7 +23,9 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-#Hardware
+###############################################################################
+# Hardware
+###############################################################################
 SRC = ./tv80/rtl/core/tv80_alu.v \
 		./tv80/rtl/core/tv80_core.v \
 		./tv80/rtl/core/tv80_mcode.v \
@@ -35,15 +37,19 @@ SRC += ./rtl/uart16540toZ80.v
 SRC += ./rtl/simpleio.v
 SRC += ./rtl/membram.v
 SRC += ./rtl/iceZ0mb1e.v
-TESTBENCH = ./testbench/tb_top.v
+TESTBENCH = ./tb/tb_iceZ0mb1e.v
 
-#Software
+###############################################################################
+# Software
+###############################################################################
 FIRMWARE_DIR = ./firmware
 FIRMWARE_IMG = iceZ0mb1e
 CODE_LOCATION = 0x0200
 DATA_LOCATION = 0x2000
 
-#Default
+###############################################################################
+# Default
+###############################################################################
 TARGET = 5k
 
 ifeq ($(TARGET),1k)
@@ -64,19 +70,22 @@ else ifeq ($(TARGET),8k)
 	ARACHNEFLAGS = -d 8k
 	FPGA_PINMAP = ./pinmap/hx8k.pcf
 else
-	##
 endif
 
-#Tool Output
-VCD_OUT = ./simulation/test.vcd	#THIS NEEDS TO MATCH THE OUTPUT FILE FROM YOUR TESTBENCH
-COMPILE_OUT = ./synthesis/_compiler.out
+###############################################################################
+# Tool Output
+###############################################################################
+VCD_OUT = ./simulation/_test.vcd
+COMPILE_OUT = ./simulation/_compiler.out
 SYNTH_OUT = ./synthesis/_synth_output.v
 FPGA_BLIF_OUT = ./synthesis/_fpga.blif
 FPGA_TXT_OUT = ./synthesis/_fpga.txt
 FPGA_EX_OUT = ./synthesis/_fpga.ex
 FPGA_BIN_OUT = ./synthesis/_fpga.bin
 
-#Tools
+###############################################################################
+# Tools
+###############################################################################
 COMPILER = iverilog
 SIMULATOR = vvp
 VIEWER = gtkwave
@@ -88,29 +97,36 @@ ICEPROG = sudo iceprog $(ICEPROG_PARAM)
 QFLOW = qflow
 
 #Tool Options
-COFLAGS = -v -o
+YOSYSFLAGS = -f "verilog -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\"" -p "synth_ice40 -blif $(FPGA_BLIF_OUT);"
+COFLAGS = -s tb_iceZ0mb1e -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\" -D__def_vcd_file=\"$(VCD_OUT)\"
 SFLAGS = -v
 SOUTPUT = -lxt
 
 ###############################################################################
-
+# Firmware
+###############################################################################
 .PHONY: firmware
 firmware:
 	$(MAKE) -C $(FIRMWARE_DIR) clean
 	$(MAKE) -C $(FIRMWARE_DIR) FIRMWARE_IMG=$(FIRMWARE_IMG) CODE_LOCATION=$(CODE_LOCATION) DATA_LOCATION=$(DATA_LOCATION)
 
-compile : $(TESTBENCH) $(SRC)
-	$(COMPILER) -v $(TESTBENCH) $(SRC) -o $(COMPILE_OUT)
+###############################################################################
+# Simulation
+###############################################################################
+$(COMPILE_OUT): $(TESTBENCH) $(SRC)
+	$(COMPILER) $(COFLAGS) -o $(COMPILE_OUT) $(TESTBENCH) $(SRC)
 
-sim: $(COMPILE_OUT)
+$(VCD_OUT): $(COMPILE_OUT)
 	$(SIMULATOR) $(SFLAGS) $(COMPILE_OUT) $(SOUTPUT)
+
+sim: firmware $(COMPILE_OUT) $(VCD_OUT)
 	$(VIEWER) $(VCD_OUT)
 
+###############################################################################
+# Synthesis
+###############################################################################
 fpga: $(SRC) $(FPGA_PINMAP) firmware
-	$(YOSYS) -q -o $(SYNTH_OUT) \
-		-f "verilog -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\"" \
-		-p "synth_ice40 -blif $(FPGA_BLIF_OUT);" \
-		$(SRC)
+	$(YOSYS) -q -o $(SYNTH_OUT) $(YOSYSFLAGS) $(SRC)
 	$(ARACHNEPNR) $(ARACHNEFLAGS) -p $(FPGA_PINMAP) $(FPGA_BLIF_OUT) -o $(FPGA_TXT_OUT)
 	$(ICEBOXEXPLAIN) $(FPGA_TXT_OUT) > $(FPGA_EX_OUT)
 	$(ICEPACK) $(FPGA_TXT_OUT) $(FPGA_BIN_OUT)
@@ -118,6 +134,7 @@ fpga: $(SRC) $(FPGA_PINMAP) firmware
 flash: $(FPGA_BIN_OUT)
 	$(ICEPROG) $(FPGA_BIN_OUT)
 
+###############################################################################
 clean:
 	$(MAKE) -C $(FIRMWARE_DIR) clean
 	rm -f ./source/*.blif
@@ -127,9 +144,3 @@ clean:
 	rm -f ./layout/*
 	rm -f ./simulation/*
 	rm -f ./synthesis/*
-
-$(VCD_OUT): $(COMPILE_OUT)
-	$(SIMULATOR) $(SOPTIONS) $(COMPILE_OUT) $(SOUTPUT)
-
-$(COMPILE_OUT): $(TESTBENCH) $(SRC)
-	$(COMPILER) $(COFLAGS) $(COMPILE_OUT) $(TESTBENCH) $(SRC)

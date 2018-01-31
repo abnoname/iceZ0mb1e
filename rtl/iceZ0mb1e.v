@@ -24,29 +24,29 @@
 //
 
 module iceZ0mb1e (
-	input clk, 
-	output txd, 
-	input rxd, 
-	inout[7:0] port_a, 
-	inout[7:0] port_b, 
+	input clk,
+	output txd,
+	input rxd,
+	inout[7:0] port_a,
+	inout[7:0] port_b,
 	output debug
 );
 
-	reg         reset_n; 
+	reg         reset_n;
 
 	//Z80 Bus:
-	reg         wait_n; 
-	reg         int_n; 
-	reg         nmi_n; 
-	reg         busrq_n; 
-	wire        m1_n; 
-	wire        mreq_n; 
-	wire        iorq_n; 
-	wire        rd_n; 
-	wire        wr_n; 
-	wire        rfsh_n; 
-	wire        halt_n; 
-	wire        busak_n; 
+	reg         wait_n;
+	reg         int_n;
+	reg         nmi_n;
+	reg         busrq_n;
+	wire        m1_n;
+	wire        mreq_n;
+	wire        iorq_n;
+	wire        rd_n;
+	wire        wr_n;
+	wire        rfsh_n;
+	wire        halt_n;
+	wire        busak_n;
 	wire [15:0] addr;
 	wire [7:0]  data_in;
 	wire [7:0]  data_out;
@@ -61,12 +61,12 @@ module iceZ0mb1e (
 		3'd 0 : begin reset_n <= 1'b 0; reset_state <= 3'd 1; end
 		3'd 1 : begin reset_n <= 1'b 0; reset_state <= 3'd 2; end
 		3'd 2 : begin reset_n <= 1'b 0; reset_state <= 3'd 3; end
-		3'd 3 : begin 
-			reset_n <= 1'b 0; reset_state <= 3'd 4; 
+		3'd 3 : begin
+			reset_n <= 1'b 0; reset_state <= 3'd 4;
 			wait_n <= 1;
 			int_n  <= 1;
 			nmi_n  <= 1;
-			busrq_n <= 1;			
+			busrq_n <= 1;
 		end
 		3'd 4 : begin reset_n <= 1'b 1; end
 		default : begin reset_state <= 3'd 0; end
@@ -83,7 +83,7 @@ module iceZ0mb1e (
 	//Memory Address Decoder:
 	assign rom_rd_cs = !mreq_n & !rd_n & (addr  < 15'h2000);
 	assign ram_rd_cs = !mreq_n & !rd_n & (addr >= 15'h2000) & (addr < 15'h3000);
-	assign ram_wr_cs = !mreq_n & !wr_n & (addr >= 15'h2000) & (addr < 15'h3000);	
+	assign ram_wr_cs = !mreq_n & !wr_n & (addr >= 15'h2000) & (addr < 15'h3000);
 
 	tv80s tv80s_inst
 	(
@@ -127,25 +127,25 @@ module iceZ0mb1e (
 	);
 
 	simpleio ioporta
-	(    
+	(
 		.clk		(clk),
 		.reset_n	(reset_n),
-		.data_out	(data_in), 
-		.data_in	(data_out), 
+		.data_out	(data_in),
+		.data_in	(data_out),
 		.cs_n		(port_cs_n),
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),
 		.addr		(addr[1:0]),
 		.P1			(port_a),
 		.P2			(port_b)
-	);	
+	);
 
 	uart16540toZ80 uart0
-	(    
+	(
 		.clk		(clk),
 		.reset_n	(reset_n),
-		.data_out	(data_in), 
-		.data_in	(data_out), 
+		.data_out	(data_in),
+		.data_in	(data_out),
 		.cs_n		(uart_cs_n),
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),
