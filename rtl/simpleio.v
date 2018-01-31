@@ -33,28 +33,32 @@ module simpleio (
     input wr_n,
     input[1:0] addr,
     inout[7:0] P1,
-    inout[7:0] P2    
+    inout[7:0] P2
 );
+    reg[7:0] out_port_1, out_port_2;
 
-    always @(*)
-    begin
-        if ( !cs_n & !rd_n & wr_n ) begin
-            case(addr)
-                2'b 00 : data_out = P1;
-                2'b 01 : data_out = P2;
-                default : data_out = 8'bz;
-            endcase
-        end else begin
-            data_out = 8'bz;
-        end
-    end
+    //0 = write, 1 = read
+    reg mode_port_1, mode_port_2;
+
+    assign P1 = (mode_port_1 == 1'b 0) ? out_port_1 : 1'bz;
+    assign P2 = (mode_port_2 == 1'b 0) ? out_port_2 : 1'bz;
+
+    assign data_out =
+        (!cs_n & !rd_n & wr_n & (addr==2'b00)) ? P1 :
+        (!cs_n & !rd_n & wr_n & (addr==2'b01)) ? P2 :
+        8'bz;
 
     always @(posedge clk)
     begin
         if ( !cs_n & rd_n & !wr_n ) begin
             case(addr)
-                2'b 00 : P1 <= data_in;
-                2'b 01 : P2 <= data_in;
+                2'b 00 : out_port_1 <= data_in;
+                2'b 01 : out_port_2 <= data_in;
+                2'b 11 :
+                    begin
+                        mode_port_1 <= data_in[0];
+                        mode_port_2 <= data_in[1];
+                    end
             endcase
         end
     end
