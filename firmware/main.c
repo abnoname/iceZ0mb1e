@@ -63,7 +63,8 @@ void main ()
 
     printf("iceZ0mb1e SoC by abnoname\r\n");
 
-    out(port_a, in(port_a) | 0x01);
+    out(port_cfg, 0x00); //mode = output
+    out(port_a, 0x01);
     out(port_b, 0x54);
     printf("Readback port_a = 0x%X, port_b = 0x%X \n\r",
         in(port_a), in(port_b)

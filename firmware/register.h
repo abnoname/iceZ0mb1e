@@ -37,7 +37,8 @@
 #define uart_msr 0x1e
 #define uart_scr 0x1f
 
-#define port_a  0x40
-#define port_b  0x41
+#define port_a   0x40
+#define port_b   0x41
+#define port_cfg 0x42
 
 #endif

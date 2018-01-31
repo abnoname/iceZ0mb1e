@@ -40,7 +40,7 @@ module tb_iceZ0mb1e;
     inout [7:0] port_a;
     inout [7:0] port_b;
     wire rx;
-    wire tx;
+    wire tx = 0;
 
     iceZ0mb1e t1 (
         .clk        (clk),

@@ -35,32 +35,37 @@ module simpleio (
     inout[7:0] P1,
     inout[7:0] P2
 );
-    reg[7:0] out_port_1, out_port_2;
+    `define MODE_WR 1'b0
+    `define MODE_RD 1'b1
+    reg[7:0] cfgreg;
 
-    //0 = write, 1 = read
-    reg mode_port_1, mode_port_2;
+    wire read_sel = !cs_n & !rd_n & wr_n;
+    wire write_sel = !cs_n & rd_n & !wr_n;
 
-    assign P1 = (mode_port_1 == 1'b 0) ? out_port_1 : 1'bz;
-    assign P2 = (mode_port_2 == 1'b 0) ? out_port_2 : 1'bz;
+    reg[7:0] out_1, out_2;
+    reg[7:0] in_1, in_2;
 
-    assign data_out =
-        (!cs_n & !rd_n & wr_n & (addr==2'b00)) ? P1 :
-        (!cs_n & !rd_n & wr_n & (addr==2'b01)) ? P2 :
-        8'bz;
+    wire[7:0] read_port =
+        (addr == 2'b00) ? ((cfgreg[0] == `MODE_RD) ? in_1 : out_1) :
+        (addr == 2'b01) ? ((cfgreg[1] == `MODE_RD) ? in_2 : out_2) :
+        8'h00;
+
+    assign P1 = (cfgreg[0] == `MODE_WR) ? out_1 : 8'bz;
+    assign P2 = (cfgreg[1] == `MODE_WR) ? out_2 : 8'bz;
+
+	assign data_out = (read_sel) ? read_port : 8'bz;
 
     always @(posedge clk)
     begin
-        if ( !cs_n & rd_n & !wr_n ) begin
+        if ( write_sel ) begin
             case(addr)
-                2'b 00 : out_port_1 <= data_in;
-                2'b 01 : out_port_2 <= data_in;
-                2'b 11 :
-                    begin
-                        mode_port_1 <= data_in[0];
-                        mode_port_2 <= data_in[1];
-                    end
+                2'b00 : out_1 <= data_in;
+                2'b01 : out_2 <= data_in;
+                2'b10 : cfgreg <= data_in;
             endcase
         end
+        in_1 <= P1;
+        in_2 <= P2;
     end
 
 endmodule

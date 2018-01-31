@@ -37,13 +37,13 @@ The included test firmware will check the RAM size and write some data to IO por
 </p>
 
 ### Installation of yosys toolchain
-Installation of essentials for building and running yosys, icestorm and arachne-pnr toolchain:
+Installation of essentials for building and running yosys, icestorm and arachne-pnr toolchain (Ubuntu 16.04):
 ```
 sudo apt-get install build-essential clang bison flex libreadline-dev gawk tcl-dev libffi-dev pkg-config python cmake libftdi-dev
 ```
 ### Installation of verilog simulator
 ```
-sudo apt-get install iverilog
+sudo apt-get install iverilog gtkwave
 ```
 
 Get yosys, icestorm and arachne-pnr (latest version supports Lattice UltraPlus):

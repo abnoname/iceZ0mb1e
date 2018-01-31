@@ -47,7 +47,7 @@ module uart16540toZ80 (
 	wire out2_n;
 	wire baudout;
 	wire intr;
-	
+
 	assign data_out = (!cs_n & !rd_n) ? uart_rd_data : 8'bz;
 
 	T16450 uart0
