@@ -28,6 +28,9 @@ The included test firmware will check the RAM size and write some data to IO por
 * UltraPlus 5K (default target): ```make firmware && make fpga && make flash```
 * HX8K: ```make firmware TARGET=8k && make fpga TARGET=8k && make flash TARGET=8k```
 
+### Simulate
+```make sim```
+
 ### Running SoC
 <p align="center">
   <img src="https://raw.githubusercontent.com/abnoname/abnoname.github.io/master/img/iceZ0mb1e/Terminal.png" width="350"/>
