@@ -42,11 +42,10 @@
 #define port_cfg 0x42
 
 #define i2c_status  0x50
-#define i2c_cmdaddr 0x52
+#define i2c_nbyte   0x51
+#define i2c_addr    0x52
 #define i2c_cmd     0x53
-#define i2c_dat_out 0x54
-#define i2c_dat_in  0x55
-#define i2c_clk_l   0x56
-#define i2c_clk_h   0x57
+#define i2c_dat_in  0x54
+#define i2c_dat_out 0x55
 
 #endif

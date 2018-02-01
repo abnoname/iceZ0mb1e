@@ -33,9 +33,11 @@ SRC = ./import/tv80/rtl/core/tv80_alu.v \
 		./import/tv80/rtl/core/tv80_reg.v \
 		./import/tv80/rtl/core/tv80s.v
 SRC += ./import/tv80/rtl/uart/T16450.v
-SRC += ./import/verilog-i2c/rtl/i2c_master.v
+SRC += ./rtl/clk_divider.v
+SRC += ./rtl/clk_enable.v
+SRC += ./rtl/simplei2c.v
 SRC += ./rtl/uart16540toZ80.v
-SRC += ./rtl/i2cmastertoZ80.v
+SRC += ./rtl/simplei2ctoZ80.v
 SRC += ./rtl/simpleio.v
 SRC += ./rtl/membram.v
 SRC += ./rtl/iceZ0mb1e.v

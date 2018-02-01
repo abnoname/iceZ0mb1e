@@ -28,7 +28,7 @@
 # make FIRMWARE_IMG=test CODE_LOCATION=0x0200 DATA_LOCATION=0x1000
 ###############################################################################
 ARCH = mz80
-OBJ = crt0.rel ioport.rel main.rel
+OBJ = crt0.rel ioport.rel ssd1306.rel main.rel
 
 all: $(FIRMWARE_IMG).bin $(FIRMWARE_IMG).hex $(FIRMWARE_IMG).vhex $(FIRMWARE_IMG).dasm
 

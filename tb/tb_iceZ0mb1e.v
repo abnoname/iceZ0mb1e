@@ -39,6 +39,7 @@ module tb_iceZ0mb1e;
 
     inout [7:0] port_a;
     inout [7:0] port_b;
+    inout i2c_scl, i2c_sda;
     wire rx;
     wire tx = 0;
 
@@ -46,6 +47,8 @@ module tb_iceZ0mb1e;
         .clk        (clk),
         .txd        (tx),
         .rxd        (rx),
+        .i2c_scl	(i2c_scl),
+		.i2c_sda	(i2c_sda),
         .port_a     (port_a),
         .port_b     (port_b),
         .debug      ()

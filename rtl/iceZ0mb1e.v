@@ -27,11 +27,8 @@ module iceZ0mb1e (
 	input clk,
 	output txd,
 	input rxd,
-	output i2c_scl_oe,
-	output i2c_scl_o,
-	output i2c_sda_oe,
-	output i2c_sda_o,
-	input i2c_sda_i,
+	output i2c_scl,
+	inout i2c_sda,
 	inout[7:0] port_a,
 	inout[7:0] port_b,
 	output debug
@@ -168,12 +165,9 @@ module iceZ0mb1e (
 		.cs_n		(i2c_cs_n),
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),
-		.addr		(addr[2:0]),
-		.i2c_scl_oe (i2c_scl_oe),
-		.i2c_scl_o	(i2c_scl_o),
-		.i2c_sda_oe (i2c_sda_oe),
-		.i2c_sda_o	(i2c_sda_o),
-		.i2c_sda_i	(i2c_sda_i)
+		.addr		(addr[3:0]),
+		.i2c_scl	(i2c_scl),
+		.i2c_sda	(i2c_sda)
 	);
 
 endmodule

@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include "register.h"
 #include "ioport.h"
+#include "ssd1306.h"
 
 char start = 0;
 unsigned char *addr;
@@ -55,14 +56,52 @@ void Initialize_16450()
     out(uart_mcr, 0x00);
 }
 
+void delay(int t)
+{
+    volatile int i;
+    for(i = 0; i < t; i++);
+}
+
+// void sendCommand(unsigned char command)
+// {
+//     out(i2c_addr, 0x3C);
+//     out(i2c_nbyte, 2);
+//     out(i2c_dat_out_0, SSD1306_Command_Mode);
+//     out(i2c_cmd, 0x00 | 0x1); //WR, Cont, Start
+//     out(i2c_cmd, 0); //WR, Reset Start
+//     while((in(i2c_status) & 0x04) == 0); //wait for request
+//     out(i2c_dat_out_0, command);
+//     out(i2c_cmd, 0x00 | 0x2); //WR, Cont
+//     out(i2c_cmd, 0); //WR, Reset Start
+//     while((in(i2c_status) & 0x01) == 0);
+// }
+
 void main ()
 {
     char uart_rx = 0;
 
-    Initialize_16450();
+/*     //I2C Test
+    out(i2c_addr, 0x3C);
+    out(i2c_nbyte, 1);
+    out(i2c_dat_out, 0x81);
+    out(i2c_cmd, 0x00 | 0x1); //WR, Cont, Start
+    out(i2c_cmd, 0); //WR, Reset Start
+    while((in(i2c_status) & 0x01) == 0);
 
+    delay(20); */
+
+    //I2C OLED display test:
+    ssd1306_init(0x3C);
+    ssd1306_clear();
+    ssd1306_setPixel(32,32, 0xFFFFFFFF);
+    ssd1306_setPixel(64,64, 0xFFFFFFFF);
+    ssd1306_update();
+
+    //UART Test
+    Initialize_16450();
     printf("iceZ0mb1e SoC by abnoname\r\n");
 
+    //LED IO
     out(port_cfg, 0x00); //mode = output
     out(port_a, 0x01);
     out(port_b, 0x54);
@@ -70,6 +109,7 @@ void main ()
         in(port_a), in(port_b)
     );
 
+    //RAM Test
 	last_usable_addr = 0;
     addr = &free;
     while((unsigned int)addr < 0xFFFF)
@@ -83,13 +123,13 @@ void main ()
         last_usable_addr = (int)addr;
         addr += 1;
     }
-
     printf("ready, start = 0x%X, last usable = 0x%X, ramsize = %u\n\r",
         (int)&start, last_usable_addr, last_usable_addr-(int)&start
     );
 
     out(port_a, 0x02);
 
+    //UART Terminal
     while(1)
     {
         uart_rx = getchar();
