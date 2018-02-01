@@ -27,6 +27,11 @@ module iceZ0mb1e (
 	input clk,
 	output txd,
 	input rxd,
+	output i2c_scl_oe,
+	output i2c_scl_o,
+	output i2c_sda_oe,
+	output i2c_sda_o,
+	input i2c_sda_i,
 	inout[7:0] port_a,
 	inout[7:0] port_b,
 	output debug
@@ -73,13 +78,14 @@ module iceZ0mb1e (
 		endcase
 	end
 
-	wire uart_cs_n, port_cs_n;
+	wire uart_cs_n, port_cs_n, i2c_cs_n;
 	wire ram_rd_cs, ram_wr_cs, rom_rd_cs;
 
 	//I/O Address, Note:
 	// only the lower 8-bits in peripheral mapped I/O are used to address I/O by the Z80 this means 256 ports
 	assign uart_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h18) & (addr[7:0] < 15'h20)); // UART base 0x18
-	assign port_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h40) & (addr[7:0] < 15'h44)); // PORT base 0x40
+	assign port_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h40) & (addr[7:0] < 15'h50)); // PORT base 0x40
+	assign i2c_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h50) & (addr[7:0] < 15'h60)); // i2c base 0x50
 	//Memory Address Decoder:
 	assign rom_rd_cs = !mreq_n & !rd_n & (addr  < 15'h2000);
 	assign ram_rd_cs = !mreq_n & !rd_n & (addr >= 15'h2000) & (addr < 15'h3000);
@@ -152,6 +158,22 @@ module iceZ0mb1e (
 		.addr		(addr[2:0]),
 		.rx			(rxd),
 		.tx			(txd)
+	);
+
+	i2cmastertoZ80 i2c0 (
+		.clk		(clk),
+		.reset_n	(reset_n),
+		.data_out	(data_in),
+		.data_in	(data_out),
+		.cs_n		(i2c_cs_n),
+		.rd_n		(rd_n),
+		.wr_n		(wr_n),
+		.addr		(addr[2:0]),
+		.i2c_scl_oe (i2c_scl_oe),
+		.i2c_scl_o	(i2c_scl_o),
+		.i2c_sda_oe (i2c_sda_oe),
+		.i2c_sda_o	(i2c_sda_o),
+		.i2c_sda_i	(i2c_sda_i)
 	);
 
 endmodule

@@ -23,10 +23,10 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-module top(output txd, input rxd, output LED_R, output LED_G, output LED_B, output debug);
+module top(output txd, input rxd, output LED_R, output LED_G, output LED_B, inout i2c_scl, inout i2c_sda);
 
 	wire clk;
-	
+
 	wire[7:0] port_a;
 	wire[7:0] port_b;
 
@@ -41,13 +41,28 @@ module top(output txd, input rxd, output LED_R, output LED_G, output LED_B, outp
 		.CLKHF(clk)
 	);
 
+	wire sb_io_scl_oe;
+	wire sb_io_scl_o;
+	wire sb_io_sda_oe;
+	wire sb_io_sda_o;
+	wire sb_io_sda_i;
+
+	assign i2c_scl = sb_io_scl_oe ? 1'bz : sb_io_scl_o;
+	assign i2c_sda = sb_io_sda_oe ? 1'bz : sb_io_sda_o;
+	assign sb_io_sda_i = i2c_sda;
+
 	iceZ0mb1e core (
-		.clk	(clk),
-		.txd	(txd),
-		.rxd	(rxd),
-		.port_a	(port_a),
-		.port_b	(port_b),
-		.debug	(debug)
+		.clk		(clk),
+		.txd		(txd),
+		.rxd		(rxd),
+		.i2c_scl_oe	(sb_io_scl_oe),
+		.i2c_scl_o	(sb_io_scl_o),
+		.i2c_sda_oe (sb_io_sda_oe),
+		.i2c_sda_o	(sb_io_sda_o),
+		.i2c_sda_i	(sb_io_sda_i),
+		.port_a		(port_a),
+		.port_b		(port_b),
+		.debug		()
 	);
 
 endmodule

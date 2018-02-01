@@ -29,7 +29,7 @@ The included test firmware will check the RAM size and write some data to IO por
 * HX8K: ```make firmware TARGET=8k && make fpga TARGET=8k && make flash TARGET=8k```
 
 ### Simulate
-```make sim```
+* ```make sim```
 
 ### Running SoC
 <p align="center">
@@ -39,52 +39,47 @@ The included test firmware will check the RAM size and write some data to IO por
   <img src="https://raw.githubusercontent.com/abnoname/abnoname.github.io/master/img/iceZ0mb1e/IMG_20180130_003538.jpg" width="350"/>
 </p>
 
-### Installation of yosys toolchain
+### Installing yosys toolchain
 Installation of essentials for building and running yosys, icestorm and arachne-pnr toolchain (Ubuntu 16.04):
 ```
-sudo apt-get install build-essential clang bison flex libreadline-dev gawk tcl-dev libffi-dev pkg-config python cmake libftdi-dev
-```
-### Installation of verilog simulator
-```
-sudo apt-get install iverilog gtkwave
+sudo apt-get install build-essential clang bison flex \
+                     libreadline-dev gawk tcl-dev libffi-dev \
+                     pkg-config python cmake libftdi-dev
 ```
 
-Get yosys, icestorm and arachne-pnr (latest version supports Lattice UltraPlus):
+Get yosys, icestorm and arachne-pnr (latest version supports Lattice UltraPlus) and compile toolchain:
 ```
 git clone https://github.com/cliffordwolf/icestorm.git
-```
-```
-git clone https://github.com/cseed/arachne-pnr.git
-```
-```
-git clone https://github.com/cliffordwolf/yosys.git
-```
-
-Compile toolchain:
-```
 cd ./icestorm/
 make clean
 make -j$(nproc)
 sudo make install
 ```
 ```
+git clone https://github.com/cseed/arachne-pnr.git
 cd ./arachne-pnr/
 make clean
 make -j$(nproc)
 sudo make install
 ```
 ```
+git clone https://github.com/cliffordwolf/yosys.git
 cd ./yosys/
 make clean
 make -j$(nproc)
 sudo make install
 ```
 
-### Installation of SDCC toolchain
+### Installing verilog simulator
+```
+sudo apt-get install iverilog gtkwave
+```
+
+### Installing SDCC toolchain
 ```
 sudo apt-get install sdcc sdcc-doc sdcc-libraries sdcc-ucsim z80asm z80dasm z88dk z88dk-bin z88dk-data z88dk-doc srecord
 ```
 
-### Why iceZ0mb1e
+### Why iceZ0mb1e?
 * Because it is inspired by redz0mb1e project from fpgakuechle (http://www.mikrocontroller.net/svnbrowser/redz0mb1e/).
 * I ported redz0mb1e to Altera DE1 several years ago (http://abnoname.blogspot.de/2013/07/z1013-auf-fpga-portierung-fur-altera-de1.html).

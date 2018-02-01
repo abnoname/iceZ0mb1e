@@ -26,14 +26,16 @@
 ###############################################################################
 # Hardware
 ###############################################################################
-SRC = ./tv80/rtl/core/tv80_alu.v \
-		./tv80/rtl/core/tv80_core.v \
-		./tv80/rtl/core/tv80_mcode.v \
-		./tv80/rtl/core/tv80n.v \
-		./tv80/rtl/core/tv80_reg.v \
-		./tv80/rtl/core/tv80s.v
-SRC += ./tv80/rtl/uart/T16450.v
+SRC = ./import/tv80/rtl/core/tv80_alu.v \
+		./import/tv80/rtl/core/tv80_core.v \
+		./import/tv80/rtl/core/tv80_mcode.v \
+		./import/tv80/rtl/core/tv80n.v \
+		./import/tv80/rtl/core/tv80_reg.v \
+		./import/tv80/rtl/core/tv80s.v
+SRC += ./import/tv80/rtl/uart/T16450.v
+SRC += ./import/verilog-i2c/rtl/i2c_master.v
 SRC += ./rtl/uart16540toZ80.v
+SRC += ./rtl/i2cmastertoZ80.v
 SRC += ./rtl/simpleio.v
 SRC += ./rtl/membram.v
 SRC += ./rtl/iceZ0mb1e.v
@@ -93,7 +95,7 @@ YOSYS = yosys
 ARACHNEPNR = arachne-pnr
 ICEBOXEXPLAIN = icebox_explain
 ICEPACK = icepack
-ICEPROG = sudo iceprog $(ICEPROG_PARAM)
+ICEPROG = sudo iceprog
 QFLOW = qflow
 
 #Tool Options
@@ -132,7 +134,10 @@ fpga: $(SRC) $(FPGA_PINMAP) firmware
 	$(ICEPACK) $(FPGA_TXT_OUT) $(FPGA_BIN_OUT)
 
 flash: $(FPGA_BIN_OUT)
-	$(ICEPROG) $(FPGA_BIN_OUT)
+	$(ICEPROG) $(ICEPROG_PARAM) $(FPGA_BIN_OUT)
+
+sram: $(FPGA_BIN_OUT)
+	$(ICEPROG) -s $(ICEPROG_PARAM) $(FPGA_BIN_OUT)
 
 ###############################################################################
 clean:
