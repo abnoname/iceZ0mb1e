@@ -59,6 +59,9 @@ module simplei2c(
     `define MODE_WR 1'b0
     `define MODE_RD 1'b1
 
+	reg[1:0] sync_start;
+	wire start_edge = (sync_start == 2'b01);
+
 	reg [7:0] data_read;
 	reg req_next_byte;
 	reg xfer_ready;
@@ -78,15 +81,17 @@ module simplei2c(
 	always @(posedge clk) begin
 		if (reset == 1'b1) begin
 			fsm_state <= STATE_IDLE;
+			sync_start <= 2'b00;
 			req_next_byte <= 1'b0;
 			xfer_ready <= 1'b0;
 		end	else begin
 			if (clk_i2c_en == 1'b1) begin
+				sync_start <= {sync_start[0], start};
 				case(fsm_state)
 					STATE_IDLE: begin
 						i2c_sda <= 1'b1;
 						i2c_scl <= 1'b1;
-						if (start) begin
+						if (start_edge) begin
 							xfer_ready <= 1'b0;
 							req_next_byte <= 1'b0;
 							fsm_state <= STATE_START_L;
@@ -155,7 +160,7 @@ module simplei2c(
 						i2c_scl <= 1'b1;
 						if (bit_count == 0) begin
 							req_next_byte <= 1;
-							if ( (start == 1'b1) || (local_byte_count == 16'd1) ) begin //last byte
+							if ( (start_edge == 1'b1) || (local_byte_count == 16'd1) ) begin //last byte
 								fsm_state <= STATE_ACK_L;
 								local_byte_count <= local_byte_count - 1;
 							end

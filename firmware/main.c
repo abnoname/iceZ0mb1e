@@ -68,6 +68,10 @@ void main ()
     int8_t uart_rx = 0;
     int16_t x, y;
 
+    //UART Test
+    Initialize_16450();
+    //printf("iceZ0mb1e SoC by abnoname\r\n");
+
     //I2C OLED display test:
     ssd1306_init(0x3C);
     ssd1306_clear();
@@ -79,10 +83,6 @@ void main ()
         }
     }
     ssd1306_update();
-
-    //UART Test
-    Initialize_16450();
-    printf("iceZ0mb1e SoC by abnoname\r\n");
 
     //LED IO
     out(port_cfg, 0x00); //mode = output

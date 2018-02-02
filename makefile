@@ -42,6 +42,7 @@ SRC += ./rtl/simpleio.v
 SRC += ./rtl/membram.v
 SRC += ./rtl/iceZ0mb1e.v
 TESTBENCH = ./tb/tb_iceZ0mb1e.v
+GTKW_FILE = ./tb/tb_iceZ0mb1e.gtkw
 
 ###############################################################################
 # Software
@@ -124,7 +125,7 @@ $(VCD_OUT): $(COMPILE_OUT)
 	$(SIMULATOR) $(SFLAGS) $(COMPILE_OUT) $(SOUTPUT)
 
 sim: firmware $(COMPILE_OUT) $(VCD_OUT)
-	$(VIEWER) $(VCD_OUT)
+	$(VIEWER) -g -a $(GTKW_FILE) $(VCD_OUT)
 
 ###############################################################################
 # Synthesis

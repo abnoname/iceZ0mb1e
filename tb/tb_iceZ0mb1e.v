@@ -31,7 +31,7 @@ module tb_iceZ0mb1e;
         $dumpfile(`__def_vcd_file);
         $dumpvars(0, tb_iceZ0mb1e);
 
-        # 1E6 $finish;
+        # 250E3 $finish;
     end
 
     reg clk = 0;

@@ -40,17 +40,16 @@ module i2cmastertoZ80 (
     wire write_sel = !cs_n & rd_n & !wr_n;
 
 	wire[7:0] reg_status;
-	reg[15:0] reg_byte_count;
-	reg[7:0] reg_address;
-	reg[7:0] reg_command;
-	reg[7:0] reg_data_wr;
+	reg[15:0] reg_byte_count = 16'h0;
+	reg[7:0] reg_address = 8'h0;
+	reg[7:0] reg_command = 8'h0;
+	reg[7:0] reg_data_wr = 8'h0;
 	wire[7:0] reg_data_rd;
-	reg[7:0] reg_prescale_low;
-	reg[7:0] reg_prescale_high;
+	reg[7:0] reg_prescale_low = 8'h0;
+	reg[7:0] reg_prescale_high = 8'h0;
 
     wire[7:0] read_data =
         (addr == 4'h00) ? reg_status :
-		//(addr == 4'h01) ? reg_nbytes :
 		(addr == 4'h02) ? reg_address :
 		(addr == 4'h03) ? reg_command :
 		(addr == 4'h04) ? reg_data_rd :
@@ -65,7 +64,6 @@ module i2cmastertoZ80 (
     begin
         if ( write_sel ) begin
             case(addr)
-				4'h01 : reg_nbytes <= data_in;
 				4'h02 : reg_address <= data_in;
 				4'h03 : reg_command <= data_in;
 				4'h05 : reg_data_wr[7:0] <= data_in;

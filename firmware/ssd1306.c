@@ -39,17 +39,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "ioport.h"
 #include "register.h"
 #include "ssd1306.h"
 
 uint8_t ssd1306_i2c_addr;
-
-// display memory buffer ( === MUST INCLUDE === the preceding I2C 0x40 control byte for the display)
-uint8_t ssd1306_buffer[SSD1306_HEIGHT * SSD1306_WIDTH / 8 + 1] = { 0x40 };
+uint8_t ssd1306_buffer[(uint16_t)SSD1306_HEIGHT * (uint16_t)SSD1306_WIDTH / 8 + 1];
 // pointer to actual display memory buffer
-uint8_t* ssd1306_displaybuf = ssd1306_buffer+1;
-uint16_t ssd1306_displaybuf_size = sizeof(ssd1306_buffer) - 1;
+uint8_t* ssd1306_displaybuf;
+uint16_t ssd1306_displaybuf_size;
 
 // see data sheet page 25 for Graphic Display Data RAM organization
 // 8 pages, each page a row of ssd1306_WIDTH bytes
@@ -97,6 +96,10 @@ void ssd1306_init( uint8_t i2caddr )
         SSD1306_DISPLAYON
     };
 
+    // display memory buffer ( === MUST INCLUDE === the preceding I2C 0x40 control byte for the display)
+    ssd1306_buffer[0] = 0x40;
+    ssd1306_displaybuf = ssd1306_buffer+1;
+    ssd1306_displaybuf_size = (uint32_t)sizeof(ssd1306_buffer) - 1;
     ssd1306_i2c_addr = i2caddr;
 
     ssd1306_write_buf( cmdbuf, sizeof(cmdbuf) );
@@ -107,37 +110,35 @@ void ssd1306_update(void)
     uint8_t cmdbuf[] = {
         0x00,
         SSD1306_COLUMNADDR,
-        0,                      // start
+        0, // start
         SSD1306_WIDTH-1, // end
         SSD1306_PAGEADDR,
-        0,                      // start
-        7                       // end
+        0, // start
+        7 // end
     };
     ssd1306_write_buf( cmdbuf, sizeof(cmdbuf) );
     ssd1306_write_buf( ssd1306_buffer, sizeof(ssd1306_buffer) );
 }
 
-uint32_t ssd1306_write_buf( uint8_t* buf, uint16_t size )
+void ssd1306_write_buf( uint8_t* buf, uint16_t size )
 {
     // for submitting command sequences buf[0] must be 0x00
     // for submitting bulk data (writing to display RAM) buf[0] must be 0x40
     uint16_t i;
 
-    out(i2c_addr, ssd1306_i2c_addr); // 0x3C);
+    out(i2c_addr, ssd1306_i2c_addr);
     out(i2c_byte_count_l, size & 0xFF);
     out(i2c_byte_count_h, size >> 8);
 
     for(i=0; i < size; i++)
     {
         out(i2c_dat_out, buf[i]);
-        out(i2c_cmd, 0x00 | 0x1); //WR=0, Start
+        out(i2c_cmd, 0x00 | 0x1); //WR=0, Start 0->1
         out(i2c_cmd, 0); //Reset
         while((in(i2c_status) & 0x02) == 0); //req_next_byte
     }
 
     while((in(i2c_status) & 0x01) == 0); //xfer_ready
-
-    return 0;
 }
 
 void ssd1306_setPixel( int16_t x, int16_t y, uint32_t color )
