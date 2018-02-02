@@ -117,19 +117,20 @@ void ssd1306_update(void)
     ssd1306_write_buf( ssd1306_buffer, sizeof(ssd1306_buffer) );
 }
 
-uint32_t ssd1306_write_buf( uint8_t* buf, uint8_t size )
+uint32_t ssd1306_write_buf( uint8_t* buf, uint16_t size )
 {
     // for submitting command sequences buf[0] must be 0x00
     // for submitting bulk data (writing to display RAM) buf[0] must be 0x40
-    uint8_t i;
+    uint16_t i;
 
     out(i2c_addr, ssd1306_i2c_addr); // 0x3C);
-    out(i2c_nbyte, size);
+    out(i2c_byte_count_l, size & 0xFF);
+    out(i2c_byte_count_h, size >> 8);
 
     for(i=0; i < size; i++)
     {
         out(i2c_dat_out, buf[i]);
-        out(i2c_cmd, 0x00 | 0x1); //WR, Cont
+        out(i2c_cmd, 0x00 | 0x1); //WR=0, Start
         out(i2c_cmd, 0); //Reset
         while((in(i2c_status) & 0x02) == 0); //req_next_byte
     }
@@ -180,4 +181,3 @@ void ssd1306_invert( uint8_t invert )
 
     ssd1306_update();
 }
-

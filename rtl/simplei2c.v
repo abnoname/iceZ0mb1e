@@ -33,7 +33,7 @@ module simplei2c(
 	input start,
 	input mode_rw,
 
-	input[7:0] byte_count,
+	input[15:0] byte_count,
 	input[6:0] slave_addr,
 	input[7:0] data_write,
 	output[7:0] data_read,
@@ -67,7 +67,7 @@ module simplei2c(
 	reg [7:0] bit_count;
 	reg [7:0] local_rw_addr;
 	reg [7:0] local_data;
-	reg [7:0] local_byte_count;
+	reg [15:0] local_byte_count;
 	reg local_mode_rw;
 	reg i2c_sda;
 	reg i2c_scl;
@@ -131,7 +131,7 @@ module simplei2c(
 					STATE_ACK_H: begin
 						i2c_scl <= 1'b1;
 						i2c_sda <= 1'b1;
-						if (local_byte_count == 8'd0) begin
+						if (local_byte_count == 16'd0) begin
 							xfer_ready <= 1'b1;
 							fsm_state <= STATE_STOP_L;
 						end else begin
@@ -155,7 +155,7 @@ module simplei2c(
 						i2c_scl <= 1'b1;
 						if (bit_count == 0) begin
 							req_next_byte <= 1;
-							if ( (start == 1'b1) || (local_byte_count == 8'd1) ) begin //last byte
+							if ( (start == 1'b1) || (local_byte_count == 16'd1) ) begin //last byte
 								fsm_state <= STATE_ACK_L;
 								local_byte_count <= local_byte_count - 1;
 							end

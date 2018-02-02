@@ -61,7 +61,7 @@
 
 void ssd1306_init( uint8_t i2caddr );
 void ssd1306_update(void);
-uint32_t ssd1306_write_buf( uint8_t* buf, uint8_t size );
+uint32_t ssd1306_write_buf( uint8_t* buf, uint16_t size );
 void ssd1306_setPixel( int16_t x, int16_t y, uint32_t color );
 void ssd1306_clear(void);
 void ssd1306_contrast( uint8_t contrast );

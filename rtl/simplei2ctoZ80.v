@@ -40,7 +40,7 @@ module i2cmastertoZ80 (
     wire write_sel = !cs_n & rd_n & !wr_n;
 
 	wire[7:0] reg_status;
-	reg[7:0] reg_nbytes;
+	reg[15:0] reg_byte_count;
 	reg[7:0] reg_address;
 	reg[7:0] reg_command;
 	reg[7:0] reg_data_wr;
@@ -50,11 +50,13 @@ module i2cmastertoZ80 (
 
     wire[7:0] read_data =
         (addr == 4'h00) ? reg_status :
-		(addr == 4'h01) ? reg_nbytes :
+		//(addr == 4'h01) ? reg_nbytes :
 		(addr == 4'h02) ? reg_address :
 		(addr == 4'h03) ? reg_command :
 		(addr == 4'h04) ? reg_data_rd :
 		(addr == 4'h05) ? reg_data_wr[7:0] :
+		(addr == 4'h06) ? reg_byte_count[7:0] :
+		(addr == 4'h07) ? reg_byte_count[15:8] :
         8'h00;
 
 	assign data_out = (read_sel) ? read_data : 8'bz;
@@ -67,6 +69,8 @@ module i2cmastertoZ80 (
 				4'h02 : reg_address <= data_in;
 				4'h03 : reg_command <= data_in;
 				4'h05 : reg_data_wr[7:0] <= data_in;
+				4'h06 : reg_byte_count[7:0] <= data_in;
+				4'h07 : reg_byte_count[15:8] <= data_in;
             endcase
         end
     end
@@ -91,7 +95,7 @@ module i2cmastertoZ80 (
 		.start			(reg_command[0]),
 		.mode_rw		(reg_command[1]), //write = 0, read = 1
 
-		.byte_count		(reg_nbytes),
+		.byte_count		(reg_byte_count),
 		.slave_addr		(reg_address[6:0]),
 		.data_write		(reg_data_wr),
 		.data_read		(reg_data_rd),

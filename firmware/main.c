@@ -23,23 +23,24 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <stdint.h>
 #include <stdio.h>
 #include "register.h"
 #include "ioport.h"
 #include "ssd1306.h"
 
-char start = 0;
-unsigned char *addr;
-unsigned int last_usable_addr = 0;
-char free = 0;
+int8_t start = 0;
+uint8_t *addr;
+uint16_t last_usable_addr = 0;
+int8_t free = 0;
 
-void putchar(char cin)
+void putchar(int8_t cin)
 {
     while ((in(uart_lsr) & (1 << 6)) == 0);
     out(uart_thr, cin);
 }
 
-char getchar()
+int8_t getchar()
 {
     while ((in(uart_lsr) & (1 << 0)) == 0);
     return in(uart_rbr);
@@ -56,45 +57,27 @@ void Initialize_16450()
     out(uart_mcr, 0x00);
 }
 
-void delay(int t)
+void delay(uint16_t t)
 {
-    volatile int i;
+    uint16_t i;
     for(i = 0; i < t; i++);
 }
 
-// void sendCommand(unsigned char command)
-// {
-//     out(i2c_addr, 0x3C);
-//     out(i2c_nbyte, 2);
-//     out(i2c_dat_out_0, SSD1306_Command_Mode);
-//     out(i2c_cmd, 0x00 | 0x1); //WR, Cont, Start
-//     out(i2c_cmd, 0); //WR, Reset Start
-//     while((in(i2c_status) & 0x04) == 0); //wait for request
-//     out(i2c_dat_out_0, command);
-//     out(i2c_cmd, 0x00 | 0x2); //WR, Cont
-//     out(i2c_cmd, 0); //WR, Reset Start
-//     while((in(i2c_status) & 0x01) == 0);
-// }
-
 void main ()
 {
-    char uart_rx = 0;
-
-/*     //I2C Test
-    out(i2c_addr, 0x3C);
-    out(i2c_nbyte, 1);
-    out(i2c_dat_out, 0x81);
-    out(i2c_cmd, 0x00 | 0x1); //WR, Cont, Start
-    out(i2c_cmd, 0); //WR, Reset Start
-    while((in(i2c_status) & 0x01) == 0);
-
-    delay(20); */
+    int8_t uart_rx = 0;
+    int16_t x, y;
 
     //I2C OLED display test:
     ssd1306_init(0x3C);
     ssd1306_clear();
-    ssd1306_setPixel(32,32, 0xFFFFFFFF);
-    ssd1306_setPixel(64,64, 0xFFFFFFFF);
+    for(x = 0; x < SSD1306_WIDTH; x+=2)
+    {
+        for(y = 0; y < SSD1306_HEIGHT; y+=2)
+        {
+            ssd1306_setPixel(x, y, 1);
+        }
+    }
     ssd1306_update();
 
     //UART Test
@@ -112,7 +95,7 @@ void main ()
     //RAM Test
 	last_usable_addr = 0;
     addr = &free;
-    while((unsigned int)addr < 0xFFFF)
+    while((uint16_t)addr < 0xFFFF)
     {
         *(addr) = 0x55;
         *(addr) = 0xAA;
@@ -120,11 +103,11 @@ void main ()
         {
             break;
         }
-        last_usable_addr = (int)addr;
+        last_usable_addr = (uint16_t)addr;
         addr += 1;
     }
     printf("ready, start = 0x%X, last usable = 0x%X, ramsize = %u\n\r",
-        (int)&start, last_usable_addr, last_usable_addr-(int)&start
+        (uint16_t)&start, last_usable_addr, last_usable_addr-(uint16_t)&start
     );
 
     out(port_a, 0x02);
