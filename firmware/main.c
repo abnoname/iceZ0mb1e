@@ -27,35 +27,14 @@
 #include <stdio.h>
 #include "register.h"
 #include "ioport.h"
+#include "uart.h"
+#include "i2c.h"
 #include "ssd1306.h"
 
 int8_t start = 0;
 uint8_t *addr;
 uint16_t last_usable_addr = 0;
 int8_t free = 0;
-
-void putchar(int8_t cin)
-{
-    while ((in(uart_lsr) & (1 << 6)) == 0);
-    out(uart_thr, cin);
-}
-
-int8_t getchar()
-{
-    while ((in(uart_lsr) & (1 << 0)) == 0);
-    return in(uart_rbr);
-}
-
-void Initialize_16450()
-{
-    // set divisor div = 12MHz / (9600 * 16) = 78
-    out(uart_lcr, 0x80); /* SET DLAB ON */
-    out(uart_dm0, 78);
-    out(uart_dm1, 0);
-
-    out(uart_lcr, 0x03); /* 8 Bits, No Parity, 1 Stop Bit */
-    out(uart_mcr, 0x00);
-}
 
 void delay(uint16_t t)
 {
@@ -69,8 +48,11 @@ void main ()
     int16_t x, y;
 
     //UART Test
-    Initialize_16450();
-    //printf("iceZ0mb1e SoC by abnoname\r\n");
+    Initialize_16450(9600);
+    printf("iceZ0mb1e SoC by abnoname\r\n");
+
+    //I2C read test:
+    printf("i2c read = 0x%X\r\n", i2c_read(0x3C, 0x55));
 
     //I2C OLED display test:
     ssd1306_init(0x3C);

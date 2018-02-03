@@ -31,6 +31,7 @@ module simplei2c(
 	output xfer_ready,
 
 	input start,
+	input restart,
 	input mode_rw,
 
 	input[15:0] byte_count,
@@ -49,10 +50,8 @@ module simplei2c(
 	localparam STATE_ADDR_H = 4;
 	localparam STATE_ACK_L = 5;
 	localparam STATE_ACK_H = 6;
-	localparam STATE_TX_DATA_L = 7;
-	localparam STATE_TX_DATA_H = 8;
-	localparam STATE_RX_DATA_L = 9;
-	localparam STATE_RX_DATA_H = 10;
+	localparam STATE_DATA_L = 7;
+	localparam STATE_DATA_H = 8;
 	localparam STATE_STOP_L = 11;
 	localparam STATE_STOP_H = 12;
 
@@ -71,7 +70,6 @@ module simplei2c(
 	reg [7:0] local_rw_addr;
 	reg [7:0] local_data;
 	reg [15:0] local_byte_count;
-	reg local_mode_rw;
 	reg i2c_sda;
 	reg i2c_scl;
 	wire i2c_scl_o = i2c_scl;
@@ -94,6 +92,7 @@ module simplei2c(
 						if (start_edge) begin
 							xfer_ready <= 1'b0;
 							req_next_byte <= 1'b0;
+							local_byte_count <= byte_count;
 							fsm_state <= STATE_START_L;
 						end
 					end
@@ -101,14 +100,12 @@ module simplei2c(
 					STATE_START_L: begin
 						i2c_sda <= 1'b0;
 						i2c_scl <= 1'b1;
-						local_rw_addr <= {slave_addr, mode_rw};
-						local_byte_count <= byte_count;
-						local_mode_rw <= mode_rw;
 						fsm_state <= STATE_START_H;
 					end
 					STATE_START_H: begin
 						i2c_scl <= 1'b0;
 						bit_count <= 8'd7;
+						local_rw_addr <= {slave_addr, mode_rw};
 						fsm_state <= STATE_ADDR_L;
 					end
 
@@ -136,57 +133,49 @@ module simplei2c(
 					STATE_ACK_H: begin
 						i2c_scl <= 1'b1;
 						i2c_sda <= 1'b1;
-						if (local_byte_count == 16'd0) begin
+						if ( (local_byte_count == 16'd0) & (restart == 1'b0) ) begin
 							xfer_ready <= 1'b1;
+							data_read <= {local_data[7:1], i2c_sda_io};
 							fsm_state <= STATE_STOP_L;
+						end else if ( (restart == 1'b1) ) begin
+							fsm_state <= STATE_START_L;
 						end else begin
 							req_next_byte <= 1'b0;
-							local_data <= data_write;
-							bit_count <= 8'd7;
-							if (local_mode_rw == `MODE_WR) begin
-								fsm_state <= STATE_TX_DATA_L;
+							if (mode_rw == `MODE_WR) begin
+								local_data <= data_write;
 							end else begin
-								fsm_state <= STATE_RX_DATA_L;
+								local_data <= 8'b0;
 							end
+							bit_count <= 8'd7;
+							fsm_state <= STATE_DATA_L;
 						end
 					end
 
-					STATE_TX_DATA_L: begin
+					STATE_DATA_L: begin
 						i2c_scl <= 1'b0;
-						i2c_sda <= local_data[bit_count];
-						fsm_state <= STATE_TX_DATA_H;
+						if (mode_rw == `MODE_WR) begin
+							i2c_sda <= local_data[bit_count];
+						end else begin
+							i2c_sda <= 1'b1; //high z
+							local_data[bit_count] <= i2c_sda_io;
+						end
+						fsm_state <= STATE_DATA_H;
 					end
-					STATE_TX_DATA_H: begin
+					STATE_DATA_H: begin
 						i2c_scl <= 1'b1;
-						if (bit_count == 0) begin
+						//if (mode_rw == `MODE_RD) begin
+						//	local_data[bit_count] <= i2c_sda_io;
+						//end
+						if (bit_count == 8'd0) begin
 							req_next_byte <= 1;
-							if ( (start_edge == 1'b1) || (local_byte_count == 16'd1) ) begin //last byte
+							if ( (start_edge == 1'b1) || (local_byte_count == 16'd 1) ) begin //last byte
+								req_next_byte <= 0;
 								fsm_state <= STATE_ACK_L;
 								local_byte_count <= local_byte_count - 1;
 							end
 						end
 						else begin
-							fsm_state <= STATE_TX_DATA_L;
-							bit_count <= bit_count - 1;
-						end
-					end
-
-					STATE_RX_DATA_L: begin
-						fsm_state <= STATE_RX_DATA_H;
-						i2c_scl <= 1'b0;
-						local_data[bit_count] <= i2c_sda_io;
-					end
-
-					STATE_RX_DATA_H: begin
-						i2c_scl <= 1;
-						if (bit_count == 8'd0) begin
-							fsm_state <= STATE_ACK_L;
-							data_read[7:1] <= local_data[7:1];
-							data_read[0] <= i2c_sda_io;
-							local_byte_count <= local_byte_count - 1;
-						end
-						else begin
-							fsm_state <= STATE_RX_DATA_L;
+							fsm_state <= STATE_DATA_L;
 							bit_count <= bit_count - 1;
 						end
 					end

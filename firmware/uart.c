@@ -23,32 +23,32 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __REGISTER_H
-#define __REGISTER_H
+#include <stdint.h>
+#include "register.h"
+#include "ioport.h"
+#include "uart.h"
 
-#define XTAL_FREQ 12E6
+void putchar(int8_t cin)
+{
+    while ((in(uart_lsr) & (1 << 6)) == 0);
+    out(uart_thr, cin);
+}
 
-#define uart_dm0 0x18
-#define uart_thr 0x18
-#define uart_rbr 0x18
-#define uart_dm1 0x19
-#define uart_iir 0x1a
-#define uart_lcr 0x1b
-#define uart_mcr 0x1c
-#define uart_lsr 0x1d
-#define uart_msr 0x1e
-#define uart_scr 0x1f
+int8_t getchar()
+{
+    while ((in(uart_lsr) & (1 << 0)) == 0);
+    return in(uart_rbr);
+}
 
-#define port_a   0x40
-#define port_b   0x41
-#define port_cfg 0x42
+void Initialize_16450(uint16_t baud)
+{
+    // set divisor div = 12MHz / (9600 * 16) = 78
+    uint32_t div = (uint32_t)XTAL_FREQ / ((uint32_t)baud * (uint32_t)16);
 
-#define i2c_status  0x50
-#define i2c_addr    0x52
-#define i2c_cmd     0x53
-#define i2c_dat_in  0x54
-#define i2c_dat_out 0x55
-#define i2c_byte_count_l 0x56
-#define i2c_byte_count_h 0x57
+    out(uart_lcr, 0x80); /* SET DLAB ON */
+    out(uart_dm0, (uint8_t)(div & 0xFF));
+    out(uart_dm1, (uint8_t)(div >> 8));
 
-#endif
+    out(uart_lcr, 0x03); /* 8 Bits, No Parity, 1 Stop Bit */
+    out(uart_mcr, 0x00);
+}

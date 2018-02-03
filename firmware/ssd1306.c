@@ -40,8 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "ioport.h"
-#include "register.h"
+#include "i2c.h"
 #include "ssd1306.h"
 
 uint8_t ssd1306_i2c_addr;
@@ -102,7 +101,7 @@ void ssd1306_init( uint8_t i2caddr )
     ssd1306_displaybuf_size = (uint32_t)sizeof(ssd1306_buffer) - 1;
     ssd1306_i2c_addr = i2caddr;
 
-    ssd1306_write_buf( cmdbuf, sizeof(cmdbuf) );
+    i2c_write_buf(ssd1306_i2c_addr, cmdbuf, sizeof(cmdbuf) );
 }
 
 void ssd1306_update(void)
@@ -116,29 +115,8 @@ void ssd1306_update(void)
         0, // start
         7 // end
     };
-    ssd1306_write_buf( cmdbuf, sizeof(cmdbuf) );
-    ssd1306_write_buf( ssd1306_buffer, sizeof(ssd1306_buffer) );
-}
-
-void ssd1306_write_buf( uint8_t* buf, uint16_t size )
-{
-    // for submitting command sequences buf[0] must be 0x00
-    // for submitting bulk data (writing to display RAM) buf[0] must be 0x40
-    uint16_t i;
-
-    out(i2c_addr, ssd1306_i2c_addr);
-    out(i2c_byte_count_l, size & 0xFF);
-    out(i2c_byte_count_h, size >> 8);
-
-    for(i=0; i < size; i++)
-    {
-        out(i2c_dat_out, buf[i]);
-        out(i2c_cmd, 0x00 | 0x1); //WR=0, Start 0->1
-        out(i2c_cmd, 0); //Reset
-        while((in(i2c_status) & 0x02) == 0); //req_next_byte
-    }
-
-    while((in(i2c_status) & 0x01) == 0); //xfer_ready
+    i2c_write_buf(ssd1306_i2c_addr, cmdbuf, sizeof(cmdbuf) );
+    i2c_write_buf(ssd1306_i2c_addr, ssd1306_buffer, sizeof(ssd1306_buffer) );
 }
 
 void ssd1306_setPixel( int16_t x, int16_t y, uint32_t color )
@@ -168,7 +146,7 @@ void ssd1306_contrast( uint8_t contrast )
 {
     uint8_t cmdbuf[] = { 0x00, SSD1306_SETCONTRAST, contrast };
 
-    ssd1306_write_buf( cmdbuf, sizeof(cmdbuf) );
+    i2c_write_buf(ssd1306_i2c_addr, cmdbuf, sizeof(cmdbuf) );
 
     ssd1306_update();
 }
@@ -178,7 +156,7 @@ void ssd1306_invert( uint8_t invert )
     uint8_t cmdbuf[] = { 0x00, 0 };
 
     cmdbuf[1] = invert ? SSD1306_INVERTDISPLAY : SSD1306_NORMALDISPLAY;
-    ssd1306_write_buf( cmdbuf, sizeof(cmdbuf) );
+    i2c_write_buf(ssd1306_i2c_addr, cmdbuf, sizeof(cmdbuf) );
 
     ssd1306_update();
 }

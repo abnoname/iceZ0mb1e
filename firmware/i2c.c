@@ -23,32 +23,42 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#ifndef __REGISTER_H
-#define __REGISTER_H
+#include <stdint.h>
+#include "ioport.h"
+#include "register.h"
+#include "i2c.h"
 
-#define XTAL_FREQ 12E6
+uint8_t i2c_read(uint8_t addr, uint8_t cmd)
+{
+    out(i2c_addr, addr);
+    out(i2c_byte_count_l, 2);
+    out(i2c_byte_count_h, 0);
 
-#define uart_dm0 0x18
-#define uart_thr 0x18
-#define uart_rbr 0x18
-#define uart_dm1 0x19
-#define uart_iir 0x1a
-#define uart_lcr 0x1b
-#define uart_mcr 0x1c
-#define uart_lsr 0x1d
-#define uart_msr 0x1e
-#define uart_scr 0x1f
+    out(i2c_dat_out, cmd);
+    out(i2c_cmd, 0x0 | 0x0 | 0x1); //WR=0, Start 0->1
+    out(i2c_cmd, 0); //WR=aktive
+    while((in(i2c_status) & 0x02) == 0); //req_next_byte
 
-#define port_a   0x40
-#define port_b   0x41
-#define port_cfg 0x42
+    out(i2c_cmd, 0x4 | 0x2 | 0x1); //RD=1, restart, Start 0->1
+    out(i2c_cmd, 0x4); //RD=aktive
+    while((in(i2c_status) & 0x01) == 0); //xfer_ready
 
-#define i2c_status  0x50
-#define i2c_addr    0x52
-#define i2c_cmd     0x53
-#define i2c_dat_in  0x54
-#define i2c_dat_out 0x55
-#define i2c_byte_count_l 0x56
-#define i2c_byte_count_h 0x57
+    return in(i2c_dat_in);
+}
 
-#endif
+void i2c_write_buf(uint8_t addr, uint8_t* buf, uint16_t size )
+{
+    uint16_t i;
+
+    out(i2c_addr, addr);
+    out(i2c_byte_count_l, size & 0xFF);
+    out(i2c_byte_count_h, size >> 8);
+
+    for(i=0; i < size; i++)
+    {
+        out(i2c_dat_out, buf[i]);
+        out(i2c_cmd, 0x00 | 0x1); //WR=0, Start 0->1
+        out(i2c_cmd, 0); //Reset
+        while((in(i2c_status) & 0x03) == 0); //req_next_byte or xfer_ready
+    }
+}

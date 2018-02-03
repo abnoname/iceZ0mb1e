@@ -77,7 +77,7 @@ module i2cmastertoZ80 (
 
 	clk_enable i2c_clk_divider (
 		.reset(!reset_n),
-		.divider(120/2),
+		.divider(30/2),
 		.clk_in(clk),
 		.clk_en(i2c_clk_en)
 	);
@@ -91,7 +91,8 @@ module i2cmastertoZ80 (
 		.xfer_ready		(reg_status[0]),
 
 		.start			(reg_command[0]),
-		.mode_rw		(reg_command[1]), //write = 0, read = 1
+		.restart		(reg_command[1]),
+		.mode_rw		(reg_command[2]), //write = 0, read = 1
 
 		.byte_count		(reg_byte_count),
 		.slave_addr		(reg_address[6:0]),
