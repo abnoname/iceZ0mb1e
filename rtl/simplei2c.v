@@ -135,7 +135,7 @@ module simplei2c(
 						i2c_sda <= 1'b1;
 						if ( (local_byte_count == 16'd0) & (restart == 1'b0) ) begin
 							xfer_ready <= 1'b1;
-							data_read <= {local_data[7:1], i2c_sda_io};
+							data_read <= local_data;
 							fsm_state <= STATE_STOP_L;
 						end else if ( (restart == 1'b1) ) begin
 							fsm_state <= STATE_START_L;
@@ -157,15 +157,14 @@ module simplei2c(
 							i2c_sda <= local_data[bit_count];
 						end else begin
 							i2c_sda <= 1'b1; //high z
-							local_data[bit_count] <= i2c_sda_io;
 						end
 						fsm_state <= STATE_DATA_H;
 					end
 					STATE_DATA_H: begin
 						i2c_scl <= 1'b1;
-						//if (mode_rw == `MODE_RD) begin
-						//	local_data[bit_count] <= i2c_sda_io;
-						//end
+						if (mode_rw == `MODE_RD) begin
+							local_data[bit_count] <= i2c_sda_io;
+						end
 						if (bit_count == 8'd0) begin
 							req_next_byte <= 1;
 							if ( (start_edge == 1'b1) || (local_byte_count == 16'd 1) ) begin //last byte

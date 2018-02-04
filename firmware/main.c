@@ -52,7 +52,7 @@ void main ()
     printf("iceZ0mb1e SoC by abnoname\r\n");
 
     //I2C read test:
-    printf("i2c read = 0x%X\r\n", i2c_read(0x3C, 0x55));
+    printf("i2c read = 0x%X\r\n", i2c_read(0x3C, 0x80));
 
     //I2C OLED display test:
     ssd1306_init(0x3C);
