@@ -27,14 +27,13 @@ module simplei2c(
 	input clk_i2c_en,
 	input reset,
 
-	output req_next_byte,
-	output xfer_ready,
+	output req_next,
 
 	input start,
 	input restart,
+	input stop,
 	input mode_rw,
 
-	input[15:0] byte_count,
 	input[6:0] slave_addr,
 	input[7:0] data_write,
 	output[7:0] data_read,
@@ -62,14 +61,14 @@ module simplei2c(
 	wire start_edge = (sync_start == 2'b01);
 
 	reg [7:0] data_read;
-	reg req_next_byte;
-	reg xfer_ready;
+	reg req_next;
+
+	reg latch_stop;
 
 	reg [4:0] fsm_state;
 	reg [7:0] bit_count;
 	reg [7:0] local_rw_addr;
 	reg [7:0] local_data;
-	reg [15:0] local_byte_count;
 	reg i2c_sda;
 	reg i2c_scl;
 	wire i2c_scl_o = i2c_scl;
@@ -80,8 +79,7 @@ module simplei2c(
 		if (reset == 1'b1) begin
 			fsm_state <= STATE_IDLE;
 			sync_start <= 2'b00;
-			req_next_byte <= 1'b0;
-			xfer_ready <= 1'b0;
+			req_next <= 1'b0;
 		end	else begin
 			if (clk_i2c_en == 1'b1) begin
 				sync_start <= {sync_start[0], start};
@@ -90,9 +88,8 @@ module simplei2c(
 						i2c_sda <= 1'b1;
 						i2c_scl <= 1'b1;
 						if (start_edge) begin
-							xfer_ready <= 1'b0;
-							req_next_byte <= 1'b0;
-							local_byte_count <= byte_count;
+							req_next <= 1'b0;
+							latch_stop <= 1'b0;
 							fsm_state <= STATE_START_L;
 						end
 					end
@@ -133,14 +130,14 @@ module simplei2c(
 					STATE_ACK_H: begin
 						i2c_scl <= 1'b1;
 						i2c_sda <= 1'b1;
-						if ( (local_byte_count == 16'd0) & (restart == 1'b0) ) begin
-							xfer_ready <= 1'b1;
+						if ( (latch_stop == 1'b1) & (restart == 1'b0) ) begin
+							req_next <= 1'b1;
 							data_read <= local_data;
 							fsm_state <= STATE_STOP_L;
 						end else if ( (restart == 1'b1) ) begin
 							fsm_state <= STATE_START_L;
 						end else begin
-							req_next_byte <= 1'b0;
+							req_next <= 1'b0;
 							if (mode_rw == `MODE_WR) begin
 								local_data <= data_write;
 							end else begin
@@ -166,11 +163,11 @@ module simplei2c(
 							local_data[bit_count] <= i2c_sda_io;
 						end
 						if (bit_count == 8'd0) begin
-							req_next_byte <= 1;
-							if ( (start_edge == 1'b1) || (local_byte_count == 16'd 1) ) begin //last byte
-								req_next_byte <= 0;
+							req_next <= 1;
+							latch_stop <= stop;
+							if ( (start_edge == 1'b1) || (stop == 1'b1) ) begin //last byte
+								req_next <= 0;
 								fsm_state <= STATE_ACK_L;
-								local_byte_count <= local_byte_count - 1;
 							end
 						end
 						else begin

@@ -40,13 +40,12 @@ module i2cmastertoZ80 (
     wire write_sel = !cs_n & rd_n & !wr_n;
 
 	wire[7:0] reg_status;
-	reg[15:0] reg_byte_count = 16'h0;
 	reg[7:0] reg_address = 8'h0;
 	reg[7:0] reg_command = 8'h0;
 	reg[7:0] reg_data_wr = 8'h0;
 	wire[7:0] reg_data_rd;
-	reg[7:0] reg_prescale_low = 8'h0;
-	reg[7:0] reg_prescale_high = 8'h0;
+
+	assign reg_status[7:1] = 6'd0; //iverilog 12vvp_fun_muxz fix
 
     wire[7:0] read_data =
         (addr == 4'h00) ? reg_status :
@@ -54,8 +53,6 @@ module i2cmastertoZ80 (
 		(addr == 4'h03) ? reg_command :
 		(addr == 4'h04) ? reg_data_rd :
 		(addr == 4'h05) ? reg_data_wr[7:0] :
-		(addr == 4'h06) ? reg_byte_count[7:0] :
-		(addr == 4'h07) ? reg_byte_count[15:8] :
         8'h00;
 
 	assign data_out = (read_sel) ? read_data : 8'bz;
@@ -67,8 +64,6 @@ module i2cmastertoZ80 (
 				4'h02 : reg_address <= data_in;
 				4'h03 : reg_command <= data_in;
 				4'h05 : reg_data_wr[7:0] <= data_in;
-				4'h06 : reg_byte_count[7:0] <= data_in;
-				4'h07 : reg_byte_count[15:8] <= data_in;
             endcase
         end
     end
@@ -85,16 +80,15 @@ module i2cmastertoZ80 (
 	simplei2c master (
 		.clk			(clk),
 		.clk_i2c_en		(i2c_clk_en),
-		.reset			(!reset_n),
+		.reset			( (!reset_n) | (reg_command[7]) ),
 
-		.req_next_byte	(reg_status[1]),
-		.xfer_ready		(reg_status[0]),
+		.req_next		(reg_status[0]),
 
 		.start			(reg_command[0]),
 		.restart		(reg_command[1]),
-		.mode_rw		(reg_command[2]), //write = 0, read = 1
+		.stop			(reg_command[2]),
+		.mode_rw		(reg_command[3]), //write = 0, read = 1
 
-		.byte_count		(reg_byte_count),
 		.slave_addr		(reg_address[6:0]),
 		.data_write		(reg_data_wr),
 		.data_read		(reg_data_rd),

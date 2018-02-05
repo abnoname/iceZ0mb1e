@@ -48,7 +48,5 @@
 #define i2c_cmd     0x53
 #define i2c_dat_in  0x54
 #define i2c_dat_out 0x55
-#define i2c_byte_count_l 0x56
-#define i2c_byte_count_h 0x57
 
 #endif
