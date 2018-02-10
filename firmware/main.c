@@ -44,6 +44,8 @@ void delay(uint16_t t)
 
 void main ()
 {
+    uint8_t buffer[64];
+
     int8_t uart_rx = 0;
     int16_t x, y;
 
@@ -51,10 +53,14 @@ void main ()
     Initialize_16450(9600);
     printf("iceZ0mb1e SoC by abnoname\r\n");
 
-    //I2C read test:
-    printf("i2c read = 0x%X\r\n",
-        i2c_read(0x3C, 0x80)
-    );
+    // I2C read test (pcf8523):
+    i2c_write(0x68, 0x00);
+    i2c_read_buf(0x68, buffer, 20);
+    for(x = 0; x < 20; x++)
+    {
+        printf("0x%X ", buffer[x]);
+    }
+    printf("\r\n");
 
     //I2C OLED display test:
     ssd1306_init(0x3C);

@@ -33,8 +33,8 @@ module simplei2c(
 	input restart,
 	input stop,
 	input mode_rw,
+	input ack_sda,
 
-	input[6:0] slave_addr,
 	input[7:0] data_write,
 	output[7:0] data_read,
 
@@ -45,14 +45,12 @@ module simplei2c(
 	localparam STATE_IDLE = 0;
 	localparam STATE_START_L = 1;
 	localparam STATE_START_H = 2;
-	localparam STATE_ADDR_L = 3;
-	localparam STATE_ADDR_H = 4;
-	localparam STATE_ACK_L = 5;
-	localparam STATE_ACK_H = 6;
-	localparam STATE_DATA_L = 7;
-	localparam STATE_DATA_H = 8;
-	localparam STATE_STOP_L = 11;
-	localparam STATE_STOP_H = 12;
+	localparam STATE_ACK_L = 3;
+	localparam STATE_ACK_H = 4;
+	localparam STATE_DATA_L = 5;
+	localparam STATE_DATA_H = 6;
+	localparam STATE_STOP_L = 7;
+	localparam STATE_STOP_H = 8;
 
     `define MODE_WR 1'b0
     `define MODE_RD 1'b1
@@ -102,37 +100,21 @@ module simplei2c(
 					STATE_START_H: begin
 						i2c_scl <= 1'b0;
 						bit_count <= 8'd7;
-						local_rw_addr <= {slave_addr, mode_rw};
-						fsm_state <= STATE_ADDR_L;
-					end
-
-					STATE_ADDR_L: begin
-						i2c_scl <= 1'b0;
-						i2c_sda <= local_rw_addr[bit_count];
-						fsm_state <= STATE_ADDR_H;
-					end
-					STATE_ADDR_H: begin
-						i2c_scl <= 1;
-						if (bit_count == 8'd0) begin
-							fsm_state <= STATE_ACK_L;
-						end
-						else begin
-							fsm_state <= STATE_ADDR_L;
-							bit_count <= bit_count - 1;
-						end
+						local_data <= data_write;
+						fsm_state <= STATE_DATA_L;
 					end
 
 					STATE_ACK_L: begin
 						i2c_scl <= 1'b0;
-						i2c_sda <= 1'b1;
+						i2c_sda <= ack_sda;
 						fsm_state <= STATE_ACK_H;
 					end
 					STATE_ACK_H: begin
 						i2c_scl <= 1'b1;
-						i2c_sda <= 1'b1;
+						i2c_sda <= ack_sda;
+						data_read <= local_data;
 						if ( (latch_stop == 1'b1) & (restart == 1'b0) ) begin
 							req_next <= 1'b1;
-							data_read <= local_data;
 							fsm_state <= STATE_STOP_L;
 						end else if ( (restart == 1'b1) ) begin
 							fsm_state <= STATE_START_L;
@@ -140,8 +122,6 @@ module simplei2c(
 							req_next <= 1'b0;
 							if (mode_rw == `MODE_WR) begin
 								local_data <= data_write;
-							end else begin
-								local_data <= 8'b0;
 							end
 							bit_count <= 8'd7;
 							fsm_state <= STATE_DATA_L;

@@ -28,50 +28,103 @@
 #include "register.h"
 #include "i2c.h"
 
+#define I2C_ADDR_WR     0x00
+#define I2C_ADDR_RD     0x01
+
 #define I2C_CMD_START   0x01
 #define I2C_CMD_RESTART 0x02
 #define I2C_CMD_STOP    0x04
 #define I2C_CMD_WR      0x00
 #define I2C_CMD_RD      0x08
+#define I2C_CMD_ACK_L   0x00
+#define I2C_CMD_ACK_Z   0x10
 #define I2C_CMD_RESET   0x80
 
 #define I2C_STAT_REQ    0x01
 
-uint8_t i2c_read(uint8_t addr, uint8_t cmd)
+uint8_t i2c_read(uint8_t addr)
 {
-    out(i2c_addr, addr);
-    out(i2c_cmd, 0);
+    out(i2c_cmd, 0x00);
 
-    out(i2c_dat_out, cmd);
-    out(i2c_cmd, I2C_CMD_WR | I2C_CMD_START);
-    out(i2c_cmd, I2C_CMD_WR);
+    out(i2c_dat_out, (addr << 1) | I2C_ADDR_RD);
+    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR | I2C_CMD_START);
+    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR);
     while((in(i2c_status) & I2C_STAT_REQ) == 0);
 
-    out(i2c_cmd, I2C_CMD_RD | I2C_CMD_RESTART | I2C_CMD_START);
-    out(i2c_cmd, I2C_CMD_STOP | I2C_CMD_RD); //last Byte
+    out(i2c_cmd, I2C_CMD_ACK_L | I2C_CMD_RD | I2C_CMD_START);
+    out(i2c_cmd, I2C_CMD_ACK_L | I2C_CMD_RD | I2C_CMD_STOP);
     while((in(i2c_status) & I2C_STAT_REQ) == 0);
 
     return in(i2c_dat_in);
+}
+
+uint8_t i2c_write(uint8_t addr, uint8_t cmd)
+{
+    out(i2c_cmd, 0x00);
+
+    out(i2c_dat_out, (addr << 1) | I2C_ADDR_WR);
+    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR | I2C_CMD_START);
+    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR);
+    while((in(i2c_status) & I2C_STAT_REQ) == 0);
+
+    out(i2c_dat_out, cmd);
+    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR | I2C_CMD_START);
+    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR | I2C_CMD_STOP);
+    while((in(i2c_status) & I2C_STAT_REQ) == 0);
+
+    return in(i2c_dat_in);
+}
+
+uint8_t i2c_read_buf(uint8_t addr, uint8_t *buf, uint16_t size)
+{
+    uint16_t i;
+
+    out(i2c_cmd, 0x00);
+
+    out(i2c_dat_out, (addr << 1) | I2C_ADDR_RD);
+    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR | I2C_CMD_START);
+    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR);
+    while((in(i2c_status) & I2C_STAT_REQ) == 0);
+
+    for(i=0; i < size; i++)
+    {
+        out(i2c_cmd, I2C_CMD_ACK_L | I2C_CMD_RD | I2C_CMD_START);
+        if(i == (size-1))
+        {
+            out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_STOP | I2C_CMD_RD); //last Byte
+        }
+        else
+        {
+            out(i2c_cmd, I2C_CMD_ACK_L | I2C_CMD_RD);
+        }
+        while((in(i2c_status) & I2C_STAT_REQ) == 0);
+
+        buf[i] = in(i2c_dat_in);
+    }
 }
 
 void i2c_write_buf(uint8_t addr, uint8_t* buf, uint16_t size )
 {
     uint16_t i;
 
-    out(i2c_addr, addr);
-    out(i2c_cmd, 0);
+    out(i2c_cmd, 0x00);
+
+    out(i2c_dat_out, (addr << 1) | I2C_ADDR_WR);
+    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR | I2C_CMD_START);
+    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR);
+    while((in(i2c_status) & I2C_STAT_REQ) == 0);
 
     for(i=0; i < size; i++)
     {
         out(i2c_dat_out, buf[i]);
-        out(i2c_cmd, (I2C_CMD_WR | I2C_CMD_START));
+        out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR | I2C_CMD_START);
         if(i == (size-1))
         {
-            out(i2c_cmd, I2C_CMD_STOP | I2C_CMD_WR); //last Byte
+            out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_STOP | I2C_CMD_WR); //last Byte
         }
         else
         {
-            out(i2c_cmd, I2C_CMD_WR);
+            out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR);
         }
         while((in(i2c_status) & I2C_STAT_REQ) == 0);
     }
