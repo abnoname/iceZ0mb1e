@@ -91,7 +91,7 @@ uint8_t i2c_read_buf(uint8_t addr, uint8_t *buf, uint16_t size)
         out(i2c_cmd, I2C_CMD_ACK_L | I2C_CMD_RD | I2C_CMD_START);
         if(i == (size-1))
         {
-            out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_STOP | I2C_CMD_RD); //last Byte
+            out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_STOP | I2C_CMD_RD); //last Byte NAK
         }
         else
         {

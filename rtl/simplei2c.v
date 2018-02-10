@@ -65,8 +65,6 @@ module simplei2c(
 
 	reg [4:0] fsm_state;
 	reg [7:0] bit_count;
-	reg [7:0] local_rw_addr;
-	reg [7:0] local_data;
 	reg i2c_sda;
 	reg i2c_scl;
 	wire i2c_scl_o = i2c_scl;
@@ -100,7 +98,6 @@ module simplei2c(
 					STATE_START_H: begin
 						i2c_scl <= 1'b0;
 						bit_count <= 8'd7;
-						local_data <= data_write;
 						fsm_state <= STATE_DATA_L;
 					end
 
@@ -112,7 +109,6 @@ module simplei2c(
 					STATE_ACK_H: begin
 						i2c_scl <= 1'b1;
 						i2c_sda <= ack_sda;
-						data_read <= local_data;
 						if ( (latch_stop == 1'b1) & (restart == 1'b0) ) begin
 							req_next <= 1'b1;
 							fsm_state <= STATE_STOP_L;
@@ -120,9 +116,6 @@ module simplei2c(
 							fsm_state <= STATE_START_L;
 						end else begin
 							req_next <= 1'b0;
-							if (mode_rw == `MODE_WR) begin
-								local_data <= data_write;
-							end
 							bit_count <= 8'd7;
 							fsm_state <= STATE_DATA_L;
 						end
@@ -131,7 +124,7 @@ module simplei2c(
 					STATE_DATA_L: begin
 						i2c_scl <= 1'b0;
 						if (mode_rw == `MODE_WR) begin
-							i2c_sda <= local_data[bit_count];
+							i2c_sda <= data_write[bit_count];
 						end else begin
 							i2c_sda <= 1'b1; //high z
 						end
@@ -140,7 +133,7 @@ module simplei2c(
 					STATE_DATA_H: begin
 						i2c_scl <= 1'b1;
 						if (mode_rw == `MODE_RD) begin
-							local_data[bit_count] <= i2c_sda_io;
+							data_read[bit_count] <= i2c_sda_io;
 						end
 						if (bit_count == 8'd0) begin
 							req_next <= 1;
