@@ -112,7 +112,6 @@ SOUTPUT = -lxt
 ###############################################################################
 .PHONY: firmware
 firmware:
-	$(MAKE) -C $(FIRMWARE_DIR) clean
 	$(MAKE) -C $(FIRMWARE_DIR) FIRMWARE_IMG=$(FIRMWARE_IMG) CODE_LOCATION=$(CODE_LOCATION) DATA_LOCATION=$(DATA_LOCATION)
 
 ###############################################################################

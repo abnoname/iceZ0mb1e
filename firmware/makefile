@@ -28,7 +28,7 @@
 # make FIRMWARE_IMG=test CODE_LOCATION=0x0200 DATA_LOCATION=0x1000
 ###############################################################################
 ARCH = mz80
-OBJ = crt0.rel ioport.rel uart.rel i2c.rel ssd1306.rel main.rel
+CC_COMP = . api ssd1306 main
 
 all: $(FIRMWARE_IMG).bin $(FIRMWARE_IMG).hex $(FIRMWARE_IMG).vhex $(FIRMWARE_IMG).dasm
 
@@ -39,21 +39,27 @@ CC = sdcc
 ASM = sdasz80
 DASM = z80dasm
 PACKIHX = packihx
-SRECCAT = srec_cat
+SRECCAT = srec_cat -multiple
 
 ###############################################################################
 # Compile Files
 ###############################################################################
-%.rel : %.c
-	$(CC) -$(ARCH) -c $^
+CC_SRC = $(foreach PATH,$(CC_COMP),$(wildcard $(PATH)/*.c))
+CC_OBJ = $(patsubst %.c,%.rel,$(CC_SRC))
+ASM_SRC = $(foreach PATH,$(CC_COMP),$(wildcard $(PATH)/*.s))
+ASM_OBJ = $(patsubst %.s,%.rel,$(ASM_SRC))
+INC_DIRS = $(wildcard */)
 
-%.rel : %.s
-	$(ASM) -glos $^
+$(CC_OBJ) :
+	$(CC) -$(ARCH) $(addprefix -I ,$(INC_DIRS)) -c $(subst .rel,.c,$@) -o $@
+
+$(ASM_OBJ) :
+	$(ASM) -glos $(subst .rel,.s,$@)
 
 ###############################################################################
 # Linker
 ###############################################################################
-$(FIRMWARE_IMG).hex: $(OBJ)
+$(FIRMWARE_IMG).hex: $(ASM_OBJ) $(CC_OBJ)
 	$(CC) -$(ARCH) $^ --no-std-crt0 --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION) -o _temp.ihx
 	$(PACKIHX) < _temp.ihx > $(FIRMWARE_IMG).hex
 
@@ -75,4 +81,12 @@ $(FIRMWARE_IMG).dasm: $(FIRMWARE_IMG).bin
 
 ###############################################################################
 clean:
-	rm -f *\.rel *\.ihx *\.sym *\.lst *\.map *\.noi *\.bin *\.dasm *\.asm *\.lnk *\.rel *\.def *\.hex *\.vhex *\.html *\.lk
+	rm -f $(foreach PATH,$(CC_COMP),$(wildcard $(PATH)/*.rel))
+	rm -f $(foreach PATH,$(CC_COMP),$(wildcard $(PATH)/*.ihx))
+	rm -f $(foreach PATH,$(CC_COMP),$(wildcard $(PATH)/*.sym))
+	rm -f $(foreach PATH,$(CC_COMP),$(wildcard $(PATH)/*.lst))
+	rm -f $(foreach PATH,$(CC_COMP),$(wildcard $(PATH)/*.map))
+	rm -f $(foreach PATH,$(CC_COMP),$(wildcard $(PATH)/*.dasm))
+	rm -f $(foreach PATH,$(CC_COMP),$(wildcard $(PATH)/*.asm))
+	rm -f *\.lk *\.noi
+	rm -f *\.bin *\.hex *\.vhex

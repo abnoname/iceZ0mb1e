@@ -1,0 +1,225 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 1.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  2710 L
+    .__.ABS.                                                    =  0000 G
+    .__.CPU.                                                    =  0000 L
+    .__.H$L.                                                    =  0000 L
+  0 _FONT_5X8                                                      097F GR
+  0 _UG_ButtonCreate                                               5CC9 GR
+  0 _UG_ButtonDelete                                               5EB4 GR
+  0 _UG_ButtonGetAlignment                                         643B GR
+  0 _UG_ButtonGetAlternateBackColor                                62F2 GR
+  0 _UG_ButtonGetAlternateForeColor                                62AA GR
+  0 _UG_ButtonGetBackColor                                         6262 GR
+  0 _UG_ButtonGetFont                                              6374 GR
+  0 _UG_ButtonGetForeColor                                         621C GR
+  0 _UG_ButtonGetHSpace                                            63DB GR
+  0 _UG_ButtonGetStyle                                             63AE GR
+  0 _UG_ButtonGetText                                              633A GR
+  0 _UG_ButtonGetVSpace                                            640B GR
+  0 _UG_ButtonHide                                                 5EEF GR
+  0 _UG_ButtonSetAlignment                                         61DF GR
+  0 _UG_ButtonSetAlternateBackColor                                6006 GR
+  0 _UG_ButtonSetAlternateForeColor                                5FC1 GR
+  0 _UG_ButtonSetBackColor                                         5F7C GR
+  0 _UG_ButtonSetFont                                              608D GR
+  0 _UG_ButtonSetForeColor                                         5F37 GR
+  0 _UG_ButtonSetHSpace                                            6165 GR
+  0 _UG_ButtonSetStyle                                             60CF GR
+  0 _UG_ButtonSetText                                              604B GR
+  0 _UG_ButtonSetVSpace                                            61A2 GR
+  0 _UG_ButtonShow                                                 5ECA GR
+  0 _UG_CheckboxCreate                                             6D51 GR
+  0 _UG_CheckboxDelete                                             6F4D GR
+  0 _UG_CheckboxGetAlignment                                       7541 GR
+  0 _UG_CheckboxGetAlternateBackColor                              73F8 GR
+  0 _UG_CheckboxGetAlternateForeColor                              73B0 GR
+  0 _UG_CheckboxGetBackColor                                       7368 GR
+  0 _UG_CheckboxGetChecked                                         72F2 GR
+  0 _UG_CheckboxGetFont                                            747A GR
+  0 _UG_CheckboxGetForeColor                                       7322 GR
+  0 _UG_CheckboxGetHSpace                                          74E1 GR
+  0 _UG_CheckboxGetStyle                                           74B4 GR
+  0 _UG_CheckboxGetText                                            7440 GR
+  0 _UG_CheckboxGetVSpace                                          7511 GR
+  0 _UG_CheckboxHide                                               6F88 GR
+  0 _UG_CheckboxSetAlignment                                       72B5 GR
+  0 _UG_CheckboxSetAlternateBackColor                              70DC GR
+  0 _UG_CheckboxSetAlternateForeColor                              7097 GR
+  0 _UG_CheckboxSetBackColor                                       7052 GR
+  0 _UG_CheckboxSetCheched                                         6FD0 GR
+  0 _UG_CheckboxSetFont                                            7163 GR
+  0 _UG_CheckboxSetForeColor                                       700D GR
+  0 _UG_CheckboxSetHSpace                                          723B GR
+  0 _UG_CheckboxSetStyle                                           71A5 GR
+  0 _UG_CheckboxSetText                                            7121 GR
+  0 _UG_CheckboxSetVSpace                                          7278 GR
+  0 _UG_CheckboxShow                                               6F63 GR
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 2.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+  0 _UG_ConsolePutString                                           1F45 GR
+  0 _UG_ConsoleSetArea                                             23A1 GR
+  0 _UG_ConsoleSetBackcolor                                        240C GR
+  0 _UG_ConsoleSetForecolor                                        23FA GR
+  0 _UG_DrawArc                                                    16B0 GR
+  0 _UG_DrawBMP                                                    4227 GR
+  0 _UG_DrawCircle                                                 11D4 GR
+  0 _UG_DrawFrame                                                  0E93 GR
+  0 _UG_DrawLine                                                   1A32 GR
+  0 _UG_DrawMesh                                                   0DCB GR
+  0 _UG_DrawPixel                                                  119F GR
+  0 _UG_DrawRoundFrame                                             0F66 GR
+  0 _UG_DriverDisable                                              406A GR
+  0 _UG_DriverEnable                                               403F GR
+  0 _UG_DriverRegister                                             4001 GR
+  0 _UG_FillCircle                                                 1498 GR
+  0 _UG_FillFrame                                                  09F1 GR
+  0 _UG_FillRoundFrame                                             0B07 GR
+  0 _UG_FillScreen                                                 09B2 GR
+  0 _UG_FontSelect                                                 09A0 GR
+  0 _UG_FontSetHSpace                                              2458 GR
+  0 _UG_FontSetVSpace                                              246A GR
+  0 _UG_GetXDim                                                    2442 GR
+  0 _UG_GetYDim                                                    244C GR
+  0 _UG_ImageCreate                                                905B GR
+  0 _UG_ImageDelete                                                9123 GR
+  0 _UG_ImageHide                                                  915E GR
+  0 _UG_ImageSetBMP                                                9184 GR
+  0 _UG_ImageShow                                                  9139 GR
+  0 _UG_Init                                                       0000 GR
+  0 _UG_PutChar                                                    1EF5 GR
+  0 _UG_PutString                                                  1CDA GR
+  0 _UG_SelectGUI                                                  098C GR
+  0 _UG_SetBackcolor                                               2430 GR
+  0 _UG_SetForecolor                                               241E GR
+  0 _UG_TextboxCreate                                              8774 GR
+  0 _UG_TextboxDelete                                              890E GR
+  0 _UG_TextboxGetAlignment                                        8C8D GR
+  0 _UG_TextboxGetBackColor                                        8B77 GR
+  0 _UG_TextboxGetFont                                             8BF5 GR
+  0 _UG_TextboxGetForeColor                                        8B2F GR
+  0 _UG_TextboxGetHSpace                                           8C2D GR
+  0 _UG_TextboxGetText                                             8BBF GR
+  0 _UG_TextboxGetVSpace                                           8C5D GR
+  0 _UG_TextboxHide                                                8949 GR
+  0 _UG_TextboxSetAlignment                                        8AF2 GR
+  0 _UG_TextboxSetBackColor                                        89B5 GR
+  0 _UG_TextboxSetFont                                             8A38 GR
+  0 _UG_TextboxSetForeColor                                        896F GR
+  0 _UG_TextboxSetHSpace                                           8A78 GR
+  0 _UG_TextboxSetText                                             89FA GR
+  0 _UG_TextboxSetVSpace                                           8AB5 GR
+  0 _UG_TextboxShow                                                8924 GR
+  0 _UG_TouchUpdate                                                43C8 GR
+  0 _UG_Update                                                     4095 GR
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 3.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+  0 _UG_WaitForUpdate                                              4212 GR
+  0 _UG_WindowAlert                                                4A61 GR
+  0 _UG_WindowCreate                                               4406 GR
+  0 _UG_WindowDelete                                               455E GR
+  0 _UG_WindowGetArea                                              5382 GR
+  0 _UG_WindowGetBackColor                                         5065 GR
+  0 _UG_WindowGetForeColor                                         5029 GR
+  0 _UG_WindowGetInnerHeight                                       557D GR
+  0 _UG_WindowGetInnerWidth                                        54E1 GR
+  0 _UG_WindowGetOuterHeight                                       55F2 GR
+  0 _UG_WindowGetOuterWidth                                        5538 GR
+  0 _UG_WindowGetStyle                                             5357 GR
+  0 _UG_WindowGetTitleColor                                        50DD GR
+  0 _UG_WindowGetTitleHeight                                       5270 GR
+  0 _UG_WindowGetTitleInactiveColor                                5155 GR
+  0 _UG_WindowGetTitleInactiveTextColor                            5119 GR
+  0 _UG_WindowGetTitleText                                         5191 GR
+  0 _UG_WindowGetTitleTextAlignment                                5245 GR
+  0 _UG_WindowGetTitleTextColor                                    50A1 GR
+  0 _UG_WindowGetTitleTextFont                                     51C0 GR
+  0 _UG_WindowGetTitleTextHSpace                                   51EF GR
+  0 _UG_WindowGetTitleTextVSpace                                   521A GR
+  0 _UG_WindowGetXEnd                                              52F9 GR
+  0 _UG_WindowGetXStart                                            529B GR
+  0 _UG_WindowGetYEnd                                              5328 GR
+  0 _UG_WindowGetYStart                                            52CA GR
+  0 _UG_WindowHide                                                 4607 GR
+  0 _UG_WindowResize                                               4738 GR
+  0 _UG_WindowSetBackColor                                         4B0B GR
+  0 _UG_WindowSetForeColor                                         4ACF GR
+  0 _UG_WindowSetStyle                                             4FD1 GR
+  0 _UG_WindowSetTitleColor                                        4B85 GR
+  0 _UG_WindowSetTitleHeight                                       4D9B GR
+  0 _UG_WindowSetTitleInactiveColor                                4BFF GR
+  0 _UG_WindowSetTitleInactiveTextColor                            4BC2 GR
+  0 _UG_WindowSetTitleText                                         4C3C GR
+  0 _UG_WindowSetTitleTextAlignment                                4D66 GR
+  0 _UG_WindowSetTitleTextColor                                    4B48 GR
+  0 _UG_WindowSetTitleTextFont                                     4C76 GR
+  0 _UG_WindowSetTitleTextHSpace                                   4CFC GR
+  0 _UG_WindowSetTitleTextVSpace                                   4D31 GR
+  0 _UG_WindowSetXEnd                                              4ECC GR
+  0 _UG_WindowSetXStart                                            4DD4 GR
+  0 _UG_WindowSetYEnd                                              4F48 GR
+  0 _UG_WindowSetYStart                                            4E50 GR
+  0 _UG_WindowShow                                                 45D2 GR
+  0 __UG_ButtonUpdate                                              646B GR
+  0 __UG_CheckboxUpdate                                            7571 GR
+  0 __UG_DeleteObject                                              3767 GR
+  0 __UG_DrawObjectFrame                                           3B94 GR
+  0 __UG_GetFreeObject                                             36AA GR
+  0 __UG_HandleEvents                                              3A9A GR
+  1 __UG_HandleEvents_msg_1_350                                    0002 R
+  0 __UG_ImageUpdate                                               91C7 GR
+  0 __UG_ProcessTouchData                                          37C4 GR
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 4.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+  0 __UG_PutChar                                                   247C GR
+  0 __UG_PutText                                                   3237 GR
+  0 __UG_SearchObject                                              36F1 GR
+  0 __UG_SendObjectPostrenderEvent                                 3FA1 GR
+  0 __UG_SendObjectPrerenderEvent                                  3F41 GR
+  0 __UG_TextboxUpdate                                             8CBD GR
+  0 __UG_UpdateObjects                                             39A1 GR
+  0 __UG_WindowClear                                               5BE6 GR
+  0 __UG_WindowDrawTitle                                           5637 GR
+  0 __UG_WindowUpdate                                              5962 GR
+    ___sdcc_call_hl                                                **** GX
+  0 ___str_0                                                       5EB2 R
+  0 ___str_1                                                       6F4B R
+    __modsint                                                      **** GX
+    __mulint                                                       **** GX
+    __mullong                                                      **** GX
+  0 _font_5x8                                                      017F GR
+  1 _gui                                                           0000 R
+  0 _pal_button_pressed                                            3177 GR
+  0 _pal_button_released                                           31A7 GR
+  0 _pal_checkbox_pressed                                          31D7 GR
+  0 _pal_checkbox_released                                         3207 GR
+  0 _pal_window                                                    3147 GR
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180), page 5.
+Hexadecimal [16-Bits]
+
+Area Table
+
+   0 _CODE                                      size 9414   flags    0
+   1 _DATA                                      size    8   flags    0
+   2 _INITIALIZED                               size    0   flags    0
+   3 _DABS                                      size    0   flags    8
+   4 _HOME                                      size    0   flags    0
+   5 _GSINIT                                    size    0   flags    0
+   6 _GSFINAL                                   size    0   flags    0
+   7 _INITIALIZER                               size    0   flags    0
+   8 _CABS                                      size    0   flags    8
+

@@ -30,10 +30,12 @@
 #include "uart.h"
 #include "i2c.h"
 #include "ssd1306.h"
+#include "ugui.h"
 
 int8_t start = 0;
 uint8_t *addr;
 uint16_t last_usable_addr = 0;
+//UG_GUI gui;
 int8_t free = 0;
 
 void delay(uint16_t t)
@@ -101,6 +103,23 @@ void main ()
     );
 
     out(port_a, 0x02);
+
+    // UG_Init(&gui, ssd1306_setPixel, 128-1, 64-1);
+
+    // UG_FillScreen( C_GREEN );
+    // ssd1306_update();
+
+    // UG_DrawFrame( 0, 0, 128-3, 64-3, C_WHITE );
+    // ssd1306_update();
+
+    // UG_FontSelect(&FONT_5X8);
+    // UG_ConsoleSetArea(1,64-32,128-3,64-3);
+    // UG_ConsoleSetBackcolor(C_BLACK);
+    // UG_ConsoleSetForecolor(C_WHITE);
+
+    // sprintf(buffer, "Test1\nTest2\n");
+    // UG_ConsolePutString(buffer);
+    // ssd1306_update();
 
     //UART Terminal
     while(1)
