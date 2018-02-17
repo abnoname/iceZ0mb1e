@@ -80,13 +80,15 @@ endif
 ###############################################################################
 # Tool Output
 ###############################################################################
-VCD_OUT = ./simulation/_test.vcd
-COMPILE_OUT = ./simulation/_compiler.out
-SYNTH_OUT = ./synthesis/_synth_output.v
-FPGA_BLIF_OUT = ./synthesis/_fpga.blif
-FPGA_TXT_OUT = ./synthesis/_fpga.txt
-FPGA_EX_OUT = ./synthesis/_fpga.ex
-FPGA_BIN_OUT = ./synthesis/_fpga.bin
+SIM_DIR = ./simulation
+SYNTH_DIR = ./synthesis
+VCD_OUT = $(SIM_DIR)/_test.vcd
+COMPILE_OUT = $(SIM_DIR)/_compiler.out
+SYNTH_OUT = $(SYNTH_DIR)/_synth_output.v
+FPGA_BLIF_OUT = $(SYNTH_DIR)/_fpga.blif
+FPGA_TXT_OUT = $(SYNTH_DIR)/_fpga.txt
+FPGA_EX_OUT = $(SYNTH_DIR)/_fpga.ex
+FPGA_BIN_OUT = $(SYNTH_DIR)/_fpga.bin
 
 ###############################################################################
 # Tools
@@ -130,6 +132,8 @@ sim: firmware $(COMPILE_OUT) $(VCD_OUT)
 # Synthesis
 ###############################################################################
 fpga: $(SRC) $(FPGA_PINMAP) firmware
+	-mkdir $(SIM_DIR)
+	-mkdir $(SYNTH_DIR)
 	$(YOSYS) -q -o $(SYNTH_OUT) $(YOSYSFLAGS) $(SRC)
 	$(ARACHNEPNR) $(ARACHNEFLAGS) -p $(FPGA_PINMAP) $(FPGA_BLIF_OUT) -o $(FPGA_TXT_OUT)
 	$(ICEBOXEXPLAIN) $(FPGA_TXT_OUT) > $(FPGA_EX_OUT)
@@ -144,10 +148,6 @@ sram: $(FPGA_BIN_OUT)
 ###############################################################################
 clean:
 	$(MAKE) -C $(FIRMWARE_DIR) clean
-	rm -f ./source/*.blif
-	rm -f ./source/*.ys
-	rm -f *.log
 	rm -f $(SYNTH_OUT)
-	rm -f ./layout/*
-	rm -f ./simulation/*
-	rm -f ./synthesis/*
+	rm -f $(SIM_DIR)/*
+	rm -f $(SYNTH_DIR)/*
