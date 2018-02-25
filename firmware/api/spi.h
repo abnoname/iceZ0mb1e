@@ -31,8 +31,5 @@
 uint8_t spi_config(uint8_t mode);
 uint8_t spi_xfer_1(uint8_t cmd);
 uint8_t spi_xfer_2(uint8_t cmd);
-// uint8_t spi_write(uint8_t addr, uint8_t cmd);
-// uint8_t spi_read_buf(uint8_t addr, uint8_t *buf, uint16_t size);
-// void spi_write_buf(uint8_t addr, uint8_t* buf, uint16_t size );
 
 #endif
