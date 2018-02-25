@@ -66,7 +66,7 @@ module simplespi(
 		if (reset == 1'b1) begin
 			fsm_state <= STATE_IDLE;
 			sync_start <= 2'b00;
-			sclk_o <= 1'b 0;
+			sclk_o <= 1'b 1;
 			req_next <= 1'b0;
 		end	else begin
 			if (clk_spi_en == 1'b1) begin
