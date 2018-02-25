@@ -53,6 +53,12 @@ void Read_SPI_25L008A(uint8_t *buffer, uint16_t len)
     spi_xfer(spi_send, buffer, 4, 64);
 }
 
+void Read_I2C_PCF8523(uint8_t *buffer, uint16_t len)
+{
+    i2c_write(0x68, 0x00);
+    i2c_read_buf(0x68, buffer, len);
+}
+
 void main ()
 {
     uint8_t buffer[64];
@@ -72,9 +78,8 @@ void main ()
     }
     printf("\r\n");
 
-    // I2C read test (pcf8523):
-    i2c_write(0x68, 0x00);
-    i2c_read_buf(0x68, buffer, 20);
+    //I2C Test
+    Read_I2C_PCF8523(buffer, 20);
     for(x = 0; x < 20; x++)
     {
         printf("0x%X ", buffer[x]);
