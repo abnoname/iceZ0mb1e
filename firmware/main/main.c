@@ -45,6 +45,14 @@ void delay(uint16_t t)
     for(i = 0; i < t; i++);
 }
 
+void Read_SPI_25L008A(uint8_t *buffer, uint16_t len)
+{
+    uint8_t spi_send[4] = {0x3, 0x00, 0x00, 0x00};
+
+    spi_config(0);
+    spi_xfer(spi_send, buffer, 4, 64);
+}
+
 void main ()
 {
     uint8_t buffer[64];
@@ -52,14 +60,17 @@ void main ()
     int8_t uart_rx = 0;
     int16_t x, y;
 
-    //SPI Test
-    spi_config(0);
-    spi_xfer_1(0xFF);
-    spi_xfer_2(0x55);
-
     //UART Test
     Initialize_16450(9600);
     printf("iceZ0mb1e SoC by abnoname\r\n");
+
+    //SPI Test
+    Read_SPI_25L008A(buffer, 64);
+    for(x = 0; x < 64; x++)
+    {
+        printf("0x%X ", buffer[x]);
+    }
+    printf("\r\n");
 
     // I2C read test (pcf8523):
     i2c_write(0x68, 0x00);

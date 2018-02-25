@@ -29,7 +29,7 @@
 #include <stdint.h>
 
 uint8_t spi_config(uint8_t mode);
-uint8_t spi_xfer_1(uint8_t cmd);
-uint8_t spi_xfer_2(uint8_t cmd);
+uint8_t spi_xfer_single(uint8_t cmd);
+void spi_xfer(uint8_t *tx, uint8_t *rx, uint16_t tx_len, uint16_t rx_len);
 
 #endif

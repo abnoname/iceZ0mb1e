@@ -1,12 +1,19 @@
 ### iceZ0mb1e
 
 iceZ0mb1e aims to build a TV80 based demonstration system-on-chip using complete open source FPGA toolchain flow (http://www.clifford.at/yosys/) including firmware compilation with SDCC.
+This is a complete microcontroller based on customizable open source components.
 
 ### iceZ0mb1e consists of following parts
 * TV80 CPU (https://opencores.org/project,tv80,overview)
-* SoC RTL design (iceZ0mb1e => UART16450, simple parallel IO, RAM and ROM using BRAM)
+* SoC RTL design (iceZ0mb1e)
+* RAM and ROM using BRAM)
+* UART 16450 compatible
+* Simple Parallel IO
+* i2C Master
+* SPI Master (all CPOL/CPHA modes supported)
 * Top-Level designs for some iCE40 development boards (upduino, HX8K Breakout Board)
 * C based firmware, that is embedded into BRAM blocks during build
+* API Functions for all hardware interfaces
 * Complete make based flow, to be as clean as possible
 
 ### Supported FPGAs

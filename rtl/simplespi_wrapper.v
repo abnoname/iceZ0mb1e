@@ -87,7 +87,7 @@ module simplespi_wrapper (
 		.req_next		(reg_status[0]),
 
 		.start			(reg_command[0]),
-		.stop			(reg_command[1]),
+		.finish			(reg_command[1]),
 
 		.CPOL			(reg_config[1]),
 		.CPHA			(reg_config[0]),

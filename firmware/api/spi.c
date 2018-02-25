@@ -32,7 +32,7 @@
 #define SPI_CFG_CPOL    0x02
 
 #define SPI_CMD_START   0x01
-#define SPI_CMD_STOP    0x02
+#define SPI_CMD_FINISH    0x02
 #define SPI_CMD_RESET   0x80
 
 #define SPI_STAT_REQ    0x01
@@ -47,32 +47,41 @@ uint8_t spi_config(uint8_t mode)
     out(spi_cfg, mode);
 }
 
-uint8_t spi_xfer_1(uint8_t cmd)
+uint8_t spi_xfer_single(uint8_t cmd)
 {
     out(spi_cmd, 0x00);
 
     out(spi_dat_out, cmd);
-    out(spi_cmd, SPI_CMD_STOP | SPI_CMD_START);
+    out(spi_cmd, SPI_CMD_FINISH | SPI_CMD_START);
     out(spi_cmd, 0);
     while((in(spi_status) & SPI_STAT_REQ) == 0);
 
     return in(spi_dat_in);
 }
 
-uint8_t spi_xfer_2(uint8_t cmd)
+void spi_xfer(uint8_t *tx, uint8_t *rx, uint16_t tx_len, uint16_t rx_len)
 {
+    uint16_t i = 0;
+    uint16_t len = rx_len;
+
+    if( tx_len >= rx_len )
+    {
+        len = tx_len;
+    }
+
     out(spi_cmd, 0x00);
 
-    out(spi_dat_out, cmd);
-    out(spi_cmd, SPI_CMD_START);
-    out(spi_cmd, 0);
-    while((in(spi_status) & SPI_STAT_REQ) == 0);
+    for(i = 0; i < len; i++)
+    {
+        out(spi_dat_out, (i < tx_len) ? tx[i] : 0x00);
+        out(spi_cmd, (i == (len-1)) ? SPI_CMD_FINISH | SPI_CMD_START : SPI_CMD_START);
+        out(spi_cmd, 0);
+        while((in(spi_status) & SPI_STAT_REQ) == 0);
 
-    out(spi_dat_out, 0x00);
-    out(spi_cmd, SPI_CMD_STOP | SPI_CMD_START);
-    out(spi_cmd, 0);
-    while((in(spi_status) & SPI_STAT_REQ) == 0);
-
-    return in(spi_dat_in);
+        if(i < rx_len)
+        {
+            rx[i] = in(spi_dat_in);
+        }
+    }
 }
 

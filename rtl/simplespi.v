@@ -30,7 +30,7 @@ module simplespi(
 	output req_next,
 
 	input start,
-	input stop,
+	input finish,
 
 	input CPOL,
 	input CPHA,
@@ -46,12 +46,12 @@ module simplespi(
 
 	localparam STATE_IDLE = 0;
 	localparam STATE_START = 1;
-	localparam STATE_DATA_L = 2;
-	localparam STATE_DATA_H = 3;
+	localparam STATE_DATA_SETUP = 2;
+	localparam STATE_DATA_SAMPLE = 3;
 
 	reg[1:0] sync_start;
 	wire start_edge = (sync_start == 2'b01);
-	reg latch_stop;
+	reg latch_finish;
 
 	reg [7:0] data_read;
 	reg req_next;
@@ -82,22 +82,22 @@ module simplespi(
 
 					STATE_START: begin
 						req_next <= 1'b0;
-						latch_stop <= stop;
+						latch_finish <= finish;
 						bit_count <= 8'd 7;
-						fsm_state <= STATE_DATA_L;
+						fsm_state <= STATE_DATA_SETUP;
 						if (CPHA == 1'b1) begin
 							cs <= 1'b 0;
 						end
 					end
 
-					STATE_DATA_L: begin
+					STATE_DATA_SETUP: begin
 						sclk_o <= (CPHA == 1'b0) ? 1'b1 : 1'b0;
 						cs <= 1'b 0;
 						mosi <= data_write[bit_count];
-						fsm_state <= STATE_DATA_H;
+						fsm_state <= STATE_DATA_SAMPLE;
 					end
 
-					STATE_DATA_H: begin
+					STATE_DATA_SAMPLE: begin
 						sclk_o <= (CPHA == 1'b0) ? 1'b0 : 1'b1;
 						data_read[bit_count] <= miso;
 						if (bit_count == 8'd0) begin
@@ -106,11 +106,11 @@ module simplespi(
 								req_next <= 0;
 								fsm_state <= STATE_START;
 							end
-							if (latch_stop == 1'b 1) begin
+							if (latch_finish == 1'b 1) begin
 								fsm_state <= STATE_IDLE;
 							end
 						end else begin
-							fsm_state <= STATE_DATA_L;
+							fsm_state <= STATE_DATA_SETUP;
 							bit_count <= bit_count - 1;
 						end
 					end
