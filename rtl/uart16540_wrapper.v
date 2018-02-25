@@ -23,7 +23,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-module uart16540toZ80 (
+module uart16540_wrapper (
     input clk,
     input reset_n,
     inout[7:0] data_out,

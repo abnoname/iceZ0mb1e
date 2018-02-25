@@ -31,8 +31,9 @@ module tb_iceZ0mb1e;
         $dumpfile(`__def_vcd_file);
         $dumpvars(0, tb_iceZ0mb1e);
 
+        # 15E3 $finish;
         //# 250E3 $finish;
-        # 1E6 $finish;
+        //# 1E6 $finish;
     end
 
     reg clk = 0;
@@ -41,18 +42,24 @@ module tb_iceZ0mb1e;
     inout [7:0] port_a;
     inout [7:0] port_b;
     inout i2c_scl, i2c_sda;
+    output sclk, cs, mosi;
+    input miso;
     wire rx;
     wire tx = 0;
 
     iceZ0mb1e t1 (
         .clk        (clk),
-        .txd        (tx),
-        .rxd        (rx),
-        .i2c_scl	(i2c_scl),
+        .uart_txd   (tx),
+        .uart_rxd   (rx),
+		.i2c_scl	(i2c_scl),
 		.i2c_sda	(i2c_sda),
-        .port_a     (port_a),
-        .port_b     (port_b),
-        .debug      ()
+    	.spi_sclk	(spi_sclk),
+		.spi_mosi	(spi_mosi),
+		.spi_miso	(spi_miso),
+    	.spi_cs		(spi_cs),
+		.port_a		(port_a),
+		.port_b		(port_b),
+		.debug		()
     );
 
 endmodule

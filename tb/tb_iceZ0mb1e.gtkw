@@ -1,18 +1,19 @@
 [*]
 [*] GTKWave Analyzer v3.3.66 (w)1999-2015 BSI
-[*] Fri Feb  2 09:30:58 2018
+[*] Sun Feb 25 10:46:29 2018
 [*]
 [dumpfile] "/media/storage/Daten/Projekte/iceZ0mb1e/simulation/_test.vcd"
-[dumpfile_mtime] "Fri Feb  2 09:28:01 2018"
-[dumpfile_size] 65739461
-[savefile] "/media/storage/Daten/Projekte/iceZ0mb1e/tb/iceZ0mb1e.gtkw"
-[timestart] 470
+[dumpfile_mtime] "Sun Feb 25 10:42:35 2018"
+[dumpfile_size] 1099029
+[savefile] "/media/storage/Daten/Projekte/iceZ0mb1e/tb/tb_iceZ0mb1e.gtkw"
+[timestart] 0
 [size] 1000 600
-[pos] 315 96
-*-12.000000 6477 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] 441 187
+*-11.000000 1739 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb_iceZ0mb1e.
 [treeopen] tb_iceZ0mb1e.t1.
 [treeopen] tb_iceZ0mb1e.t1.i2c0.
+[treeopen] tb_iceZ0mb1e.t1.spi0.
 [sst_width] 225
 [signals_width] 158
 [sst_expanded] 1
@@ -28,10 +29,27 @@ tb_iceZ0mb1e.t1.i2c0.master.fsm_state[4:0]
 tb_iceZ0mb1e.t1.i2c0.master.start[0]
 tb_iceZ0mb1e.t1.i2c0.master.start_edge[0]
 tb_iceZ0mb1e.t1.i2c0.master.sync_start[1:0]
-tb_iceZ0mb1e.t1.i2c0.master.req_next_byte[0]
-tb_iceZ0mb1e.t1.i2c0.master.xfer_ready[0]
 tb_iceZ0mb1e.t1.i2c0.master.mode_rw[0]
-@23
-tb_iceZ0mb1e.t1.i2c0.master.local_data[7:0]
+tb_iceZ0mb1e.t1.spi0.spi_clk_en[0]
+tb_iceZ0mb1e.t1.spi0.sclk[0]
+tb_iceZ0mb1e.t1.spi0.mosi[0]
+tb_iceZ0mb1e.t1.spi0.miso[0]
+tb_iceZ0mb1e.t1.spi0.cs[0]
+@22
+tb_iceZ0mb1e.t1.spi0.master.bit_count[7:0]
+tb_iceZ0mb1e.t1.spi0.master.fsm_state[4:0]
+@28
+tb_iceZ0mb1e.t1.spi0.master.latch_stop[0]
+@22
+tb_iceZ0mb1e.t1.spi0.master.data_read[7:0]
+tb_iceZ0mb1e.t1.spi0.master.data_write[7:0]
+@28
+tb_iceZ0mb1e.t1.spi0.master.req_next[0]
+tb_iceZ0mb1e.t1.spi0.master.start_edge[0]
+tb_iceZ0mb1e.t1.spi0.master.stop[0]
+@29
+tb_iceZ0mb1e.t1.spi0.master.CPOL[0]
+@28
+tb_iceZ0mb1e.t1.spi0.master.CPHA[0]
 [pattern_trace] 1
 [pattern_trace] 0

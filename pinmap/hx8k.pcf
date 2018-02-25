@@ -1,3 +1,5 @@
+set_io clk J3
+
 set_io D1 B5
 set_io D2 B4
 set_io D3 A2
@@ -7,7 +9,13 @@ set_io D6 C4
 set_io D7 B3
 set_io D8 C3
 
-set_io clk J3
+set_io i2c_scl C16
+set_io i2c_sda B16
 
-set_io rxd B10
-set_io txd B12
+set_io spi_cs D16
+set_io spi_sclk E16
+set_io spi_mosi D14
+set_io spi_miso D15
+
+set_io uart_rxd B10
+set_io uart_txd B12

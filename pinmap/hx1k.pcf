@@ -1,3 +1,5 @@
+set_io clk 21
+
 set_io D1 99
 set_io D2 98
 set_io D3 97
@@ -7,7 +9,13 @@ set_io D6 101
 set_io D7 102
 set_io D8 104
 
-set_io clk 21
+set_io i2c_scl 112
+set_io i2c_sda 113
 
-set_io rxd 9
-set_io txd 8
+set_io spi_cs 116
+set_io spi_sclk 117
+set_io spi_mosi 118
+set_io spi_miso 119
+
+set_io uart_rxd 9
+set_io uart_txd 8

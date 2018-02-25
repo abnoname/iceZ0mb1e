@@ -23,7 +23,25 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-module top(input clk, output D1, output D2, output D3, output D4, output D5, output D6, output D7, output D8, output txd, input rxd);
+module top(
+	input clk,
+	output D1,
+	output D2,
+	output D3,
+	output D4,
+	output D5,
+	output D6,
+	output D7,
+	output D8,
+	output uart_txd,
+	input uart_rxd,
+	output i2c_scl,
+	inout  i2c_sda,
+    output spi_sclk,
+	output spi_mosi,
+	inout  spi_miso,
+    output spi_cs
+);
 
 	wire[7:0] port_a;
 	wire[7:0] port_b;
@@ -38,12 +56,18 @@ module top(input clk, output D1, output D2, output D3, output D4, output D5, out
 	assign D8 = port_a[7];
 
 	iceZ0mb1e core (
-		.clk	(clk),
-		.txd	(txd),
-		.rxd	(rxd),
-		.port_a	(port_a),
-		.port_b	(port_b),
-		.debug	()
+		.clk		(clk),
+		.uart_txd	(uart_txd),
+		.uart_rxd	(uart_rxd),
+		.i2c_scl	(i2c_scl),
+		.i2c_sda	(i2c_sda),
+    	.spi_sclk	(spi_sclk),
+		.spi_mosi	(spi_mosi),
+		.spi_miso	(spi_miso),
+    	.spi_cs		(spi_cs),
+		.port_a		(port_a),
+		.port_b		(port_b),
+		.debug		()
 	);
 
 endmodule

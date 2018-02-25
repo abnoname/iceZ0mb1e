@@ -23,49 +23,16 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-module top(
-	output uart_txd,
-	input uart_rxd,
-	output LED_R,
-	output LED_G,
-	output LED_B,
-	output i2c_scl,
-	inout  i2c_sda,
-    output spi_sclk,
-	output spi_mosi,
-	inout  spi_miso,
-    output spi_cs
-);
+#ifndef __SPI_H
+#define __SPI_H
 
-	wire clk;
+#include <stdint.h>
 
-	wire[7:0] port_a;
-	wire[7:0] port_b;
+uint8_t spi_config(uint8_t mode);
+uint8_t spi_xfer_1(uint8_t cmd);
+uint8_t spi_xfer_2(uint8_t cmd);
+// uint8_t spi_write(uint8_t addr, uint8_t cmd);
+// uint8_t spi_read_buf(uint8_t addr, uint8_t *buf, uint16_t size);
+// void spi_write_buf(uint8_t addr, uint8_t* buf, uint16_t size );
 
-	assign LED_R = !port_a[0];
-	assign LED_G = !port_a[1];
-	assign LED_B = !port_a[2];
-
-	//Source = 48MHz, CLKHF_DIV = 2’b00 : 00 = div1, 01 = div2, 10 = div4, 11 = div8 ; Default = “00”
-	SB_HFOSC #(.CLKHF_DIV("0b10")) osc (
-		.CLKHFPU(1'b1),
-		.CLKHFEN(1'b1),
-		.CLKHF(clk)
-	);
-
-	iceZ0mb1e core (
-		.clk		(clk),
-		.uart_txd	(uart_txd),
-		.uart_rxd	(uart_rxd),
-		.i2c_scl	(i2c_scl),
-		.i2c_sda	(i2c_sda),
-    	.spi_sclk	(spi_sclk),
-		.spi_mosi	(spi_mosi),
-		.spi_miso	(spi_miso),
-    	.spi_cs		(spi_cs),
-		.port_a		(port_a),
-		.port_b		(port_b),
-		.debug		()
-	);
-
-endmodule
+#endif

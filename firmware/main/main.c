@@ -29,6 +29,7 @@
 #include "ioport.h"
 #include "uart.h"
 #include "i2c.h"
+#include "spi.h"
 #include "ssd1306.h"
 #include "ugui.h"
 
@@ -50,6 +51,11 @@ void main ()
 
     int8_t uart_rx = 0;
     int16_t x, y;
+
+    //SPI Test
+    spi_config(0);
+    spi_xfer_1(0xFF);
+    spi_xfer_2(0x55);
 
     //UART Test
     Initialize_16450(9600);

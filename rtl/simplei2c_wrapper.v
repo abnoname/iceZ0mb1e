@@ -23,7 +23,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-module i2cmastertoZ80 (
+module simplei2c_wrapper (
     input clk,
     input reset_n,
     inout[7:0] data_out,
@@ -69,7 +69,7 @@ module i2cmastertoZ80 (
 
 	clk_enable i2c_clk_divider (
 		.reset(!reset_n),
-		.divider(30/2),
+		.divider(30/2), //f=12E6/30=400kHz => div=30/2
 		.clk_in(clk),
 		.clk_en(i2c_clk_en)
 	);
