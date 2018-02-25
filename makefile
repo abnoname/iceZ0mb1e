@@ -122,6 +122,7 @@ firmware:
 # Simulation
 ###############################################################################
 $(COMPILE_OUT): $(TESTBENCH) $(SRC)
+	-mkdir $(SIM_DIR)
 	$(COMPILER) $(COFLAGS) -o $(COMPILE_OUT) $(TESTBENCH) $(SRC)
 
 $(VCD_OUT): $(COMPILE_OUT)
@@ -134,7 +135,6 @@ sim: firmware $(COMPILE_OUT) $(VCD_OUT)
 # Synthesis
 ###############################################################################
 fpga: $(SRC) $(FPGA_PINMAP) firmware
-	-mkdir $(SIM_DIR)
 	-mkdir $(SYNTH_DIR)
 	$(YOSYS) -q -o $(SYNTH_OUT) $(YOSYSFLAGS) $(SRC)
 	$(ARACHNEPNR) $(ARACHNEFLAGS) -p $(FPGA_PINMAP) $(FPGA_BLIF_OUT) -o $(FPGA_TXT_OUT)
