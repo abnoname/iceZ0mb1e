@@ -1,16 +1,17 @@
 ### iceZ0mb1e
 
 iceZ0mb1e aims to build a TV80 based demonstration system-on-chip using complete open source FPGA toolchain flow (http://www.clifford.at/yosys/) including firmware compilation with SDCC.
-This is a complete microcontroller based on customizable open source components.
+
+This is a complete free microcontroller based on customizable open source components.
 
 ### iceZ0mb1e consists of following parts
 * TV80 CPU (https://opencores.org/project,tv80,overview)
-* SoC RTL design (iceZ0mb1e)
-* RAM and ROM using BRAM)
-* UART 16450 compatible
-* Simple Parallel IO
-* i2C Master
-* SPI Master (all CPOL/CPHA modes supported)
+* SoC RTL design, iceZ0mb1e consists of:
+    * RAM and ROM (using BRAM)
+    * UART 16450 compatible
+    * Parallel IO
+    * i2C Master
+    * SPI Master (all CPOL/CPHA modes supported)
 * Top-Level designs for some iCE40 development boards (upduino, HX8K Breakout Board)
 * C based firmware, that is embedded into BRAM blocks during build
 * API Functions for all hardware interfaces
@@ -30,6 +31,8 @@ The included test firmware will check the RAM size and write some data to IO por
 * RAM = 0x2000 - 0x2FFF (4096 Byte)
 * 16450 UART Base IO = 0x18
 * Parallel Base IO = 0x40
+* i2C Master = 0x50
+* SPI Master = 060
 
 ### Build for Target
 * UltraPlus 5K (default target): ```make firmware && make fpga && make flash```
@@ -84,7 +87,9 @@ sudo apt-get install iverilog gtkwave
 
 ### Installing SDCC toolchain
 ```
-sudo apt-get install sdcc sdcc-doc sdcc-libraries sdcc-ucsim z80asm z80dasm z88dk z88dk-bin z88dk-data z88dk-doc srecord
+sudo apt-get install sdcc sdcc-doc sdcc-libraries sdcc-ucsim \
+                     z80asm z80dasm z88dk z88dk-bin z88dk-data \
+                     z88dk-doc srecord
 ```
 
 ### Why iceZ0mb1e?
