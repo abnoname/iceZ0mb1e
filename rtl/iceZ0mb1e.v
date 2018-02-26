@@ -93,7 +93,7 @@ module iceZ0mb1e (
 	assign ram_rd_cs = !mreq_n & !rd_n & (addr >= 15'h2000) & (addr < 15'h3000);
 	assign ram_wr_cs = !mreq_n & !wr_n & (addr >= 15'h2000) & (addr < 15'h3000);
 
-	tv80s tv80s_inst
+	tv80s cpu
 	(
 		.m1_n		(m1_n),
 		.mreq_n		(mreq_n),
@@ -113,6 +113,7 @@ module iceZ0mb1e (
 		.busrq_n	(busrq_n),
 		.di			(data_in[7:0])
 	);
+	defparam cpu.Mode = 1; // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
 
 	membram #(12)  ram
 	(

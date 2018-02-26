@@ -45,10 +45,15 @@ module membram #(
     assign data_out = (rd_cs) ? mem_8[addr] : 8'bz;
 
     reg [7:0] mem_8 [0:(1 << ADDR_WIDTH)-1];
+    integer j;
     initial begin
         if( MEM_INIT > 0 ) begin
             $readmemh(MEM_HEX, mem_8);
         end
+        // else begin
+        //     for(j = 0; j < (1 << ADDR_WIDTH); j = j+1)
+        //         mem_8[j] = 8'hFF;
+        // end
     end
 
     always @(posedge wr_clk)
