@@ -2,13 +2,13 @@ set_io LED_R 41
 set_io LED_G 39
 set_io LED_B 40
 
-set_io i2c_scl 26
-set_io i2c_sda 27
+set_io i2c_scl 27
+set_io i2c_sda 26
 
 set_io spi_cs 2
-set_io spi_sclk 46
-set_io spi_mosi 47
-set_io spi_miso 45
+set_io spi_sclk 42
+set_io spi_mosi 36
+set_io spi_miso 46
 
-set_io uart_rxd 23
-set_io uart_txd 25
+set_io uart_rxd 13
+set_io uart_txd 19
