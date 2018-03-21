@@ -31,12 +31,10 @@
 #include "i2c.h"
 #include "spi.h"
 #include "ssd1306.h"
-#include "ugui.h"
 
 int8_t start = 0;
 uint8_t *addr;
 uint16_t last_usable_addr = 0;
-//UG_GUI gui;
 int8_t free = 0;
 
 void delay(uint16_t t)
@@ -87,16 +85,11 @@ void main ()
     printf("\r\n");
 
     //I2C OLED display test:
-    ssd1306_init(0x3C);
+    ssd1306_initialize(0x3C);
     ssd1306_clear();
-    for(x = 0; x < SSD1306_WIDTH; x+=2)
-    {
-        for(y = 0; y < SSD1306_HEIGHT; y+=2)
-        {
-            ssd1306_setPixel(x, y, 1);
-        }
-    }
-    ssd1306_update();
+    ssd1306_writeString(0, 0, 10, "0123456789");
+    ssd1306_writeString(2, 0, 10, "0123456789");
+    ssd1306_writeString(3, 0, 10, "0123456789");
 
     //LED IO
     out(port_cfg, 0x00); //mode = output
@@ -125,23 +118,6 @@ void main ()
     );
 
     out(port_a, 0x02);
-
-    // UG_Init(&gui, ssd1306_setPixel, 128-1, 64-1);
-
-    // UG_FillScreen( C_GREEN );
-    // ssd1306_update();
-
-    // UG_DrawFrame( 0, 0, 128-3, 64-3, C_WHITE );
-    // ssd1306_update();
-
-    // UG_FontSelect(&FONT_5X8);
-    // UG_ConsoleSetArea(1,64-32,128-3,64-3);
-    // UG_ConsoleSetBackcolor(C_BLACK);
-    // UG_ConsoleSetForecolor(C_WHITE);
-
-    // sprintf(buffer, "Test1\nTest2\n");
-    // UG_ConsolePutString(buffer);
-    // ssd1306_update();
 
     //UART Terminal
     while(1)

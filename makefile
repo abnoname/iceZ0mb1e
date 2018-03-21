@@ -55,6 +55,12 @@ CODE_LOCATION = 0x0200
 DATA_LOCATION = 0x2000
 
 ###############################################################################
+# IO
+###############################################################################
+SERIALPORT = /dev/ttyUSB1
+SERIALBAUD = 9600
+
+###############################################################################
 # Default
 ###############################################################################
 TARGET = 5k
@@ -148,6 +154,12 @@ sram: $(FPGA_BIN_OUT)
 	$(ICEPROG) -s $(ICEPROG_PARAM) $(FPGA_BIN_OUT)
 
 ###############################################################################
+serial:
+	#stty raw -F $(SERIALPORT) speed $(SERIALBAUD)
+	#gtkterm --port $(SERIALPORT) --speed $(SERIALBAUD)
+	echo "To end the session, press Ctrl+a followed by k."
+	screen $(SERIALPORT) $(SERIALBAUD)
+
 clean:
 	$(MAKE) -C $(FIRMWARE_DIR) clean
 	rm -f $(SYNTH_OUT)

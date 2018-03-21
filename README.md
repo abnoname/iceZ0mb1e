@@ -88,8 +88,7 @@ sudo apt-get install iverilog gtkwave
 ### Installing SDCC toolchain
 ```
 sudo apt-get install sdcc sdcc-doc sdcc-libraries sdcc-ucsim \
-                     z80asm z80dasm z88dk z88dk-bin z88dk-data \
-                     z88dk-doc srecord
+                     z80asm z80dasm srecord
 ```
 
 ### Why iceZ0mb1e?
