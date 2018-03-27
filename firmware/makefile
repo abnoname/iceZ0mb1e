@@ -35,8 +35,8 @@ all: $(FIRMWARE_IMG).bin $(FIRMWARE_IMG).hex $(FIRMWARE_IMG).vhex $(FIRMWARE_IMG
 ###############################################################################
 # Tools
 ###############################################################################
-CC = sdcc
-ASM = sdasz80
+CC = sdcc --std-sdcc99 -$(ARCH) --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION)
+ASM = sdasz80 -glos
 DASM = z80dasm
 PACKIHX = packihx
 SRECCAT = srec_cat -multiple
@@ -51,16 +51,16 @@ ASM_OBJ = $(patsubst %.s,%.rel,$(ASM_SRC))
 INC_DIRS = $(wildcard */)
 
 $(CC_OBJ) :
-	$(CC) -$(ARCH) $(addprefix -I ,$(INC_DIRS)) -c $(subst .rel,.c,$@) -o $@
+	$(CC) $(addprefix -I ,$(INC_DIRS)) -c $(subst .rel,.c,$@) -o $@
 
 $(ASM_OBJ) :
-	$(ASM) -glos $(subst .rel,.s,$@)
+	$(ASM) $(subst .rel,.s,$@)
 
 ###############################################################################
 # Linker
 ###############################################################################
 $(FIRMWARE_IMG).hex: $(ASM_OBJ) $(CC_OBJ)
-	$(CC) -$(ARCH) $^ --no-std-crt0 --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION) -o $(FIRMWARE_IMG).ihx
+	$(CC) --no-std-crt0 $^ -o $(FIRMWARE_IMG).ihx
 	$(PACKIHX) < $(FIRMWARE_IMG).ihx > $(FIRMWARE_IMG).hex
 
 ###############################################################################

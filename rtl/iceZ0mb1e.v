@@ -85,16 +85,15 @@ module iceZ0mb1e  #(
 		endcase
 	end
 
-	wire io_addr = addr[7:0];
 	wire uart_cs_n, port_cs_n, i2c_cs_n, spi_cs_n;
 	wire rom_cs_n, ram_cs_n;
 
 	//I/O Address, Note:
 	// only the lower 8-bits in peripheral mapped I/O are used to address I/O by the Z80 this means 256 ports
-	assign uart_cs_n = ~(!iorq_n & (io_addr >= 8'h18) & (io_addr < 8'h20)); // UART base
-	assign port_cs_n = ~(!iorq_n & (io_addr >= 8'h40) & (io_addr < 8'h50)); // PORT base
-	assign i2c_cs_n = ~(!iorq_n & (io_addr >= 8'h50) & (io_addr < 8'h60)); // i2c base
-	assign spi_cs_n = ~(!iorq_n & (io_addr >= 8'h60) & (io_addr < 8'h70)); // spi base
+	assign uart_cs_n = ~(!iorq_n & (addr[7:0] >= 8'h18) & (addr[7:0] < 8'h20)); // UART base 0x18
+	assign port_cs_n = ~(!iorq_n & (addr[7:0] >= 8'h40) & (addr[7:0] < 8'h50)); // PORT base 0x40
+	assign i2c_cs_n = ~(!iorq_n & (addr[7:0] >= 8'h50) & (addr[7:0] < 8'h60)); // i2c base 0x50
+	assign spi_cs_n = ~(!iorq_n & (addr[7:0] >= 8'h60) & (addr[7:0] < 8'h70)); // spi base 0x60
 	//Memory Address Decoder:
 	assign rom_cs_n = ~(!mreq_n & (addr  < ROM_SIZE));
 	assign ram_cs_n = ~(!mreq_n & (addr >= ROM_SIZE) & (addr < (ROM_SIZE+RAM_SIZE)) );
