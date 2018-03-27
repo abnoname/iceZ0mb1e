@@ -131,7 +131,7 @@ module iceZ0mb1e  #(
 generate
     if(RAM_TYPE == 1) begin
 		//UltraPlus SPRAM
-		memspram #(12) ram
+		memspram #(13) ram
 		(
 			.clk		(clk),
 			.reset_n	(reset_n),
@@ -140,7 +140,7 @@ generate
 			.cs_n		(ram_cs_n),
 			.rd_n		(rd_n),
 			.wr_n		(wr_n),
-			.addr		(addr[11:0])
+			.addr		(addr[12:0])
 		);
 	end else if(RAM_TYPE == 2) begin
 		//ext. SRAM => todo
