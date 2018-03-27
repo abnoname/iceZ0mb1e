@@ -23,30 +23,31 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-module memspram (
-    clk,
-    data_in,
-    wr_cs,
-    addr,
-    data_out,
-    rd_cs
+module memspram #(
+    parameter ADDR_WIDTH = 15
+) (
+    input clk,
+    input reset_n,
+    inout[7:0] data_out,
+    input[7:0] data_in,
+    input cs_n,
+    input rd_n,
+    input wr_n,
+    input[ADDR_WIDTH-1:0] addr
 );
-    input clk;
-    input[7:0] data_in;
-    input wr_cs;
-    input[13:0] addr;
-    inout[7:0] data_out;
-    input rd_cs;
+
+    wire read_sel = !cs_n & !rd_n & wr_n;
+    wire write_sel = !cs_n & rd_n & !wr_n;
 
 	wire [15:0] spram_q;
-	assign data_out = (rd_cs) ? spram_q[7:0] : 8'bz;
+	assign data_out = (read_sel) ? spram_q[7:0] : 8'bz;
 
 	SB_SPRAM256KA ram0
 	(
 		.ADDRESS(addr),
 		.DATAIN({8'b0, data_in}),
 		.MASKWREN(4'b0011),
-		.WREN(wr_cs),
+		.WREN(write_sel),
 		.CHIPSELECT(1'b1),
 		.CLOCK(clk),
 		.STANDBY(1'b0),

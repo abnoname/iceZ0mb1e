@@ -187,6 +187,7 @@ void ssd1306_clear()
 
     ssd1306_setPageAddress(0, SSD1306_MAX_PAGE);
     ssd1306_setColumnAddress(0, SSD1306_MAX_COL);
+
     for (y = 0; y < SSD1306_PAGES; y++)
     {
         for (x = 0; x < SSD1306_COLUMNS; x++)
@@ -210,39 +211,13 @@ void ssd1306_putc(char chr)
 
 void ssd1306_write(uint8_t y, uint8_t x, char * buf)
 {
-    uint16_t i = 0;
-    uint16_t len;
-    uint8_t wrapEntireScreen = 0u;
-    uint8_t col_addr = SSD1306_FONT_WIDTH * x;
-    len = strlen(buf);
+    uint16_t i, len = strlen(buf);
     ssd1306_setPageAddress(y, SSD1306_MAX_PAGE);
-    ssd1306_setColumnAddress(col_addr, SSD1306_MAX_COL);
+    ssd1306_setColumnAddress(SSD1306_FONT_WIDTH * x, SSD1306_MAX_COL);
 
-    while ((x+i) < SSD1306_CHARS && (i < len))
+    for(i = 0; i < len; i++)
     {
-        // write first line, starting at given position
-        ssd1306_putc(buf[i++]);
-    }
-
-    // write remaining lines
-    // write until the end of memory
-    // then wrap around again from the top.
-    if (i + 1 < len)
-    {
-        ssd1306_setPageAddress(y + 1, SSD1306_MAX_PAGE);
-        ssd1306_setColumnAddress(0, SSD1306_MAX_COL);
-        while (i + 1 < len)
-        {
-            ssd1306_putc(buf[i++]);
-            // if we've written the last character space on the screen,
-            // reset the page and column address so that it wraps around from the top again
-            if (!wrapEntireScreen && (y*SSD1306_CHARS + x + i) > 127)
-            {
-                ssd1306_setPageAddress(0, SSD1306_MAX_PAGE);
-                ssd1306_setColumnAddress(0, SSD1306_MAX_COL);
-                wrapEntireScreen = 1u;
-            }
-        }
+        ssd1306_putc(buf[i]);
     }
 }
 

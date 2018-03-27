@@ -82,7 +82,7 @@ module iceZ0mb1e  #(
 	end
 
 	wire uart_cs_n, port_cs_n, i2c_cs_n, spi_cs_n;
-	wire ram_rd_cs, ram_wr_cs, rom_rd_cs, ram_cs, rom_cs;
+	wire rom_cs_n, ram_cs_n;
 
 	//I/O Address, Note:
 	// only the lower 8-bits in peripheral mapped I/O are used to address I/O by the Z80 this means 256 ports
@@ -91,9 +91,8 @@ module iceZ0mb1e  #(
 	assign i2c_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h50) & (addr[7:0] < 15'h60)); // i2c base 0x50
 	assign spi_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h60) & (addr[7:0] < 15'h70)); // spi base 0x60
 	//Memory Address Decoder:
-	assign rom_rd_cs = !mreq_n & !rd_n & (addr  < 15'h2000);
-	assign ram_rd_cs = !mreq_n & !rd_n & (addr >= 15'h2000) & (addr < 15'h4000);
-	assign ram_wr_cs = !mreq_n & !wr_n & (addr >= 15'h2000) & (addr < 15'h4000);
+	assign rom_cs_n = ~(!mreq_n & (addr  < 15'h2000));
+	assign ram_cs_n = ~(!mreq_n & (addr >= 15'h2000) & (addr < 15'h4000));
 
 	tv80s cpu
 	(
@@ -119,25 +118,29 @@ module iceZ0mb1e  #(
 
 	membram #(13, `__def_fw_img, 2**13-1) rom
 	(
-		.data_out	(data_miso),
-		.clk		(clk),
-		.data_in	(),
-		.wr_cs		(1'b0),
-		.addr		(addr[12:0]),
-		.rd_cs		(rom_rd_cs)
+    	.clk		(clk),
+    	.reset_n	(reset_n),
+    	.data_out	(data_miso),
+    	.data_in	(),
+    	.cs_n		(rom_cs_n),
+    	.rd_n		(rd_n),
+    	.wr_n		(wr_n),
+    	.addr		(addr[12:0])
 	);
 
 generate
     if(RAM_TYPE == 1) begin
 		//UltraPlus SPRAM
-		memspram ram
+		memspram #(12) ram
 		(
-			.data_out	(data_miso),
 			.clk		(clk),
+			.reset_n	(reset_n),
+			.data_out	(data_miso),
 			.data_in	(data_mosi),
-			.wr_cs		(ram_wr_cs),
-			.addr		({1'b0, addr[12:0]}),
-			.rd_cs		(ram_rd_cs)
+			.cs_n		(ram_cs_n),
+			.rd_n		(rd_n),
+			.wr_n		(wr_n),
+			.addr		(addr[11:0])
 		);
 	end else if(RAM_TYPE == 2) begin
 		//ext. SRAM => todo
@@ -146,12 +149,14 @@ generate
 		//FPGA BRAM
 		membram #(13)  ram
 		(
-			.data_out	(data_miso),
 			.clk		(clk),
+			.reset_n	(reset_n),
+			.data_out	(data_miso),
 			.data_in	(data_mosi),
-			.wr_cs		(ram_wr_cs),
-			.addr		(addr[12:0]),
-			.rd_cs		(ram_rd_cs)
+			.cs_n		(ram_cs_n),
+			.rd_n		(rd_n),
+			.wr_n		(wr_n),
+			.addr		(addr[12:0])
 		);
 	end
 endgenerate

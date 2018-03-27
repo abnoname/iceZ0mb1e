@@ -28,21 +28,20 @@ module membram #(
 	parameter MEM_HEX = "",
 	parameter MEM_INIT = 0
 ) (
-    clk,
-    data_in,
-    wr_cs,
-    addr,
-    data_out,
-    rd_cs
+    input clk,
+    input reset_n,
+    inout[7:0] data_out,
+    input[7:0] data_in,
+    input cs_n,
+    input rd_n,
+    input wr_n,
+    input[ADDR_WIDTH-1:0] addr
 );
-    input clk;
-    input[7:0] data_in;
-    input wr_cs;
-    input[ADDR_WIDTH-1:0] addr;
-    inout[7:0] data_out;
-    input rd_cs;
 
-    assign data_out = (rd_cs) ? mem_8[addr] : 8'bz;
+    wire read_sel = !cs_n & !rd_n & wr_n;
+    wire write_sel = !cs_n & rd_n & !wr_n;
+
+    assign data_out = (read_sel) ? mem_8[addr] : 8'bz;
 
     reg [7:0] mem_8 [0:(1 << ADDR_WIDTH)-1];
     integer j;
@@ -58,7 +57,7 @@ module membram #(
 
     always @(posedge clk)
     begin
-        if (wr_cs) begin
+        if (write_sel) begin
             mem_8[addr] <= data_in;
         end
     end
