@@ -28,14 +28,14 @@ module membram #(
 	parameter MEM_HEX = "",
 	parameter MEM_INIT = 0
 ) (
-    wr_clk,
+    clk,
     data_in,
     wr_cs,
     addr,
     data_out,
     rd_cs
 );
-    input wr_clk;
+    input clk;
     input[7:0] data_in;
     input wr_cs;
     input[ADDR_WIDTH-1:0] addr;
@@ -56,7 +56,7 @@ module membram #(
         // end
     end
 
-    always @(posedge wr_clk)
+    always @(posedge clk)
     begin
         if (wr_cs) begin
             mem_8[addr] <= data_in;

@@ -23,7 +23,9 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-module iceZ0mb1e (
+module iceZ0mb1e  #(
+	parameter RAM_TYPE = 0
+) (
 	input clk,
 	output uart_txd,
 	input uart_rxd,
@@ -54,8 +56,8 @@ module iceZ0mb1e (
 	wire        halt_n;
 	wire        busak_n;
 	wire [15:0] addr;
-	wire [7:0]  data_in;
-	wire [7:0]  data_out;
+	wire [7:0]  data_miso;
+	wire [7:0]  data_mosi;
 	//End
 
 	assign debug = iorq_n;
@@ -80,7 +82,7 @@ module iceZ0mb1e (
 	end
 
 	wire uart_cs_n, port_cs_n, i2c_cs_n, spi_cs_n;
-	wire ram_rd_cs, ram_wr_cs, rom_rd_cs;
+	wire ram_rd_cs, ram_wr_cs, rom_rd_cs, ram_cs, rom_cs;
 
 	//I/O Address, Note:
 	// only the lower 8-bits in peripheral mapped I/O are used to address I/O by the Z80 this means 256 ports
@@ -90,8 +92,8 @@ module iceZ0mb1e (
 	assign spi_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h60) & (addr[7:0] < 15'h70)); // spi base 0x60
 	//Memory Address Decoder:
 	assign rom_rd_cs = !mreq_n & !rd_n & (addr  < 15'h2000);
-	assign ram_rd_cs = !mreq_n & !rd_n & (addr >= 15'h2000) & (addr < 15'h3000);
-	assign ram_wr_cs = !mreq_n & !wr_n & (addr >= 15'h2000) & (addr < 15'h3000);
+	assign ram_rd_cs = !mreq_n & !rd_n & (addr >= 15'h2000) & (addr < 15'h4000);
+	assign ram_wr_cs = !mreq_n & !wr_n & (addr >= 15'h2000) & (addr < 15'h4000);
 
 	tv80s cpu
 	(
@@ -104,43 +106,62 @@ module iceZ0mb1e (
 		.halt_n		(halt_n),
 		.busak_n	(busak_n),
 		.A			(addr[15:0]),
-		.do			(data_out[7:0]),
+		.do			(data_mosi[7:0]),
 		.reset_n	(reset_n),
 		.clk		(clk),
 		.wait_n		(wait_n),
 		.int_n		(int_n),
 		.nmi_n		(nmi_n),
 		.busrq_n	(busrq_n),
-		.di			(data_in[7:0])
+		.di			(data_miso[7:0])
 	);
 	defparam cpu.Mode = 1; // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
 
-	membram #(12)  ram
-	(
-		.data_out	(data_in),
-		.wr_clk		(clk),
-		.data_in	(data_out),
-		.wr_cs		(ram_wr_cs),
-		.addr		(addr[11:0]),
-		.rd_cs		(ram_rd_cs)
-	);
-
 	membram #(13, `__def_fw_img, 2**13-1) rom
 	(
-		.data_out	(data_in),
-		.wr_clk		(),
+		.data_out	(data_miso),
+		.clk		(clk),
 		.data_in	(),
 		.wr_cs		(1'b0),
 		.addr		(addr[12:0]),
 		.rd_cs		(rom_rd_cs)
 	);
 
+generate
+    if(RAM_TYPE == 1) begin
+		//UltraPlus SPRAM
+		memspram ram
+		(
+			.data_out	(data_miso),
+			.clk		(clk),
+			.data_in	(data_mosi),
+			.wr_cs		(ram_wr_cs),
+			.addr		({1'b0, addr[12:0]}),
+			.rd_cs		(ram_rd_cs)
+		);
+	end else if(RAM_TYPE == 2) begin
+		//ext. SRAM => todo
+		//
+    end else begin
+		//FPGA BRAM
+		membram #(13)  ram
+		(
+			.data_out	(data_miso),
+			.clk		(clk),
+			.data_in	(data_mosi),
+			.wr_cs		(ram_wr_cs),
+			.addr		(addr[12:0]),
+			.rd_cs		(ram_rd_cs)
+		);
+	end
+endgenerate
+
 	simpleio ioporta
 	(
 		.clk		(clk),
 		.reset_n	(reset_n),
-		.data_out	(data_in),
-		.data_in	(data_out),
+		.data_out	(data_miso),
+		.data_in	(data_mosi),
 		.cs_n		(port_cs_n),
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),
@@ -153,8 +174,8 @@ module iceZ0mb1e (
 	(
 		.clk		(clk),
 		.reset_n	(reset_n),
-		.data_out	(data_in),
-		.data_in	(data_out),
+		.data_out	(data_miso),
+		.data_in	(data_mosi),
 		.cs_n		(uart_cs_n),
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),
@@ -166,8 +187,8 @@ module iceZ0mb1e (
 	simplei2c_wrapper i2c0 (
 		.clk		(clk),
 		.reset_n	(reset_n),
-		.data_out	(data_in),
-		.data_in	(data_out),
+		.data_out	(data_miso),
+		.data_in	(data_mosi),
 		.cs_n		(i2c_cs_n),
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),
@@ -179,8 +200,8 @@ module iceZ0mb1e (
 	simplespi_wrapper spi0 (
 		.clk		(clk),
 		.reset_n	(reset_n),
-		.data_out	(data_in),
-		.data_in	(data_out),
+		.data_out	(data_miso),
+		.data_in	(data_mosi),
 		.cs_n		(spi_cs_n),
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),

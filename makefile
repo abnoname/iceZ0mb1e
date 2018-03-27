@@ -42,6 +42,7 @@ SRC += ./rtl/simplei2c_wrapper.v
 SRC += ./rtl/simplespi_wrapper.v
 SRC += ./rtl/uart16540_wrapper.v
 SRC += ./rtl/membram.v
+SRC += ./rtl/memspram.v
 SRC += ./rtl/iceZ0mb1e.v
 TESTBENCH = ./tb/tb_iceZ0mb1e.v
 GTKW_FILE = ./tb/tb_iceZ0mb1e.gtkw

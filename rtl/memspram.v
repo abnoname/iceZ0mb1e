@@ -23,50 +23,36 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-module top(
-	output uart_txd,
-	input uart_rxd,
-	output LED_R,
-	output LED_G,
-	output LED_B,
-	output i2c_scl,
-	inout  i2c_sda,
-    output spi_sclk,
-	output spi_mosi,
-	inout  spi_miso,
-    output spi_cs
+module memspram (
+    clk,
+    data_in,
+    wr_cs,
+    addr,
+    data_out,
+    rd_cs
 );
+    input clk;
+    input[7:0] data_in;
+    input wr_cs;
+    input[13:0] addr;
+    inout[7:0] data_out;
+    input rd_cs;
 
-	wire clk;
+	wire [15:0] spram_q;
+	assign data_out = (rd_cs) ? spram_q[7:0] : 8'bz;
 
-	wire[7:0] port_a;
-	wire[7:0] port_b;
-
-	assign LED_R = !port_a[0];
-	assign LED_G = !port_a[1];
-	assign LED_B = !port_a[2];
-
-	//Source = 48MHz, CLKHF_DIV = 2’b00 : 00 = div1, 01 = div2, 10 = div4, 11 = div8 ; Default = “00”
-	SB_HFOSC #(.CLKHF_DIV("0b10")) osc (
-		.CLKHFPU(1'b1),
-		.CLKHFEN(1'b1),
-		.CLKHF(clk)
+	SB_SPRAM256KA ram0
+	(
+		.ADDRESS(addr),
+		.DATAIN({8'b0, data_in}),
+		.MASKWREN(4'b0011),
+		.WREN(wr_cs),
+		.CHIPSELECT(1'b1),
+		.CLOCK(clk),
+		.STANDBY(1'b0),
+		.SLEEP(1'b0),
+		.POWEROFF(1'b1),
+		.DATAOUT(spram_q)
 	);
-
-	iceZ0mb1e core (
-		.clk		(clk),
-		.uart_txd	(uart_txd),
-		.uart_rxd	(uart_rxd),
-		.i2c_scl	(i2c_scl),
-		.i2c_sda	(i2c_sda),
-    	.spi_sclk	(spi_sclk),
-		.spi_mosi	(spi_mosi),
-		.spi_miso	(spi_miso),
-    	.spi_cs		(spi_cs),
-		.port_a		(port_a),
-		.port_b		(port_b),
-		.debug		()
-	);
-	defparam core.RAM_TYPE = 1; // 0 => BRAM, 1 => SPRAM (UltraPlus)
 
 endmodule

@@ -1,9 +1,27 @@
-
+//
 // iceZ0mb1e - FPGA 8-Bit TV80 SoC for Lattice iCE40
 // with complete open-source toolchain flow using yosys and SDCC
-
+//
 // Copyright (c) 2018 Franz Neumann (netinside2000@gmx.de)
-
+//
+// Permission is hereby granted, free of charge, to any person obtaining a 
+// copy of this software and associated documentation files (the "Software"), 
+// to deal in the Software without restriction, including without limitation 
+// the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+// and/or sell copies of the Software, and to permit persons to whom the 
+// Software is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included 
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 // ============================================
 // I2Cdev library collection - SSD1308 I2C device class header file
 // Based on Solomon Systech SSD1308 datasheet, rev. 1, 10/2008
@@ -17,25 +35,6 @@
 // ============================================
 // I2Cdev device library code is placed under the MIT license
 // Copyright (c) 2011 Andrew Schamp
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-// ===============================================
 
 #ifndef H_SSD1306_h_
 #define H_SSD1306_h_
@@ -85,7 +84,7 @@
 void ssd1306_initialize(uint8_t address);
 void ssd1306_clear();
 void ssd1306_putc(char chr);
-void ssd1306_writeString(uint8_t y, uint8_t x, uint16_t len, const char * text);
+void ssd1306_write(uint8_t y, uint8_t x, char * buf);
 void ssd1306_setPageAddress(uint8_t start, uint8_t end);
 void ssd1306_setColumnAddress(uint8_t start, uint8_t end);
 

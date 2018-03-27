@@ -87,9 +87,9 @@ void main ()
     //I2C OLED display test:
     ssd1306_initialize(0x3C);
     ssd1306_clear();
-    ssd1306_writeString(0, 0, 10, "0123456789");
-    ssd1306_writeString(2, 0, 10, "0123456789");
-    ssd1306_writeString(3, 0, 10, "0123456789");
+    ssd1306_write(0, 0, "iceZ0mb1e SoC");
+    ssd1306_write(2, 0, "by abnoname");
+    ssd1306_write(3, 0, "0123456789 Test");
 
     //LED IO
     out(port_cfg, 0x00); //mode = output
