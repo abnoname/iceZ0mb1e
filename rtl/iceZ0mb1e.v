@@ -24,7 +24,9 @@
 //
 
 module iceZ0mb1e  #(
-	parameter RAM_TYPE = 0
+	parameter RAM_TYPE = 0,
+	parameter RAM_WIDTH = 13,
+	parameter ROM_WIDTH = 13
 ) (
 	input clk,
 	output uart_txd,
@@ -39,6 +41,8 @@ module iceZ0mb1e  #(
 	inout[7:0] port_b,
 	output debug
 );
+	localparam ROM_SIZE = (1 << ROM_WIDTH);
+	localparam RAM_SIZE = (1 << RAM_WIDTH);
 
 	reg         reset_n;
 
@@ -81,18 +85,27 @@ module iceZ0mb1e  #(
 		endcase
 	end
 
+	wire io_addr = addr[7:0];
 	wire uart_cs_n, port_cs_n, i2c_cs_n, spi_cs_n;
 	wire rom_cs_n, ram_cs_n;
 
 	//I/O Address, Note:
 	// only the lower 8-bits in peripheral mapped I/O are used to address I/O by the Z80 this means 256 ports
-	assign uart_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h18) & (addr[7:0] < 15'h20)); // UART base 0x18
-	assign port_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h40) & (addr[7:0] < 15'h50)); // PORT base 0x40
-	assign i2c_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h50) & (addr[7:0] < 15'h60)); // i2c base 0x50
-	assign spi_cs_n = ~(!iorq_n & (addr[7:0] >= 15'h60) & (addr[7:0] < 15'h70)); // spi base 0x60
+	assign uart_cs_n = ~(!iorq_n & (io_addr >= 8'h18) & (io_addr < 8'h20)); // UART base
+	assign port_cs_n = ~(!iorq_n & (io_addr >= 8'h40) & (io_addr < 8'h50)); // PORT base
+	assign i2c_cs_n = ~(!iorq_n & (io_addr >= 8'h50) & (io_addr < 8'h60)); // i2c base
+	assign spi_cs_n = ~(!iorq_n & (io_addr >= 8'h60) & (io_addr < 8'h70)); // spi base
 	//Memory Address Decoder:
-	assign rom_cs_n = ~(!mreq_n & (addr  < 15'h2000));
-	assign ram_cs_n = ~(!mreq_n & (addr >= 15'h2000) & (addr < 15'h4000));
+	assign rom_cs_n = ~(!mreq_n & (addr  < ROM_SIZE));
+	assign ram_cs_n = ~(!mreq_n & (addr >= ROM_SIZE) & (addr < (ROM_SIZE+RAM_SIZE)) );
+
+	//SoC Info
+	initial begin
+		$display("iceZ0mb1e Configuration Info" );
+		$display("ROM width = %d, size = %X", ROM_WIDTH, ROM_SIZE );
+		$display("RAM width = %d, size = %X", RAM_WIDTH, RAM_SIZE );
+		$display("RAM type = %d", RAM_TYPE );
+	end
 
 	tv80s cpu
 	(
@@ -116,7 +129,7 @@ module iceZ0mb1e  #(
 	);
 	defparam cpu.Mode = 1; // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
 
-	membram #(13, `__def_fw_img, 2**13-1) rom
+	membram #(ROM_WIDTH, `__def_fw_img, (1<<ROM_WIDTH)-1) rom
 	(
     	.clk		(clk),
     	.reset_n	(reset_n),
@@ -125,13 +138,13 @@ module iceZ0mb1e  #(
     	.cs_n		(rom_cs_n),
     	.rd_n		(rd_n),
     	.wr_n		(wr_n),
-    	.addr		(addr[12:0])
+    	.addr		(addr[ROM_WIDTH-1:0])
 	);
 
 generate
     if(RAM_TYPE == 1) begin
 		//UltraPlus SPRAM
-		memspram #(13) ram
+		memspram #(RAM_WIDTH) ram
 		(
 			.clk		(clk),
 			.reset_n	(reset_n),
@@ -140,14 +153,14 @@ generate
 			.cs_n		(ram_cs_n),
 			.rd_n		(rd_n),
 			.wr_n		(wr_n),
-			.addr		(addr[12:0])
+			.addr		(addr[RAM_WIDTH-1:0])
 		);
 	end else if(RAM_TYPE == 2) begin
 		//ext. SRAM => todo
 		//
     end else begin
 		//FPGA BRAM
-		membram #(13)  ram
+		membram #(RAM_WIDTH)  ram
 		(
 			.clk		(clk),
 			.reset_n	(reset_n),
@@ -156,7 +169,7 @@ generate
 			.cs_n		(ram_cs_n),
 			.rd_n		(rd_n),
 			.wr_n		(wr_n),
-			.addr		(addr[12:0])
+			.addr		(addr[RAM_WIDTH-1:0])
 		);
 	end
 endgenerate
