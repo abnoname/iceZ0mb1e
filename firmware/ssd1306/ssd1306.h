@@ -22,33 +22,16 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// ============================================
-// I2Cdev library collection - SSD1308 I2C device class header file
-// Based on Solomon Systech SSD1308 datasheet, rev. 1, 10/2008
-// 8/25/2011 by Andrew Schamp <schamp@gmail.com>
 
-// This I2C device library is using (and submitted as a part of) Jeff Rowberg's I2Cdevlib library,
-// which should (hopefully) always be available at https://github.com/jrowberg/i2cdevlib
-
-// Changelog:
-//     2011-08-25 - initial release
-// ============================================
-// I2Cdev device library code is placed under the MIT license
-// Copyright (c) 2011 Andrew Schamp
-
-#ifndef H_SSD1306_h_
-#define H_SSD1306_h_
+#ifndef H_SSD1306
+#define H_SSD1306
 
 #include <stdint.h>
 
 #define SSD1306_ROWS 64
 #define SSD1306_COLUMNS 128
 #define SSD1306_PAGES 8
-#define SSD1306_PAGE_WIDTH (SSD1306_ROWS / 8)
 #define SSD1306_FONT_WIDTH 8
-#define SSD1306_CHARS (SSD1306_COLUMNS / SSD1306_FONT_WIDTH)
-#define SSD1306_MAX_PAGE (SSD1306_PAGES - 1)
-#define SSD1306_MAX_COL (SSD1306_COLUMNS - 1)
 
 #define SSD1306_SETCONTRAST 0x81
 #define SSD1306_DISPLAYALLON_RESUME 0xA4
@@ -78,14 +61,16 @@
 #define SSD1306_ACTIVATE_SCROLL 0x2F
 #define SSD1306_DEACTIVATE_SCROLL 0x2E
 
-#define SSD1306_COMMAND_MODE 0x80
+#define SSD1306_COMMAND_MODE 0x00
 #define SSD1306_DATA_MODE 0x40
 
 void ssd1306_initialize(uint8_t address);
+void ssd1306_addr(uint8_t c1, uint8_t c2, uint8_t p1, uint8_t p2);
+void ssd1306_fb_clear(void);
+void ssd1306_fb_update(void);
+void ssd1306_fb_setPixel( int16_t x, int16_t y, uint32_t color );
+void ssd1306_fb_write(uint8_t y, uint8_t x, char * buf);
 void ssd1306_clear();
-void ssd1306_putc(char chr);
 void ssd1306_write(uint8_t y, uint8_t x, char * buf);
-void ssd1306_setPageAddress(uint8_t start, uint8_t end);
-void ssd1306_setColumnAddress(uint8_t start, uint8_t end);
 
 #endif

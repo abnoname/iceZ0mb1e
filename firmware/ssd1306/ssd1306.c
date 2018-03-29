@@ -22,19 +22,6 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// ============================================
-// I2Cdev library collection - SSD1308 I2C device class header file
-// Based on Solomon Systech SSD1308 datasheet, rev. 1, 10/2008
-// 8/25/2011 by Andrew Schamp <schamp@gmail.com>
-
-// This I2C device library is using (and submitted as a part of) Jeff Rowberg's I2Cdevlib library,
-// which should (hopefully) always be available at https://github.com/jrowberg/i2cdevlib
-
-// Changelog:
-//     2011-08-25 - initial release
-// ============================================
-// I2Cdev device library code is placed under the MIT license
-// Copyright (c) 2011 Andrew Schamp
 
 #include <string.h>
 #include <stdint.h>
@@ -141,12 +128,19 @@ const uint8_t fontData[][8] = {
     {0x00,0x02,0x05,0x05,0x02,0x00,0x00,0x00}
 };
 
-uint8_t ssd1306_i2c_addr; // contains the I2C address of the device
+uint8_t ssd1306_i2c_addr;
+
+#define SSD1306_FBSIZE (SSD1306_PAGES * SSD1306_COLUMNS)
+#define SSD1306_FBADDR(x,y) (y/SSD1306_PAGES * SSD1306_COLUMNS + x)
+#define SSD1306_FBPIXSET(x,y) ssd1306_fb[SSD1306_FBADDR(x,y)] |= (1 << (y % 8))
+#define SSD1306_FBPIXCLR(x,y) ssd1306_fb[SSD1306_FBADDR(x,y)] &=~ (1 << (y % 8))
+uint8_t ssd1306_fbdata[SSD1306_FBSIZE + 1 + 2];
+uint8_t *ssd1306_fb;
 
 void ssd1306_initialize(uint8_t address)
 {
     const uint8_t command[] = {
-        0x00,
+        SSD1306_COMMAND_MODE,
         SSD1306_DISPLAYOFF,
         SSD1306_SETDISPLAYCLOCKDIV,
         0x80,
@@ -176,17 +170,76 @@ void ssd1306_initialize(uint8_t address)
 
     ssd1306_i2c_addr = address;
 
+    ssd1306_fbdata[0] = SSD1306_DATA_MODE;
+    ssd1306_fbdata[1] = SSD1306_DISPLAYOFF;
+    ssd1306_fbdata[sizeof(ssd1306_fbdata)-1] = SSD1306_DISPLAYON;
+    ssd1306_fb = &(ssd1306_fbdata[2]);
+
     i2c_write_buf(ssd1306_i2c_addr, command, sizeof(command) );
+}
+
+void ssd1306_addr(uint8_t c1, uint8_t c2, uint8_t p1, uint8_t p2)
+{
+    uint8_t command[] = {
+        SSD1306_COMMAND_MODE,
+        SSD1306_COLUMNADDR, c1, c2,
+        SSD1306_PAGEADDR, p1, p2
+    };
+    i2c_write_buf(ssd1306_i2c_addr, command, sizeof(command) );
+}
+
+void ssd1306_fb_clear(void)
+{
+    memset( ssd1306_fb, 0, SSD1306_FBSIZE );
+}
+
+void ssd1306_fb_update(void)
+{
+    ssd1306_addr(
+        0, SSD1306_COLUMNS - 1,
+        0, SSD1306_PAGES - 1
+    );
+
+    i2c_write_buf(ssd1306_i2c_addr, ssd1306_fbdata, sizeof(ssd1306_fbdata) );
+}
+
+void ssd1306_fb_setPixel( int16_t x, int16_t y, uint32_t color )
+{
+    if(color == 0)
+    {
+        SSD1306_FBPIXCLR(x,y);
+    }
+    else
+    {
+        SSD1306_FBPIXSET(x,y);
+    }
+}
+
+void ssd1306_fb_write(uint8_t y, uint8_t x, char * buf)
+{
+    uint16_t i, p, len = strlen(buf);
+    uint8_t *data = &(ssd1306_fb[SSD1306_FBADDR(x,y*SSD1306_PAGES)]);
+
+    for(i = 0; i < len; i++)
+    {
+        for (p = 0; p < SSD1306_FONT_WIDTH; p++)
+        {
+            data[0] |= fontData[buf[i] - 0x20][p];
+            data++;
+        }
+    }
 }
 
 void ssd1306_clear()
 {
     uint8_t y;
     uint8_t x;
-    uint8_t data[] = { SSD1306_DATA_MODE, 0 };
+    const uint8_t data[] = { SSD1306_DATA_MODE, 0 };
 
-    ssd1306_setPageAddress(0, SSD1306_MAX_PAGE);
-    ssd1306_setColumnAddress(0, SSD1306_MAX_COL);
+    ssd1306_addr(
+        0, SSD1306_COLUMNS - 1,
+        0, SSD1306_PAGES - 1
+    );
 
     for (y = 0; y < SSD1306_PAGES; y++)
     {
@@ -197,38 +250,23 @@ void ssd1306_clear()
     }
 }
 
-void ssd1306_putc(char chr)
-{
-    uint8_t y;
-    uint8_t data[] = { SSD1306_DATA_MODE, 0 };
-
-    for (y = 0; y < SSD1306_PAGES; y++)
-    {
-        data[1] = fontData[chr - 0x20][y];
-        i2c_write_buf(ssd1306_i2c_addr, data, sizeof(data) );
-    }
-}
-
 void ssd1306_write(uint8_t y, uint8_t x, char * buf)
 {
-    uint16_t i, len = strlen(buf);
-    ssd1306_setPageAddress(y, SSD1306_MAX_PAGE);
-    ssd1306_setColumnAddress(SSD1306_FONT_WIDTH * x, SSD1306_MAX_COL);
+    uint16_t i, p, len = strlen(buf);
+    uint8_t data[SSD1306_FONT_WIDTH+1];
+    data[0] = SSD1306_DATA_MODE;
+
+    ssd1306_addr(
+        SSD1306_FONT_WIDTH * x, SSD1306_COLUMNS - 1,
+        y, SSD1306_PAGES - 1
+    );
 
     for(i = 0; i < len; i++)
     {
-        ssd1306_putc(buf[i]);
+        for (p = 0; p < SSD1306_FONT_WIDTH; p++)
+        {
+            data[p+1] = fontData[buf[i] - 0x20][p];
+        }
+        i2c_write_buf(ssd1306_i2c_addr, data, sizeof(data) );
     }
-}
-
-void ssd1306_setPageAddress(uint8_t start, uint8_t end)
-{
-    uint8_t command[] = { 0x00, SSD1306_PAGEADDR, start, end };
-    i2c_write_buf(ssd1306_i2c_addr, command, sizeof(command) );
-}
-
-void ssd1306_setColumnAddress(uint8_t start, uint8_t end)
-{
-    uint8_t command[] = { 0x00, SSD1306_COLUMNADDR, start, end };
-    i2c_write_buf(ssd1306_i2c_addr, command, sizeof(command) );
 }
