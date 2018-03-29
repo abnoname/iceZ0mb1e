@@ -65,9 +65,9 @@
 #define SSD1306_DATA_MODE 0x40
 
 void ssd1306_initialize(uint8_t address);
-void ssd1306_addr(uint8_t c1, uint8_t c2, uint8_t p1, uint8_t p2);
-void ssd1306_fb_clear(void);
-void ssd1306_fb_update(void);
+void ssd1306_addr(uint8_t c, uint8_t p);
+void ssd1306_fb_clear();
+void ssd1306_fb_update();
 void ssd1306_fb_setPixel( int16_t x, int16_t y, uint32_t color );
 void ssd1306_fb_write(uint8_t y, uint8_t x, char * buf);
 void ssd1306_clear();

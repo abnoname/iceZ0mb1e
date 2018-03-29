@@ -134,7 +134,7 @@ uint8_t ssd1306_i2c_addr;
 #define SSD1306_FBADDR(x,y) (y/SSD1306_PAGES * SSD1306_COLUMNS + x)
 #define SSD1306_FBPIXSET(x,y) ssd1306_fb[SSD1306_FBADDR(x,y)] |= (1 << (y % 8))
 #define SSD1306_FBPIXCLR(x,y) ssd1306_fb[SSD1306_FBADDR(x,y)] &=~ (1 << (y % 8))
-uint8_t ssd1306_fbdata[SSD1306_FBSIZE + 1 + 2];
+uint8_t ssd1306_fbdata[SSD1306_FBSIZE + 1];
 uint8_t *ssd1306_fb;
 
 void ssd1306_initialize(uint8_t address)
@@ -171,34 +171,29 @@ void ssd1306_initialize(uint8_t address)
     ssd1306_i2c_addr = address;
 
     ssd1306_fbdata[0] = SSD1306_DATA_MODE;
-    ssd1306_fbdata[1] = SSD1306_DISPLAYOFF;
-    ssd1306_fbdata[sizeof(ssd1306_fbdata)-1] = SSD1306_DISPLAYON;
-    ssd1306_fb = &(ssd1306_fbdata[2]);
+    ssd1306_fb = &(ssd1306_fbdata[1]);
 
     i2c_write_buf(ssd1306_i2c_addr, command, sizeof(command) );
 }
 
-void ssd1306_addr(uint8_t c1, uint8_t c2, uint8_t p1, uint8_t p2)
+void ssd1306_addr(uint8_t c, uint8_t p)
 {
     uint8_t command[] = {
         SSD1306_COMMAND_MODE,
-        SSD1306_COLUMNADDR, c1, c2,
-        SSD1306_PAGEADDR, p1, p2
+        SSD1306_COLUMNADDR, c, SSD1306_COLUMNS - 1,
+        SSD1306_PAGEADDR, p, SSD1306_PAGES - 1
     };
     i2c_write_buf(ssd1306_i2c_addr, command, sizeof(command) );
 }
 
-void ssd1306_fb_clear(void)
+void ssd1306_fb_clear()
 {
     memset( ssd1306_fb, 0, SSD1306_FBSIZE );
 }
 
-void ssd1306_fb_update(void)
+void ssd1306_fb_update()
 {
-    ssd1306_addr(
-        0, SSD1306_COLUMNS - 1,
-        0, SSD1306_PAGES - 1
-    );
+    ssd1306_addr(0, 0);
 
     i2c_write_buf(ssd1306_i2c_addr, ssd1306_fbdata, sizeof(ssd1306_fbdata) );
 }
@@ -217,8 +212,9 @@ void ssd1306_fb_setPixel( int16_t x, int16_t y, uint32_t color )
 
 void ssd1306_fb_write(uint8_t y, uint8_t x, char * buf)
 {
-    uint16_t i, p, len = strlen(buf);
-    uint8_t *data = &(ssd1306_fb[SSD1306_FBADDR(x,y*SSD1306_PAGES)]);
+    uint16_t i, len = strlen(buf);
+    uint8_t p;
+    uint8_t *data = &(ssd1306_fb[SSD1306_FBADDR(x*SSD1306_FONT_WIDTH,y*SSD1306_PAGES)]);
 
     for(i = 0; i < len; i++)
     {
@@ -232,14 +228,10 @@ void ssd1306_fb_write(uint8_t y, uint8_t x, char * buf)
 
 void ssd1306_clear()
 {
-    uint8_t y;
-    uint8_t x;
+    uint8_t x, y;
     const uint8_t data[] = { SSD1306_DATA_MODE, 0 };
 
-    ssd1306_addr(
-        0, SSD1306_COLUMNS - 1,
-        0, SSD1306_PAGES - 1
-    );
+    ssd1306_addr(0, 0);
 
     for (y = 0; y < SSD1306_PAGES; y++)
     {
@@ -256,10 +248,7 @@ void ssd1306_write(uint8_t y, uint8_t x, char * buf)
     uint8_t data[SSD1306_FONT_WIDTH+1];
     data[0] = SSD1306_DATA_MODE;
 
-    ssd1306_addr(
-        SSD1306_FONT_WIDTH * x, SSD1306_COLUMNS - 1,
-        y, SSD1306_PAGES - 1
-    );
+    ssd1306_addr(SSD1306_FONT_WIDTH*x, y);
 
     for(i = 0; i < len; i++)
     {
