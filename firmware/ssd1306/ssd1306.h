@@ -69,8 +69,8 @@ void ssd1306_addr(uint8_t c, uint8_t p);
 void ssd1306_fb_clear();
 void ssd1306_fb_update();
 void ssd1306_fb_setPixel( int16_t x, int16_t y, uint32_t color );
-void ssd1306_fb_write(uint8_t y, uint8_t x, char * buf);
+void ssd1306_fb_write(uint8_t row, uint8_t col, char *buf);
 void ssd1306_clear();
-void ssd1306_write(uint8_t y, uint8_t x, char * buf);
+void ssd1306_write(uint8_t row, uint8_t col, char *buf);
 
 #endif

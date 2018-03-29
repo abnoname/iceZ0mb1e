@@ -29,7 +29,7 @@
 #include "i2c.h"
 #include "ssd1306.h"
 
-const uint8_t fontData[][8] = {
+const uint8_t fontData[][SSD1306_FONT_WIDTH] = {
     {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
     {0x00,0x00,0x5F,0x00,0x00,0x00,0x00,0x00},
     {0x00,0x00,0x07,0x00,0x07,0x00,0x00,0x00},
@@ -210,11 +210,11 @@ void ssd1306_fb_setPixel( int16_t x, int16_t y, uint32_t color )
     }
 }
 
-void ssd1306_fb_write(uint8_t y, uint8_t x, char * buf)
+void ssd1306_fb_write(uint8_t row, uint8_t col, char *buf)
 {
     uint16_t i, len = strlen(buf);
     uint8_t p;
-    uint8_t *data = &(ssd1306_fb[SSD1306_FBADDR(x*SSD1306_FONT_WIDTH,y*SSD1306_PAGES)]);
+    uint8_t *data = &(ssd1306_fb[SSD1306_FBADDR(SSD1306_FONT_WIDTH*col,SSD1306_PAGES*row)]);
 
     for(i = 0; i < len; i++)
     {
@@ -242,13 +242,13 @@ void ssd1306_clear()
     }
 }
 
-void ssd1306_write(uint8_t y, uint8_t x, char * buf)
+void ssd1306_write(uint8_t row, uint8_t col, char *buf)
 {
     uint16_t i, p, len = strlen(buf);
     uint8_t data[SSD1306_FONT_WIDTH+1];
     data[0] = SSD1306_DATA_MODE;
 
-    ssd1306_addr(SSD1306_FONT_WIDTH*x, y);
+    ssd1306_addr(SSD1306_FONT_WIDTH*col, row);
 
     for(i = 0; i < len; i++)
     {
