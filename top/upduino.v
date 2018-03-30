@@ -29,6 +29,7 @@ module top(
 	output LED_R,
 	output LED_G,
 	output LED_B,
+	output oled_rst,
 	output i2c_scl,
 	inout  i2c_sda,
     output spi_sclk,
@@ -42,9 +43,16 @@ module top(
 	wire[7:0] port_a;
 	wire[7:0] port_b;
 
-	assign LED_R = !port_a[0];
-	assign LED_G = !port_a[1];
-	assign LED_B = !port_a[2];
+	reg LED_R, LED_G, LED_B;
+	reg oled_rst;
+
+    always @(posedge clk)
+    begin
+		LED_R <= !port_a[0];
+		LED_G <= !port_a[1];
+		LED_B <= !port_a[2];
+		oled_rst <= port_b[0];
+	end
 
 	//Source = 48MHz, CLKHF_DIV = 2’b00 : 00 = div1, 01 = div2, 10 = div4, 11 = div8 ; Default = “00”
 	SB_HFOSC #(.CLKHF_DIV("0b10")) osc (

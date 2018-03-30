@@ -57,12 +57,27 @@ void Read_I2C_PCF8523(uint8_t *buffer, uint16_t len)
     i2c_read_buf(0x68, buffer, len);
 }
 
+void oled_reset()
+{
+    out(port_b, 0x00);
+    delay(50000);
+    out(port_b, 0x01);
+    delay(50000);
+    out(port_b, 0x00);
+    delay(50000);
+    out(port_b, 0x01);
+    delay(50000);
+}
+
 void main ()
 {
     uint8_t buffer[64];
 
     int8_t uart_rx = 0;
     int16_t x, y;
+
+    //GPIO mode = output
+    out(port_cfg, 0x00);
 
     //UART Test
     Initialize_16450(9600);
@@ -85,27 +100,20 @@ void main ()
     printf("\r\n");
 
     //I2C OLED display test:
+    oled_reset();
     ssd1306_initialize(0x3C);
-    ssd1306_clear();
-    ssd1306_write(0, 0, "iceZ0mb1e SoC");
-    ssd1306_write(2, 0, "by abnoname");
-    ssd1306_write(3, 0, "0123456789 Test");
-    delay(65000);
     ssd1306_fb_clear();
     ssd1306_fb_write(0, 0, "iceZ0mb1e SoC");
     ssd1306_fb_write(2, 0, "by abnoname");
     ssd1306_fb_write(3, 0, "0123456789 Test");
     ssd1306_fb_write(4, 0, "Framebuffer On");
-    for(x = 0; x < 128; x++)
-    {
-        ssd1306_fb_setPixel(x,x/2,1);
-    }
+    ssd1306_fb_update();
+    // ssd1306_fb_line(0, 48, 127, 63, 1);
+    ssd1306_fb_box(0, 127, 48, 63, 1);
     ssd1306_fb_update();
 
     //LED IO
-    out(port_cfg, 0x00); //mode = output
     out(port_a, 0x01);
-    out(port_b, 0x54);
     printf("Readback port_a = 0x%X, port_b = 0x%X \n\r",
         in(port_a), in(port_b)
     );

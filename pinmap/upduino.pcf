@@ -5,6 +5,8 @@ set_io LED_B 40
 set_io i2c_scl 27
 set_io i2c_sda 26
 
+set_io oled_rst 25
+
 set_io spi_cs 2
 set_io spi_sclk 42
 set_io spi_mosi 36

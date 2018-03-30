@@ -35,7 +35,7 @@ all: $(FIRMWARE_IMG).bin $(FIRMWARE_IMG).hex $(FIRMWARE_IMG).vhex $(FIRMWARE_IMG
 ###############################################################################
 # Tools
 ###############################################################################
-CC = sdcc --std-sdcc99 -$(ARCH) --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION)
+CC = sdcc --std-sdcc99 --opt-code-size -$(ARCH) --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION)
 ASM = sdasz80 -glos
 DASM = z80dasm
 PACKIHX = packihx

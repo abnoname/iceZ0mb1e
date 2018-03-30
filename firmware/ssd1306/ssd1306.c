@@ -183,22 +183,22 @@ void ssd1306_addr(uint8_t c, uint8_t p)
         SSD1306_COLUMNADDR, c, SSD1306_COLUMNS - 1,
         SSD1306_PAGEADDR, p, SSD1306_PAGES - 1
     };
-    i2c_write_buf(ssd1306_i2c_addr, command, sizeof(command) );
+    i2c_write_buf(ssd1306_i2c_addr, command, sizeof(command));
 }
 
 void ssd1306_fb_clear()
 {
-    memset( ssd1306_fb, 0, SSD1306_FBSIZE );
+    memset(ssd1306_fb, 0, SSD1306_FBSIZE);
 }
 
 void ssd1306_fb_update()
 {
     ssd1306_addr(0, 0);
 
-    i2c_write_buf(ssd1306_i2c_addr, ssd1306_fbdata, sizeof(ssd1306_fbdata) );
+    i2c_write_buf(ssd1306_i2c_addr, ssd1306_fbdata, sizeof(ssd1306_fbdata));
 }
 
-void ssd1306_fb_setPixel( int16_t x, int16_t y, uint32_t color )
+void ssd1306_fb_setPixel(int16_t x, int16_t y, uint8_t color)
 {
     if(color == 0)
     {
@@ -224,6 +224,62 @@ void ssd1306_fb_write(uint8_t row, uint8_t col, char *buf)
             data++;
         }
     }
+}
+
+int16_t ssd1306_abs(int16_t x)
+{
+    if( x < 0 )
+        return -1 * x;
+    else
+        return x;
+}
+
+void ssd1306_fb_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color)
+{
+    //Algorithm has been sourced from:
+    //https://de.wikipedia.org/wiki/Bresenham-Algorithmus
+
+    int16_t dx =  ssd1306_abs(x1 - x0);
+    int16_t sx = (x0 < x1) ? 1 : -1;
+    int16_t dy = -1 * ssd1306_abs(y1 - y0);
+    int16_t sy = (y0 < y1) ? 1 : -1;
+    int16_t err = dx + dy;
+    int16_t e2;
+
+    while(1)
+    {
+        if(color == 0)
+        {
+            SSD1306_FBPIXCLR(x0, y0);
+        }
+        else
+        {
+            SSD1306_FBPIXSET(x0, y0);
+        }
+        if ((x0 == x1) && (y0 == y1))
+        {
+            break;
+        }
+        e2 = 2 * err;
+        if (e2 > dy)
+        {
+            err += dy;
+            x0 += sx;
+        }
+        if (e2 < dx)
+        {
+            err += dx;
+            y0 += sy;
+        }
+    }
+}
+
+void ssd1306_fb_box(int16_t x0, int16_t x1, int16_t y0, int16_t y1, uint8_t color)
+{
+    ssd1306_fb_line(x0, y1, x1, y1, color);
+    ssd1306_fb_line(x1, y1, x1, y0, color);
+    ssd1306_fb_line(x1, y0, x0, y0, color);
+    ssd1306_fb_line(x0, y0, x0, y1, color);
 }
 
 void ssd1306_clear()
