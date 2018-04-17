@@ -28,13 +28,26 @@
 #include "ioport.h"
 #include "uart.h"
 
-void putchar(int8_t cin)
+#if defined(__SDCC) && __SDCC_REVISION < 9624
+void putchar(char c)
 {
     while ((in(uart_lsr) & (1 << 6)) == 0);
-    out(uart_thr, cin);
+    out(uart_thr, c);
 }
+#else
+int putchar(int c)
+{
+    while ((in(uart_lsr) & (1 << 6)) == 0);
+    out(uart_thr, c);
+    return c;
+}
+#endif
 
-int8_t getchar()
+#if defined(__SDCC) && __SDCC_REVISION < 9989
+char getchar()
+#else
+int getchar()
+#endif
 {
     while ((in(uart_lsr) & (1 << 0)) == 0);
     return in(uart_rbr);

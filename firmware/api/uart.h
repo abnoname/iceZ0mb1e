@@ -28,8 +28,19 @@
 
 #include <stdint.h>
 
-void putchar(int8_t cin);
-int8_t getchar();
+#if defined(__SDCC) && __SDCC_REVISION < 9624
+void putchar(char c);
+#else
+int putchar(int c);
+#endif
+
+#if defined(__SDCC) && __SDCC_REVISION < 9989
+char getchar(void);
+#else
+int getchar(void);
+#endif
+
 void Initialize_16450(uint16_t baud);
 
 #endif
+
