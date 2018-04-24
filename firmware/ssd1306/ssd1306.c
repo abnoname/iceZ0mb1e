@@ -186,6 +186,7 @@ void ssd1306_addr(uint8_t c, uint8_t p)
     i2c_write_buf(ssd1306_i2c_addr, command, sizeof(command));
 }
 
+#ifdef SSD1306_ENABLE_FRAMEBUFFER
 void ssd1306_fb_clear()
 {
     memset(ssd1306_fb, 0, SSD1306_FBSIZE);
@@ -234,6 +235,7 @@ int16_t ssd1306_abs(int16_t x)
         return x;
 }
 
+#ifdef SSD1306_ENABLE_GRAPHIC
 void ssd1306_fb_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color)
 {
     //Algorithm has been sourced from:
@@ -281,6 +283,8 @@ void ssd1306_fb_box(int16_t x0, int16_t x1, int16_t y0, int16_t y1, uint8_t colo
     ssd1306_fb_line(x1, y0, x0, y0, color);
     ssd1306_fb_line(x0, y0, x0, y1, color);
 }
+#endif
+#endif
 
 void ssd1306_clear()
 {

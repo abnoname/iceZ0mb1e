@@ -108,9 +108,11 @@ void main ()
     ssd1306_fb_write(3, 0, "0123456789 Test");
     ssd1306_fb_write(4, 0, "Framebuffer On");
     ssd1306_fb_update();
-    // ssd1306_fb_line(0, 48, 127, 63, 1);
+#ifdef SSD1306_ENABLE_GRAPHIC
+    ssd1306_fb_line(0, 48, 127, 63, 1);
     ssd1306_fb_box(0, 127, 48, 63, 1);
     ssd1306_fb_update();
+#endif
 
     //LED IO
     out(port_a, 0x01);

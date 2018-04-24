@@ -28,6 +28,9 @@
 
 #include <stdint.h>
 
+//#define SSD1306_ENABLE_GRAPHIC
+#define SSD1306_ENABLE_FRAMEBUFFER
+
 #define SSD1306_ROWS 64
 #define SSD1306_COLUMNS 128
 #define SSD1306_PAGES 8
