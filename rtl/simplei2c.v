@@ -38,8 +38,10 @@ module simplei2c(
 	input[7:0] data_write,
 	output[7:0] data_read,
 
-	inout i2c_sda_io,
-	output i2c_scl_o
+	input i2c_sda_in,
+	output i2c_sda_out,
+	output i2c_sda_oen,
+	output i2c_scl_out
 );
 
 	localparam STATE_IDLE = 0;
@@ -67,9 +69,10 @@ module simplei2c(
 	reg [7:0] bit_count;
 	reg i2c_sda;
 	reg i2c_scl;
-	wire i2c_scl_o = i2c_scl;
+	wire i2c_scl_out = i2c_scl;
+	wire i2c_sda_out = i2c_sda;
 
-	assign i2c_sda_io = ((i2c_sda) == 1'b0) ? 1'b0 : 1'bz;
+	assign i2c_sda_oen = ((i2c_sda) == 1'b0) ? 1'b1 : 1'b0; //drive low -> driver enable
 
 	always @(posedge clk) begin
 		if (reset == 1'b1) begin
@@ -133,7 +136,7 @@ module simplei2c(
 					STATE_DATA_H: begin
 						i2c_scl <= 1'b1;
 						if (mode_rw == `MODE_RD) begin
-							data_read[bit_count] <= i2c_sda_io;
+							data_read[bit_count] <= i2c_sda_in;
 						end
 						if (bit_count == 8'd0) begin
 							req_next <= 1;

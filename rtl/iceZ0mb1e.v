@@ -32,13 +32,19 @@ module iceZ0mb1e  #(
 	output uart_txd,
 	input uart_rxd,
 	output i2c_scl,
-	inout i2c_sda,
+	input i2c_sda_in,
+	output i2c_sda_out,
+	output i2c_sda_oen,
     output spi_sclk,
 	output spi_mosi,
-	inout  spi_miso,
+	input  spi_miso,
     output spi_cs,
-	inout[7:0] port_a,
-	inout[7:0] port_b,
+    output[7:0] P1_out,
+    input[7:0] P1_in,
+    output P1_oen,
+    output[7:0] P2_out,
+    input[7:0] P2_in,
+    output P2_oen,
 	output debug
 );
 	localparam ROM_SIZE = (1 << ROM_WIDTH);
@@ -183,8 +189,12 @@ endgenerate
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),
 		.addr		(addr[1:0]),
-		.P1			(port_a),
-		.P2			(port_b)
+		.P1_out		(P1_out),
+		.P1_in		(P1_in),
+		.P1_oen		(P1_oen),
+		.P2_out		(P2_out),
+		.P2_in		(P2_in),
+		.P2_oen		(P2_oen)
 	);
 
 	uart16540_wrapper uart0
@@ -210,8 +220,10 @@ endgenerate
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),
 		.addr		(addr[3:0]),
-		.i2c_scl	(i2c_scl),
-		.i2c_sda	(i2c_sda)
+		.i2c_sda_in		(i2c_sda_in),
+		.i2c_sda_out	(i2c_sda_out),
+		.i2c_sda_oen	(i2c_sda_oen),
+		.i2c_scl_out	(i2c_scl)
 	);
 
 	simplespi_wrapper spi0 (

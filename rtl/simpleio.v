@@ -32,8 +32,12 @@ module simpleio (
     input rd_n,
     input wr_n,
     input[1:0] addr,
-    inout[7:0] P1,
-    inout[7:0] P2
+    output[7:0] P1_out,
+    input[7:0] P1_in,
+    output P1_oen,
+    output[7:0] P2_out,
+    input[7:0] P2_in,
+    output P2_oen
 );
     `define MODE_WR 1'b0
     `define MODE_RD 1'b1
@@ -50,8 +54,10 @@ module simpleio (
         (addr == 2'b01) ? ((cfgreg[1] == `MODE_RD) ? in_2 : out_2) :
         8'h00;
 
-    assign P1 = (cfgreg[0] == `MODE_WR) ? out_1 : 8'bz;
-    assign P2 = (cfgreg[1] == `MODE_WR) ? out_2 : 8'bz;
+    assign P1_oen = (cfgreg[0] == `MODE_WR) ? 1'b1 : 1'b0;
+    assign P2_oen = (cfgreg[1] == `MODE_WR) ? 1'b1 : 1'b0;
+    assign P1_out = out_1;
+    assign P2_out = out_2;
 
 	assign data_out = (read_sel) ? read_port : 8'bz;
 
@@ -64,8 +70,8 @@ module simpleio (
                 2'b10 : cfgreg <= data_in;
             endcase
         end
-        in_1 <= P1;
-        in_2 <= P2;
+        in_1 <= P1_in;
+        in_2 <= P2_in;
     end
 
 endmodule

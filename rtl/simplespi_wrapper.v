@@ -34,7 +34,7 @@ module simplespi_wrapper (
     input[3:0] addr,
     output sclk,
 	output mosi,
-	inout  miso,
+	input  miso,
     output cs
 );
 

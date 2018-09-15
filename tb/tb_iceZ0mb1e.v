@@ -39,9 +39,12 @@ module tb_iceZ0mb1e;
     reg clk = 0;
     always #1 clk = !clk;
 
-    inout [7:0] port_a;
-    inout [7:0] port_b;
-    inout i2c_scl, i2c_sda;
+    inout [7:0] P1_out;
+    inout [7:0] P2_out;
+	wire i2c_scl;
+	wire i2c_sda_out;
+	wire i2c_sda_in;
+	wire i2c_sda_oen;
     output sclk, cs, mosi;
     input miso;
     wire rx;
@@ -52,13 +55,19 @@ module tb_iceZ0mb1e;
         .uart_txd   (tx),
         .uart_rxd   (rx),
 		.i2c_scl	(i2c_scl),
-		.i2c_sda	(i2c_sda),
+		.i2c_sda_in	(i2c_sda_in),
+		.i2c_sda_out	(i2c_sda_out),
+		.i2c_sda_oen	(i2c_sda_oen),
     	.spi_sclk	(spi_sclk),
 		.spi_mosi	(spi_mosi),
 		.spi_miso	(spi_miso),
     	.spi_cs		(spi_cs),
-		.port_a		(port_a),
-		.port_b		(port_b),
+		.P1_out		(P1_out),
+		.P1_in		(8'h55),
+		.P1_oen		(),
+		.P2_out		(P2_out),
+		.P2_in		(8'hAA),
+		.P2_oen		(),
 		.debug		()
     );
 

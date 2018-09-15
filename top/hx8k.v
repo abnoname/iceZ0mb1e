@@ -36,37 +36,58 @@ module top(
 	output uart_txd,
 	input uart_rxd,
 	output i2c_scl,
-	inout  i2c_sda,
+	inout i2c_sda,
     output spi_sclk,
 	output spi_mosi,
-	inout  spi_miso,
+	input  spi_miso,
     output spi_cs
 );
 
-	wire[7:0] port_a;
-	wire[7:0] port_b;
+	wire[7:0] P1_out;
+	wire[7:0] P2_out;
 
-	assign D1 = port_a[0];
-	assign D2 = port_a[1];
-	assign D3 = port_a[2];
-	assign D4 = port_a[3];
-	assign D5 = port_a[4];
-	assign D6 = port_a[5];
-	assign D7 = port_a[6];
-	assign D8 = port_a[7];
+	wire i2c_scl;
+	wire i2c_sda_out;
+	wire i2c_sda_in;
+	wire i2c_sda_oen;
+
+	assign D1 = P1_out[0];
+	assign D2 = P1_out[1];
+	assign D3 = P1_out[2];
+	assign D4 = P1_out[3];
+	assign D5 = P1_out[4];
+	assign D6 = P1_out[5];
+	assign D7 = P1_out[6];
+	assign D8 = P1_out[7];
+
+	SB_IO #(
+		.PIN_TYPE(6'b 1010_01),
+		.PULLUP(1'b 0)
+	) i2c_sda_pin (
+		.PACKAGE_PIN(i2c_sda),
+		.OUTPUT_ENABLE(i2c_sda_oen),
+		.D_OUT_0(i2c_sda_out),
+		.D_IN_0(i2c_sda_in)
+	);
 
 	iceZ0mb1e core (
 		.clk		(clk),
 		.uart_txd	(uart_txd),
 		.uart_rxd	(uart_rxd),
 		.i2c_scl	(i2c_scl),
-		.i2c_sda	(i2c_sda),
+		.i2c_sda_in	(i2c_sda_in),
+		.i2c_sda_out	(i2c_sda_out),
+		.i2c_sda_oen	(i2c_sda_oen),
     	.spi_sclk	(spi_sclk),
 		.spi_mosi	(spi_mosi),
 		.spi_miso	(spi_miso),
     	.spi_cs		(spi_cs),
-		.port_a		(port_a),
-		.port_b		(port_b),
+		.P1_out		(P1_out),
+		.P1_in		(8'h55),
+		.P1_oen		(),
+		.P2_out		(P2_out),
+		.P2_in		(8'hAA),
+		.P2_oen		(),
 		.debug		()
 	);
 

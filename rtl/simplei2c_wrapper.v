@@ -32,8 +32,10 @@ module simplei2c_wrapper (
     input rd_n,
     input wr_n,
     input[3:0] addr,
-	output i2c_scl,
-	inout i2c_sda
+	input i2c_sda_in,
+	output i2c_sda_out,
+	output i2c_sda_oen,
+	output i2c_scl_out
 );
 
     wire read_sel = !cs_n & !rd_n & wr_n;
@@ -90,8 +92,10 @@ module simplei2c_wrapper (
 		.data_write		(reg_data_wr),
 		.data_read		(reg_data_rd),
 
-		.i2c_sda_io			(i2c_sda),
-		.i2c_scl_o			(i2c_scl)
+		.i2c_sda_in		(i2c_sda_in),
+		.i2c_sda_out	(i2c_sda_out),
+		.i2c_sda_oen	(i2c_sda_oen),
+		.i2c_scl_out	(i2c_scl_out)
 	);
 
 endmodule

@@ -31,27 +31,32 @@ module top(
 	output LED_B,
 	output oled_rst,
 	output i2c_scl,
-	inout  i2c_sda,
+	inout i2c_sda,
     output spi_sclk,
 	output spi_mosi,
-	inout  spi_miso,
+	input  spi_miso,
     output spi_cs
 );
 
 	wire clk;
 
-	wire[7:0] port_a;
-	wire[7:0] port_b;
+	wire[7:0] P1_out;
+	wire[7:0] P2_out;
+
+	wire i2c_scl;
+	wire i2c_sda_out;
+	wire i2c_sda_in;
+	wire i2c_sda_oen;
 
 	reg LED_R, LED_G, LED_B;
 	reg oled_rst;
 
     always @(posedge clk)
     begin
-		LED_R <= !port_a[0];
-		LED_G <= !port_a[1];
-		LED_B <= !port_a[2];
-		oled_rst <= port_b[0];
+		LED_R <= !P1_out[0];
+		LED_G <= !P1_out[1];
+		LED_B <= !P1_out[2];
+		oled_rst <= P2_out[0];
 	end
 
 	//Source = 48MHz, CLKHF_DIV = 2’b00 : 00 = div1, 01 = div2, 10 = div4, 11 = div8 ; Default = “00”
@@ -61,18 +66,34 @@ module top(
 		.CLKHF(clk)
 	);
 
+	SB_IO #(
+		.PIN_TYPE(6'b 1010_01),
+		.PULLUP(1'b 0)
+	) i2c_sda_pin (
+		.PACKAGE_PIN(i2c_sda),
+		.OUTPUT_ENABLE(i2c_sda_oen),
+		.D_OUT_0(i2c_sda_out),
+		.D_IN_0(i2c_sda_in)
+	);
+
 	iceZ0mb1e core (
 		.clk		(clk),
 		.uart_txd	(uart_txd),
 		.uart_rxd	(uart_rxd),
 		.i2c_scl	(i2c_scl),
-		.i2c_sda	(i2c_sda),
+		.i2c_sda_in	(i2c_sda_in),
+		.i2c_sda_out	(i2c_sda_out),
+		.i2c_sda_oen	(i2c_sda_oen),
     	.spi_sclk	(spi_sclk),
 		.spi_mosi	(spi_mosi),
 		.spi_miso	(spi_miso),
     	.spi_cs		(spi_cs),
-		.port_a		(port_a),
-		.port_b		(port_b),
+		.P1_out		(P1_out),
+		.P1_in		(8'h55),
+		.P1_oen		(),
+		.P2_out		(P2_out),
+		.P2_in		(8'hAA),
+		.P2_oen		(),
 		.debug		()
 	);
 	defparam core.RAM_TYPE = 1; // 0 => BRAM, 1 => SPRAM (UltraPlus)

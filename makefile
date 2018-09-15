@@ -76,12 +76,12 @@ else ifeq ($(TARGET),icezum)
 	FPGA_PINMAP = ./pinmap/icezum.pcf
 else ifeq ($(TARGET),5k)
 	SRC += ./top/upduino.v
-	ARACHNEFLAGS = -d 5k
+	ARACHNEFLAGS = -d 5k -P sg48
 	FPGA_PINMAP = ./pinmap/upduino.pcf
 	ICEPROG_PARAM = -d i:0x0403:0x6014
 else ifeq ($(TARGET),8k)
 	SRC += ./top/hx8k.v
-	ARACHNEFLAGS = -d 8k
+	ARACHNEFLAGS = -d 8k -P ct256
 	FPGA_PINMAP = ./pinmap/hx8k.pcf
 else
 endif

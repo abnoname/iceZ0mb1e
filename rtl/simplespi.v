@@ -40,7 +40,7 @@ module simplespi(
 
     output sclk,
 	output mosi,
-	inout  miso,
+	input  miso,
     output cs
 );
 
