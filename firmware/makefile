@@ -28,7 +28,8 @@
 # make FIRMWARE_IMG=test CODE_LOCATION=0x0200 DATA_LOCATION=0x1000
 ###############################################################################
 ARCH = mz80
-COMPONENTS = . api ssd1306 main
+MAIN = main
+COMPONENTS = . api ssd1306 $(MAIN)
 
 all: $(FIRMWARE_IMG).bin $(FIRMWARE_IMG).hex $(FIRMWARE_IMG).vhex $(FIRMWARE_IMG).dasm
 

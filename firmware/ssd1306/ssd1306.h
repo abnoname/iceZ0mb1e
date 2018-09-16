@@ -29,7 +29,7 @@
 #include <stdint.h>
 
 //#define SSD1306_ENABLE_GRAPHIC
-#define SSD1306_ENABLE_FRAMEBUFFER
+//#define SSD1306_ENABLE_FRAMEBUFFER
 
 #define SSD1306_ROWS 64
 #define SSD1306_COLUMNS 128
@@ -69,13 +69,17 @@
 
 void ssd1306_initialize(uint8_t address);
 void ssd1306_addr(uint8_t c, uint8_t p);
+#ifdef SSD1306_ENABLE_FRAMEBUFFER
 void ssd1306_fb_clear();
 void ssd1306_fb_update();
 void ssd1306_fb_setPixel(int16_t x, int16_t y, uint8_t color);
 void ssd1306_fb_write(uint8_t row, uint8_t col, char *buf);
 int16_t ssd1306_abs(int16_t x);
+#ifdef SSD1306_ENABLE_GRAPHIC
 void ssd1306_fb_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color);
 void ssd1306_fb_box(int16_t x0, int16_t x1, int16_t y0, int16_t y1, uint8_t color);
+#endif
+#endif
 void ssd1306_clear();
 void ssd1306_write(uint8_t row, uint8_t col, char *buf);
 

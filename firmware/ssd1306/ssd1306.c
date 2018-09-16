@@ -134,8 +134,10 @@ uint8_t ssd1306_i2c_addr;
 #define SSD1306_FBADDR(x,y) (y/SSD1306_PAGES * SSD1306_COLUMNS + x)
 #define SSD1306_FBPIXSET(x,y) ssd1306_fb[SSD1306_FBADDR(x,y)] |= (1 << (y % 8))
 #define SSD1306_FBPIXCLR(x,y) ssd1306_fb[SSD1306_FBADDR(x,y)] &=~ (1 << (y % 8))
+#ifdef SSD1306_ENABLE_FRAMEBUFFER
 uint8_t ssd1306_fbdata[SSD1306_FBSIZE + 1];
 uint8_t *ssd1306_fb;
+#endif
 
 void ssd1306_initialize(uint8_t address)
 {
@@ -170,8 +172,10 @@ void ssd1306_initialize(uint8_t address)
 
     ssd1306_i2c_addr = address;
 
+#ifdef SSD1306_ENABLE_FRAMEBUFFER
     ssd1306_fbdata[0] = SSD1306_DATA_MODE;
     ssd1306_fb = &(ssd1306_fbdata[1]);
+#endif
 
     i2c_write_buf(ssd1306_i2c_addr, command, sizeof(command) );
 }

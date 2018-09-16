@@ -102,12 +102,20 @@ void main ()
     //I2C OLED display test:
     oled_reset();
     ssd1306_initialize(0x3C);
+#ifdef SSD1306_ENABLE_FRAMEBUFFER
     ssd1306_fb_clear();
     ssd1306_fb_write(0, 0, "iceZ0mb1e SoC");
     ssd1306_fb_write(2, 0, "by abnoname");
     ssd1306_fb_write(3, 0, "0123456789 Test");
     ssd1306_fb_write(4, 0, "Framebuffer On");
     ssd1306_fb_update();
+#else
+    ssd1306_clear();
+    ssd1306_write(0, 0, "iceZ0mb1e SoC");
+    ssd1306_write(2, 0, "by abnoname");
+    ssd1306_write(3, 0, "0123456789 Test");
+    ssd1306_write(4, 0, "Framebuffer On");
+#endif
 #ifdef SSD1306_ENABLE_GRAPHIC
     ssd1306_fb_line(0, 48, 127, 63, 1);
     ssd1306_fb_box(0, 127, 48, 63, 1);
