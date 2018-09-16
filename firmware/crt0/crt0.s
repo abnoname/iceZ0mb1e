@@ -27,7 +27,7 @@
 ;   might be covered by the GNU General Public License.
 ;--------------------------------------------------------------------------
 
-stacktop = #0x3FFF
+stacktop = #0x9FFF
 
             .module crt0
             .globl	_main

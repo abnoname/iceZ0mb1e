@@ -28,15 +28,16 @@
 # make FIRMWARE_IMG=test CODE_LOCATION=0x0200 DATA_LOCATION=0x1000
 ###############################################################################
 ARCH = mz80
-MAIN = main
-COMPONENTS = . api ssd1306 $(MAIN)
+
+COMPONENTS = . crt0 api ssd1306 main
+#COMPONENTS = . crt0 api test
 
 all: $(FIRMWARE_IMG).bin $(FIRMWARE_IMG).hex $(FIRMWARE_IMG).vhex $(FIRMWARE_IMG).dasm
 
 ###############################################################################
 # Tools
 ###############################################################################
-CC = sdcc --std-sdcc99 --opt-code-size -$(ARCH) --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION)
+CC = sdcc -$(ARCH) --std-sdcc99 --max-allocs-per-node 10000 --opt-code-size --code-loc $(CODE_LOCATION) --data-loc $(DATA_LOCATION)
 ASM = sdasz80 -glos
 DASM = z80dasm
 PACKIHX = packihx
@@ -63,6 +64,7 @@ $(ASM_OBJ) :
 $(FIRMWARE_IMG).hex: $(ASM_OBJ) $(CC_OBJ)
 	$(CC) --no-std-crt0 $^ -o $(FIRMWARE_IMG).ihx
 	$(PACKIHX) < $(FIRMWARE_IMG).ihx > $(FIRMWARE_IMG).hex
+	srec_info $(FIRMWARE_IMG).hex --intel
 
 ###############################################################################
 # Output
@@ -71,8 +73,7 @@ $(FIRMWARE_IMG).bin: $(FIRMWARE_IMG).hex
 	$(SRECCAT) $(FIRMWARE_IMG).hex -intel -o $(FIRMWARE_IMG).bin -binary
 
 $(FIRMWARE_IMG).vhex: $(FIRMWARE_IMG).hex
-	#crop hex file to real ROM size
-	$(SRECCAT) $(FIRMWARE_IMG).hex -intel -crop 0x0 $(DATA_LOCATION) -o $(FIRMWARE_IMG).vhex -VMem 8
+	$(SRECCAT) $(FIRMWARE_IMG).hex -intel -o $(FIRMWARE_IMG).vhex -VMem 8
 
 ###############################################################################
 # Disassembler

@@ -29,6 +29,10 @@
 #include "ioport.h"
 #include "uart.h"
 
+int8_t start = 0;
+uint16_t last_usable_addr = 0;
+int8_t free = 0;
+
 void delay(uint16_t t)
 {
     uint16_t i;
@@ -37,6 +41,7 @@ void delay(uint16_t t)
 
 void main ()
 {
+    uint8_t *addr;
     uint8_t x;
 
     //GPIO mode = output
@@ -46,14 +51,40 @@ void main ()
     Initialize_16450(9600);
     printf("iceZ0mb1e SoC by abnoname\r\n");
 
+    out(port_a, 0xFF);
+
+    //RAM Test
+	last_usable_addr = 0;
+    addr = &free;
+    while((uint16_t)addr < 0xFFFF)
+    {
+        *(addr) = 0x55;
+        *(addr) = 0xAA;
+        if(*(addr) != 0xAA)
+        {
+            break;
+        }
+        last_usable_addr = (uint16_t)addr;
+        addr += 1;
+    }
+    printf("ready, start = 0x%X, last usable = 0x%X, ramsize = %u\n\r",
+        (uint16_t)&start, last_usable_addr, last_usable_addr-(uint16_t)&start
+    );
+
+    //ROM View
+    for(addr = 0; addr < 0x2000; addr++)
+    {
+        if(((uint8_t)addr % 16) == 0)
+        {
+            printf("\r\n");
+        }
+        printf("%02X", *(addr));
+    }
+
     while(1)
     {
         out(port_a, x);
         x++;
         delay(5000);
     }
-
-__asm
-    halt
-__endasm;
 }

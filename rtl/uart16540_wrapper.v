@@ -37,16 +37,7 @@ module uart16540_wrapper (
 );
 
 	wire [7:0] uart_rd_data;
-	wire cts_n;
-	wire dsr_n;
-	wire ri_n;
-	wire dcd_n;
-	wire rts_n;
-	wire dtr_n;
-	wire out1_n;
-	wire out2_n;
 	wire baudout;
-	wire intr;
 
 	assign data_out = (!cs_n & !rd_n) ? uart_rd_data : 8'bz;
 
@@ -62,17 +53,17 @@ module uart16540_wrapper (
 		.wr_data     (data_in),
 		.rd_data     (uart_rd_data),
 		.sin         (rx),
-		.cts_n       (cts_n),
-		.dsr_n       (dsr_n),
-		.ri_n        (ri_n),
-		.dcd_n       (dcd_n),
+		.cts_n       (1'b0),
+		.dsr_n       (1'b0),
+		.ri_n        (1'b0),
+		.dcd_n       (1'b0),
 		.sout        (tx),
-		.rts_n       (rts_n),
-		.dtr_n       (dtr_n),
-		.out1_n      (out1_n),
-		.out2_n      (out2_n),
+		.rts_n       (),
+		.dtr_n       (),
+		.out1_n      (),
+		.out2_n      (),
 		.baudout     (baudout),
-		.intr        (intr)
+		.intr        ()
 	);
 
 

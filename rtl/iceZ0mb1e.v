@@ -26,7 +26,8 @@
 module iceZ0mb1e  #(
 	parameter RAM_TYPE = 0,
 	parameter RAM_WIDTH = 13,
-	parameter ROM_WIDTH = 13
+	parameter ROM_WIDTH = 13,
+	parameter RAM_LOC = 16'h8000
 ) (
 	input clk,
 	output uart_txd,
@@ -102,7 +103,16 @@ module iceZ0mb1e  #(
 	assign spi_cs_n = ~(!iorq_n & (addr[7:0] >= 8'h60) & (addr[7:0] < 8'h70)); // spi base 0x60
 	//Memory Address Decoder:
 	assign rom_cs_n = ~(!mreq_n & (addr  < ROM_SIZE));
-	assign ram_cs_n = ~(!mreq_n & (addr >= ROM_SIZE) & (addr < (ROM_SIZE+RAM_SIZE)) );
+	assign ram_cs_n = ~(!mreq_n & (addr >= RAM_LOC) & (addr < (RAM_LOC+RAM_SIZE)));
+
+	// always @(posedge clk) begin
+	// 	if(!iorq_n)begin
+	// 		wait_n <= 1'b0;
+	// 	end
+	// 	if(wait_n == 1'b0)begin
+	// 		wait_n <= 1'b1;
+	// 	end
+	// end
 
 	//SoC Info
 	initial begin
@@ -134,7 +144,7 @@ module iceZ0mb1e  #(
 	);
 	defparam cpu.Mode = 1; // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
 
-	membram #(ROM_WIDTH, `__def_fw_img, (1<<ROM_WIDTH)-1) rom
+	membram #(ROM_WIDTH, `__def_fw_img, 1) rom
 	(
     	.clk		(clk),
     	.reset_n	(reset_n),

@@ -37,7 +37,7 @@
 
 #define SPI_STAT_REQ    0x01
 
-uint8_t spi_config(uint8_t mode)
+void spi_config(uint8_t mode)
 {
     // Mode    CPOL    CPHA
     // 0       0       0

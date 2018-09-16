@@ -191,19 +191,19 @@ void ssd1306_addr(uint8_t c, uint8_t p)
 }
 
 #ifdef SSD1306_ENABLE_FRAMEBUFFER
-void ssd1306_fb_clear()
+void ssd1306_clear()
 {
     memset(ssd1306_fb, 0, SSD1306_FBSIZE);
 }
 
-void ssd1306_fb_update()
+void ssd1306_update()
 {
     ssd1306_addr(0, 0);
 
     i2c_write_buf(ssd1306_i2c_addr, ssd1306_fbdata, sizeof(ssd1306_fbdata));
 }
 
-void ssd1306_fb_setPixel(int16_t x, int16_t y, uint8_t color)
+void ssd1306_setPixel(int16_t x, int16_t y, uint8_t color)
 {
     if(color == 0)
     {
@@ -215,7 +215,7 @@ void ssd1306_fb_setPixel(int16_t x, int16_t y, uint8_t color)
     }
 }
 
-void ssd1306_fb_write(uint8_t row, uint8_t col, char *buf)
+void ssd1306_write(uint8_t row, uint8_t col, char *buf)
 {
     uint16_t i, len = strlen(buf);
     uint8_t p;
@@ -231,6 +231,7 @@ void ssd1306_fb_write(uint8_t row, uint8_t col, char *buf)
     }
 }
 
+#ifdef SSD1306_ENABLE_GRAPHIC
 int16_t ssd1306_abs(int16_t x)
 {
     if( x < 0 )
@@ -239,8 +240,7 @@ int16_t ssd1306_abs(int16_t x)
         return x;
 }
 
-#ifdef SSD1306_ENABLE_GRAPHIC
-void ssd1306_fb_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color)
+void ssd1306_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color)
 {
     //Algorithm has been sourced from:
     //https://de.wikipedia.org/wiki/Bresenham-Algorithmus
@@ -280,16 +280,15 @@ void ssd1306_fb_line(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t col
     }
 }
 
-void ssd1306_fb_box(int16_t x0, int16_t x1, int16_t y0, int16_t y1, uint8_t color)
+void ssd1306_box(int16_t x0, int16_t x1, int16_t y0, int16_t y1, uint8_t color)
 {
-    ssd1306_fb_line(x0, y1, x1, y1, color);
-    ssd1306_fb_line(x1, y1, x1, y0, color);
-    ssd1306_fb_line(x1, y0, x0, y0, color);
-    ssd1306_fb_line(x0, y0, x0, y1, color);
+    ssd1306_line(x0, y1, x1, y1, color);
+    ssd1306_line(x1, y1, x1, y0, color);
+    ssd1306_line(x1, y0, x0, y0, color);
+    ssd1306_line(x0, y0, x0, y1, color);
 }
 #endif
-#endif
-
+#else
 void ssd1306_clear()
 {
     uint8_t x, y;
@@ -323,3 +322,4 @@ void ssd1306_write(uint8_t row, uint8_t col, char *buf)
         i2c_write_buf(ssd1306_i2c_addr, data, sizeof(data) );
     }
 }
+#endif

@@ -75,7 +75,7 @@ uint8_t i2c_write(uint8_t addr, uint8_t cmd)
     return in(i2c_dat_in);
 }
 
-uint8_t i2c_read_buf(uint8_t addr, uint8_t *buf, uint16_t size)
+void i2c_read_buf(uint8_t addr, uint8_t *buf, uint16_t size)
 {
     uint16_t i;
 

@@ -28,6 +28,10 @@
 
 #include <stdint.h>
 
+#define SBIT_DR     0x01u
+#define SBIT_THRE   0x20u
+#define SBIT_TEMT   0x40u
+
 #if defined(__SDCC) && __SDCC_REVISION < 9624
 void putchar(char c);
 #else

@@ -50,11 +50,10 @@ GTKW_FILE = ./tb/tb_iceZ0mb1e.gtkw
 ###############################################################################
 # Software
 ###############################################################################
-FIRMWARE_MAIN = main
 FIRMWARE_DIR = ./firmware
 FIRMWARE_IMG = iceZ0mb1e
 CODE_LOCATION = 0x0200
-DATA_LOCATION = 0x2000
+DATA_LOCATION = 0x8000
 
 ###############################################################################
 # IO
@@ -81,7 +80,6 @@ else ifeq ($(TARGET),5k)
 	FPGA_PINMAP = ./pinmap/upduino.pcf
 	ICEPROG_PARAM = -d i:0x0403:0x6014
 else ifeq ($(TARGET),8k)
-	FIRMWARE_MAIN = test
 	SRC += ./top/hx8k.v
 	ARACHNEFLAGS = -d 8k -P ct256
 	FPGA_PINMAP = ./pinmap/hx8k.pcf
@@ -125,7 +123,7 @@ SOUTPUT = -lxt
 ###############################################################################
 .PHONY: firmware
 firmware:
-	$(MAKE) -C $(FIRMWARE_DIR) MAIN=$(FIRMWARE_MAIN) FIRMWARE_IMG=$(FIRMWARE_IMG) CODE_LOCATION=$(CODE_LOCATION) DATA_LOCATION=$(DATA_LOCATION)
+	$(MAKE) -C $(FIRMWARE_DIR) FIRMWARE_IMG=$(FIRMWARE_IMG) CODE_LOCATION=$(CODE_LOCATION) DATA_LOCATION=$(DATA_LOCATION)
 
 ###############################################################################
 # Simulation

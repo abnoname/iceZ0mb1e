@@ -32,6 +32,7 @@
 #define uart_thr 0x18
 #define uart_rbr 0x18
 #define uart_dm1 0x19
+#define uart_ier 0x19
 #define uart_iir 0x1a
 #define uart_lcr 0x1b
 #define uart_mcr 0x1c

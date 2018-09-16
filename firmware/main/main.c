@@ -32,11 +32,6 @@
 #include "spi.h"
 #include "ssd1306.h"
 
-int8_t start = 0;
-uint8_t *addr;
-uint16_t last_usable_addr = 0;
-int8_t free = 0;
-
 void delay(uint16_t t)
 {
     uint16_t i;
@@ -48,7 +43,7 @@ void Read_SPI_25L008A(uint8_t *buffer, uint16_t len)
     uint8_t spi_send[4] = {0x3, 0x00, 0x00, 0x00};
 
     spi_config(0);
-    spi_xfer(spi_send, buffer, 4, 64);
+    spi_xfer(spi_send, buffer, 4, len);
 }
 
 void Read_I2C_PCF8523(uint8_t *buffer, uint16_t len)
@@ -74,7 +69,7 @@ void main ()
     uint8_t buffer[64];
 
     int8_t uart_rx = 0;
-    int16_t x, y;
+    int16_t x;
 
     //GPIO mode = output
     out(port_cfg, 0x00);
@@ -102,48 +97,24 @@ void main ()
     //I2C OLED display test:
     oled_reset();
     ssd1306_initialize(0x3C);
-#ifdef SSD1306_ENABLE_FRAMEBUFFER
-    ssd1306_fb_clear();
-    ssd1306_fb_write(0, 0, "iceZ0mb1e SoC");
-    ssd1306_fb_write(2, 0, "by abnoname");
-    ssd1306_fb_write(3, 0, "0123456789 Test");
-    ssd1306_fb_write(4, 0, "Framebuffer On");
-    ssd1306_fb_update();
-#else
     ssd1306_clear();
     ssd1306_write(0, 0, "iceZ0mb1e SoC");
     ssd1306_write(2, 0, "by abnoname");
     ssd1306_write(3, 0, "0123456789 Test");
     ssd1306_write(4, 0, "Framebuffer On");
+#ifdef SSD1306_ENABLE_FRAMEBUFFER
+    ssd1306_update();
 #endif
 #ifdef SSD1306_ENABLE_GRAPHIC
-    ssd1306_fb_line(0, 48, 127, 63, 1);
-    ssd1306_fb_box(0, 127, 48, 63, 1);
-    ssd1306_fb_update();
+    ssd1306_line(0, 48, 127, 63, 1);
+    ssd1306_box(0, 127, 48, 63, 1);
+    ssd1306_update();
 #endif
 
     //LED IO
     out(port_a, 0x01);
     printf("Readback port_a = 0x%X, port_b = 0x%X \n\r",
         in(port_a), in(port_b)
-    );
-
-    //RAM Test
-	last_usable_addr = 0;
-    addr = &free;
-    while((uint16_t)addr < 0xFFFF)
-    {
-        *(addr) = 0x55;
-        *(addr) = 0xAA;
-        if(*(addr) != 0xAA)
-        {
-            break;
-        }
-        last_usable_addr = (uint16_t)addr;
-        addr += 1;
-    }
-    printf("ready, start = 0x%X, last usable = 0x%X, ramsize = %u\n\r",
-        (uint16_t)&start, last_usable_addr, last_usable_addr-(uint16_t)&start
     );
 
     out(port_a, 0x02);
@@ -155,8 +126,4 @@ void main ()
         out(port_a, uart_rx);
         putchar(uart_rx);
     }
-
-__asm
-    halt
-__endasm;
 }
