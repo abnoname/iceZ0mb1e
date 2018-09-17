@@ -64,7 +64,8 @@ $(ASM_OBJ) :
 $(FIRMWARE_IMG).hex: $(ASM_OBJ) $(CC_OBJ)
 	$(CC) --no-std-crt0 $^ -o $(FIRMWARE_IMG).ihx
 	$(PACKIHX) < $(FIRMWARE_IMG).ihx > $(FIRMWARE_IMG).hex
-	srec_info $(FIRMWARE_IMG).hex --intel
+	@$(eval REV=`grep s__GSFINAL $(FIRMWARE_IMG).map | sed 's/s__GSFINAL//' | tr -d ' '`)
+	@echo "codesize: $(REV)"
 
 ###############################################################################
 # Output
