@@ -142,7 +142,7 @@ module iceZ0mb1e  #(
 		.busrq_n	(busrq_n),
 		.di			(data_miso[7:0])
 	);
-	defparam cpu.Mode = 1; // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
+	defparam cpu.Mode = 0; // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
 
 	membram #(ROM_WIDTH, `__def_fw_img, 1) rom
 	(

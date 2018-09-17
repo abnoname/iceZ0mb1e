@@ -36,10 +36,20 @@ module uart16540_wrapper (
     output tx
 );
 
-	wire [7:0] uart_rd_data;
+	wire[7:0] wr_data;
+	wire[7:0] rd_data;
+	reg[7:0] data_out_reg;
+	reg read_sel;
 	wire baudout;
 
-	assign data_out = (!cs_n & !rd_n) ? uart_rd_data : 8'bz;
+	assign wr_data = data_in;
+	assign data_out = (read_sel) ? data_out_reg : 8'bz;
+
+    always @(posedge clk)
+    begin
+    	read_sel <= !cs_n & !rd_n & wr_n;
+		data_out_reg <= rd_data;
+    end
 
 	T16450 uart0
 	(
@@ -50,8 +60,8 @@ module uart16540_wrapper (
 		.rd_n        (rd_n),
 		.wr_n        (wr_n),
 		.addr        (addr),
-		.wr_data     (data_in),
-		.rd_data     (uart_rd_data),
+		.wr_data     (wr_data),
+		.rd_data     (rd_data),
 		.sin         (rx),
 		.cts_n       (1'b0),
 		.dsr_n       (1'b0),

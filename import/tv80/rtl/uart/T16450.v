@@ -271,7 +271,7 @@ module T16450
         end 
       else 
         begin
-          if (addr == 3'b000 && !LCR[7] && !rd_n && cs_n ) 
+          if (addr == 3'b000 && !LCR[7] && !rd_n && !cs_n ) 
             begin
               LSR[0] <= #1 1'b0;   // DR
             end

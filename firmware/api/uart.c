@@ -32,14 +32,14 @@
 #if defined(__SDCC) && __SDCC_REVISION < 9624
 void putchar(char c)
 {
-    while ((in(uart_lsr) & SBIT_THRE) == 0);
     out(uart_thr, c);
+    while ((in(uart_lsr) & SBIT_THRE) == 0);
 }
 #else
 int putchar(int c)
 {
-    while ((in(uart_lsr) & SBIT_THRE) == 0);
     out(uart_thr, c);
+    while ((in(uart_lsr) & SBIT_THRE) == 0);
     return c;
 }
 #endif
@@ -64,4 +64,5 @@ void Initialize_16450(uint16_t baud)
     out(uart_dm1, (uint8_t)(div >> 8));
 
     out(uart_lcr, 0x03); /* 8 Bits, No Parity, 1 Stop Bit */
+    out(uart_mcr, 0x00);
 }

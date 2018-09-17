@@ -123,7 +123,7 @@ void main ()
     while(1)
     {
         uart_rx = getchar();
-        out(port_a, uart_rx);
         putchar(uart_rx);
+        out(port_a, uart_rx);
     }
 }
