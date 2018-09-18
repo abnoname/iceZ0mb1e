@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include "cpu.h"
 #include "register.h"
 #include "ioport.h"
 #include "uart.h"
@@ -125,5 +126,10 @@ void main ()
         uart_rx = getchar();
         putchar(uart_rx);
         out(port_a, uart_rx);
+
+        if( uart_rx == 'r' )
+        {
+            cpu_reset();
+        }
     }
 }
