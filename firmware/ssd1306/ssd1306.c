@@ -132,8 +132,9 @@ uint8_t ssd1306_i2c_addr;
 
 #define SSD1306_FBSIZE (SSD1306_PAGES * SSD1306_COLUMNS)
 #define SSD1306_FBADDR(x,y) (y/SSD1306_PAGES * SSD1306_COLUMNS + x)
-#define SSD1306_FBPIXSET(x,y) ssd1306_fb[SSD1306_FBADDR(x,y)] |= (1 << (y % 8))
-#define SSD1306_FBPIXCLR(x,y) ssd1306_fb[SSD1306_FBADDR(x,y)] &=~ (1 << (y % 8))
+//Comment out SSD1306_FBPIXSET and SSD1306_FBPIXCLR to save code memory (slower):
+//#define SSD1306_FBPIXSET(x,y) ssd1306_fb[SSD1306_FBADDR(x,y)] |= (1 << (y % 8))
+//#define SSD1306_FBPIXCLR(x,y) ssd1306_fb[SSD1306_FBADDR(x,y)] &=~ (1 << (y % 8))
 #ifdef SSD1306_ENABLE_FRAMEBUFFER
 uint8_t ssd1306_fbdata[SSD1306_FBSIZE + 1];
 uint8_t *ssd1306_fb;
@@ -191,6 +192,20 @@ void ssd1306_addr(uint8_t c, uint8_t p)
 }
 
 #ifdef SSD1306_ENABLE_FRAMEBUFFER
+#ifndef SSD1306_FBPIXSET
+void SSD1306_FBPIXSET(uint8_t x, uint8_t y)
+{
+    ssd1306_fb[SSD1306_FBADDR(x,y)] |= (1 << (y % 8));
+}
+#endif
+
+#ifndef SSD1306_FBPIXCLR
+void SSD1306_FBPIXCLR(uint8_t x, uint8_t y)
+{
+    ssd1306_fb[SSD1306_FBADDR(x,y)] &=~ (1 << (y % 8));
+}
+#endif
+
 void ssd1306_clear()
 {
     memset(ssd1306_fb, 0, SSD1306_FBSIZE);
