@@ -152,7 +152,7 @@ flash: $(FPGA_BIN_OUT)
 	$(ICEPROG) $(ICEPROG_PARAM) $(FPGA_BIN_OUT)
 
 sram: $(FPGA_BIN_OUT)
-	$(ICEPROG) -s $(ICEPROG_PARAM) $(FPGA_BIN_OUT)
+	$(ICEPROG) -S $(ICEPROG_PARAM) $(FPGA_BIN_OUT)
 
 ###############################################################################
 serial:
