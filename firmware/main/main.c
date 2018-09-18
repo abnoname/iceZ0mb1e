@@ -65,6 +65,22 @@ void oled_reset()
     delay(50000);
 }
 
+void View_Memory(uint8_t *mem, uint16_t len)
+{
+    uint16_t x;
+
+    for(x = 0; x < len; x++)
+    {
+        if((x%16) == 0)
+        {
+            printf("\r\n%04X: ", x);
+        }
+        printf("%02X", mem[x]);
+    }
+
+    printf("\r\n");
+}
+
 void main ()
 {
     uint8_t buffer[64];
@@ -81,19 +97,11 @@ void main ()
 
     //SPI Test
     Read_SPI_25L008A(buffer, 64);
-    for(x = 0; x < 64; x++)
-    {
-        printf("0x%X ", buffer[x]);
-    }
-    printf("\r\n");
+    View_Memory(buffer, 64);
 
     //I2C Test
     Read_I2C_PCF8523(buffer, 20);
-    for(x = 0; x < 20; x++)
-    {
-        printf("0x%X ", buffer[x]);
-    }
-    printf("\r\n");
+    View_Memory(buffer, 20);
 
     //I2C OLED display test:
     oled_reset();
@@ -112,24 +120,37 @@ void main ()
     ssd1306_update();
 #endif
 
-    //LED IO
-    out(port_a, 0x01);
-    printf("Readback port_a = 0x%X, port_b = 0x%X \n\r",
-        in(port_a), in(port_b)
-    );
-
+    //Port test
     out(port_a, 0x02);
 
     //UART Terminal
     while(1)
     {
         uart_rx = getchar();
-        putchar(uart_rx);
-        out(port_a, uart_rx);
 
-        if( uart_rx == 'r' )
+        switch(uart_rx)
         {
-            cpu_reset();
+            case 'a':
+                out(port_a, getchar());
+                printf("port_a = 0x%X\n\r", in(port_a));
+                break;
+            case 'b':
+                out(port_b, getchar());
+                printf("port_b = 0x%X\n\r", in(port_b));
+                break;
+            case 'r':
+                cpu_reset();
+                break;
+            case 'c':
+                View_Memory((uint8_t*)0x0000, 0x2000);
+                break;
+            case 'm':
+                View_Memory((uint8_t*)0x8000, 0x2000);
+                break;
+            default:
+                putchar(uart_rx);
+                out(port_a, uart_rx);
+                break;
         }
     }
 }
