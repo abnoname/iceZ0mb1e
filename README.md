@@ -28,7 +28,7 @@ The included test firmware will check the RAM size and write some data to IO por
 
 ### Address Map
 * ROM = 0x0000 - 0x1FFF (8192 Byte)
-* RAM = 0x2000 - 0x3FFF (8192 Byte)
+* RAM = 0x8000 - 0x9FFF (8192 Byte)
 * 16450 UART Base IO = 0x18
 * Parallel Base IO = 0x40
 * i2C Master = 0x50
