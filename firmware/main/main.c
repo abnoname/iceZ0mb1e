@@ -149,7 +149,6 @@ void main ()
                 break;
             default:
                 putchar(uart_rx);
-                out(port_a, uart_rx);
                 break;
         }
     }
