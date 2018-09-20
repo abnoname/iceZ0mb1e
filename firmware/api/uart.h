@@ -44,7 +44,9 @@ char getchar(void);
 int getchar(void);
 #endif
 
-void Initialize_16450(uint16_t baud);
+void uart_write(char *str);
+
+void uart_initialize(uint16_t baud);
 
 #endif
 

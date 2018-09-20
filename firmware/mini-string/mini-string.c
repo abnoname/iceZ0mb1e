@@ -24,67 +24,29 @@
 //
 
 #include <stdint.h>
-#include <stdio.h>
-#include "register.h"
-#include "ioport.h"
-#include "uart.h"
+#include "mini-string.h"
 
-int8_t start = 0;
-uint16_t last_usable_addr = 0;
-int8_t free = 0;
-
-void delay(uint16_t t)
+void mini_memset(uint8_t *ptr, uint8_t value, uint16_t len )
 {
     uint16_t i;
-    for(i = 0; i < t; i++);
+
+    for(i = 0; i < len; i++)
+    {
+        ptr[i] = value;
+    }
 }
 
-void main ()
+uint16_t mini_strlen(char *ptr)
 {
-    uint8_t *addr;
-    uint8_t x;
+    uint16_t i;
 
-    //GPIO mode = output
-    out(port_cfg, 0x00);
-
-    //UART Test
-    Initialize_16450(9600);
-    printf("iceZ0mb1e SoC by abnoname\r\n");
-
-    out(port_a, 0xFF);
-
-    //RAM Test
-	last_usable_addr = 0;
-    addr = &free;
-    while((uint16_t)addr < 0xFFFF)
+    for(i = 0; i < 0xFFFF; i++)
     {
-        *(addr) = 0x55;
-        *(addr) = 0xAA;
-        if(*(addr) != 0xAA)
+        if( ptr[i] == 0 )
         {
-            break;
+            return i;
         }
-        last_usable_addr = (uint16_t)addr;
-        addr += 1;
-    }
-    printf("ready, start = 0x%X, last usable = 0x%X, ramsize = %u\n\r",
-        (uint16_t)&start, last_usable_addr, last_usable_addr-(uint16_t)&start
-    );
-
-    //ROM View
-    for(addr = 0; addr < 0x2000; addr++)
-    {
-        if(((uint8_t)addr % 16) == 0)
-        {
-            printf("\r\n");
-        }
-        printf("%02X", *(addr));
     }
 
-    while(1)
-    {
-        out(port_a, x);
-        x++;
-        delay(5000);
-    }
+    return 0;
 }

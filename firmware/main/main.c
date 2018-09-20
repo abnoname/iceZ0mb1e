@@ -24,7 +24,7 @@
 //
 
 #include <stdint.h>
-#include <stdio.h>
+#include "mini-printf.h"
 #include "cpu.h"
 #include "register.h"
 #include "ioport.h"
@@ -32,6 +32,11 @@
 #include "i2c.h"
 #include "spi.h"
 #include "ssd1306.h"
+
+int8_t start = 0;
+uint16_t last_usable_addr = 0;
+int8_t free = 0;
+char strbuf[80];
 
 void delay(uint16_t t)
 {
@@ -73,16 +78,20 @@ void View_Memory(uint8_t *mem, uint16_t len)
     {
         if((x%16) == 0)
         {
-            printf("\r\n%04X: ", x);
+            snprintf(strbuf, sizeof(strbuf), "\r\n%04X: ", x);
+            uart_write(strbuf);
         }
-        printf("%02X", mem[x]);
+        snprintf(strbuf, sizeof(strbuf), "%02X", mem[x]);
+        uart_write(strbuf);
     }
 
-    printf("\r\n");
+    snprintf(strbuf, sizeof(strbuf), "\r\n");
+    uart_write(strbuf);
 }
 
 void main ()
 {
+    uint8_t *addr;
     uint8_t buffer[64];
 
     int8_t uart_rx = 0;
@@ -92,8 +101,9 @@ void main ()
     out(port_cfg, 0x00);
 
     //UART Test
-    Initialize_16450(9600);
-    printf("iceZ0mb1e SoC by abnoname\r\n");
+    uart_initialize(9600);
+    snprintf(strbuf, sizeof(strbuf), "iceZ0mb1e SoC by abnoname\r\n");
+    uart_write(strbuf);
 
     //SPI Test
     Read_SPI_25L008A(buffer, 64);
@@ -132,11 +142,13 @@ void main ()
         {
             case 'a':
                 out(port_a, getchar());
-                printf("port_a = 0x%X\n\r", in(port_a));
+                snprintf(strbuf, sizeof(strbuf), "port_a = 0x%X\n\r", in(port_a));
+                uart_write(strbuf);
                 break;
             case 'b':
                 out(port_b, getchar());
-                printf("port_b = 0x%X\n\r", in(port_b));
+                snprintf(strbuf, sizeof(strbuf), "port_b = 0x%X\n\r", in(port_b));
+                uart_write(strbuf);
                 break;
             case 'r':
                 cpu_reset();
@@ -146,6 +158,26 @@ void main ()
                 break;
             case 'm':
                 View_Memory((uint8_t*)0x8000, 0x2000);
+                break;
+            case 't':
+                //RAM Test
+                last_usable_addr = 0;
+                addr = &free;
+                while((uint16_t)addr < 0xFFFF)
+                {
+                    *(addr) = 0x55;
+                    *(addr) = 0xAA;
+                    if(*(addr) != 0xAA)
+                    {
+                        break;
+                    }
+                    last_usable_addr = (uint16_t)addr;
+                    addr += 1;
+                }
+                snprintf(strbuf, sizeof(strbuf), "RAM: start = 0x%X, last usable = 0x%X, ramsize = %u\n\r",
+                    (uint16_t)&start, last_usable_addr, last_usable_addr-(uint16_t)&start
+                );
+                uart_write(strbuf);
                 break;
             default:
                 putchar(uart_rx);

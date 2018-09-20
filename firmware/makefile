@@ -29,8 +29,7 @@
 ###############################################################################
 ARCH = mz80
 
-COMPONENTS = . crt0 api ssd1306 main
-#COMPONENTS = . crt0 api test
+COMPONENTS = . crt0 api mini-string mini-printf ssd1306 main
 
 all: $(FIRMWARE_IMG).bin $(FIRMWARE_IMG).hex $(FIRMWARE_IMG).vhex $(FIRMWARE_IMG).dasm
 

@@ -23,9 +23,8 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <string.h>
 #include <stdint.h>
-#include <stdio.h>
+#include "mini-string.h"
 #include "i2c.h"
 #include "ssd1306.h"
 

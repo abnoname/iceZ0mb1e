@@ -74,7 +74,7 @@ module simplespi_wrapper (
 
 	clk_enable spi_clk_divider (
 		.reset(!reset_n),
-		.divider(12/2), //f=12E6/12=400kHz => div=12/2
+		.divider(12/2), //f=12E6/12=1MHz => div=12/2
 		.clk_in(clk),
 		.clk_en(spi_clk_en)
 	);

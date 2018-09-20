@@ -23,56 +23,15 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#ifndef H_MINI_STRING
+#define H_MINI_STRING
+
 #include <stdint.h>
-#include "register.h"
-#include "ioport.h"
-#include "uart.h"
 
+void mini_memset(uint8_t *ptr, uint8_t value, uint16_t len );
+uint16_t mini_strlen(char *str);
 
-#if defined(__SDCC) && __SDCC_REVISION < 9624
-void putchar(char c)
-{
-    out(uart_thr, c);
-    while ((in(uart_lsr) & SBIT_THRE) == 0);
-}
-#else
-int putchar(int c)
-{
-    out(uart_thr, c);
-    while ((in(uart_lsr) & SBIT_THRE) == 0);
-    return c;
-}
+#define strlen mini_strlen
+#define memset mini_memset
+
 #endif
-
-#if defined(__SDCC) && __SDCC_REVISION < 9989
-char getchar()
-#else
-int getchar()
-#endif
-{
-    while ((in(uart_lsr) & SBIT_DR) == 0);
-    return in(uart_rbr);
-}
-
-void uart_write(char *str)
-{
-    uint16_t i = 0;
-
-    for(i = 0; str[i] != 0; i++)
-    {
-        putchar(str[i]);
-    }
-}
-
-void uart_initialize(uint16_t baud)
-{
-    // set divisor div = 12MHz / (9600 * 16) = 78
-    uint32_t div = (uint32_t)XTAL_FREQ / ((uint32_t)baud * (uint32_t)16);
-
-    out(uart_lcr, 0x80); /* SET DLAB ON */
-    out(uart_dm0, (uint8_t)(div & 0xFF));
-    out(uart_dm1, (uint8_t)(div >> 8));
-
-    out(uart_lcr, 0x03); /* 8 Bits, No Parity, 1 Stop Bit */
-    out(uart_mcr, 0x00);
-}
