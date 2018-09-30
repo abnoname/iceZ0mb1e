@@ -48,8 +48,6 @@ module simplespi_wrapper (
 	reg[7:0] reg_clockdiv = 8'h0;
 	wire[7:0] reg_data_rd;
 
-	assign reg_status[7:1] = 6'd0; //iverilog 12vvp_fun_muxz fix
-
     wire[7:0] read_data =
         (addr == 4'h00) ? reg_status :
 		(addr == 4'h01) ? reg_config :
@@ -82,7 +80,7 @@ module simplespi_wrapper (
 
 	clk_enable spi_clk_divider (
 		.reset(!reset_n),
-		.divider( {8'h00, reg_clockdiv} ), //f=12E6/12=1MHz => div=12/2
+		.divider(reg_clockdiv), //f=12E6/12=1MHz => div=12/2
 		.clk_in(clk),
 		.clk_en(spi_clk_en)
 	);
@@ -90,7 +88,7 @@ module simplespi_wrapper (
 	simplespi master (
 		.clk			(clk),
 		.clk_spi_en		(spi_clk_en),
-		.reset			( (!reset_n) | (reg_command[7]) ),
+		.reset			(!reset_n),
 
 		.req_next		(reg_status[0]),
 

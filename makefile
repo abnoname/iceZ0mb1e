@@ -33,7 +33,6 @@ SRC = ./import/tv80/rtl/core/tv80_alu.v \
 		./import/tv80/rtl/core/tv80_reg.v \
 		./import/tv80/rtl/core/tv80s.v
 SRC += ./import/tv80/rtl/uart/T16450.v
-SRC += ./rtl/clk_divider.v
 SRC += ./rtl/clk_enable.v
 SRC += ./rtl/simpleio.v
 SRC += ./rtl/simplei2c.v
@@ -77,6 +76,7 @@ else ifeq ($(TARGET),icezum)
 else ifeq ($(TARGET),5k)
 	SRC += ./top/upduino.v
 	ARACHNEFLAGS = -d 5k -P sg48
+	ICETIMEFLAGS = -d up5k -P sg48
 	FPGA_PINMAP = ./pinmap/upduino.pcf
 	ICEPROG_PARAM = -d i:0x0403:0x6014
 else ifeq ($(TARGET),8k)
@@ -110,6 +110,7 @@ ARACHNEPNR = arachne-pnr
 ICEBOXEXPLAIN = icebox_explain
 ICEPACK = icepack
 ICEPROG = sudo iceprog
+ICETIME = icetime
 QFLOW = qflow
 
 #Tool Options
@@ -147,6 +148,8 @@ fpga: $(SRC) $(FPGA_PINMAP) firmware
 	$(ARACHNEPNR) $(ARACHNEFLAGS) -p $(FPGA_PINMAP) $(FPGA_BLIF_OUT) -o $(FPGA_TXT_OUT)
 	$(ICEBOXEXPLAIN) $(FPGA_TXT_OUT) > $(FPGA_EX_OUT)
 	$(ICEPACK) $(FPGA_TXT_OUT) $(FPGA_BIN_OUT)
+time:
+	$(ICETIME) -mt -p $(FPGA_PINMAP) $(ICETIMEFLAGS) $(FPGA_TXT_OUT)
 
 flash: $(FPGA_BIN_OUT)
 	$(ICEPROG) $(ICEPROG_PARAM) $(FPGA_BIN_OUT)

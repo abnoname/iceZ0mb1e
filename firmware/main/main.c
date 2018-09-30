@@ -27,7 +27,6 @@
 #include "mini-printf.h"
 #include "cpu.h"
 #include "register.h"
-#include "ioport.h"
 #include "uart.h"
 #include "i2c.h"
 #include "spi.h"
@@ -47,13 +46,13 @@ void Read_SPI_25L008A(uint8_t *buffer, uint16_t len)
 
 void oled_reset()
 {
-    out(port_b, 0x00);
+    port_b = 0x00;
     delay(50000);
-    out(port_b, 0x01);
+    port_b = 0x01;
     delay(50000);
-    out(port_b, 0x00);
+    port_b = 0x00;
     delay(50000);
-    out(port_b, 0x01);
+    port_b = 0x01;
     delay(50000);
 }
 
@@ -84,16 +83,12 @@ void main ()
     int16_t x;
 
     //GPIO mode = output
-    out(port_cfg, 0x00);
+    port_cfg = 0x00;
 
     //Initialize:
     uart_initialize(9600);
     spi_config(0, 12); //1MHz
-    i2c_config(60); //200kHz
-
-    //UART Test
-    snprintf(strbuf, sizeof(strbuf), "iceZ0mb1e SoC by abnoname\r\n");
-    uart_write(strbuf);
+    i2c_config(120); //100kHz
 
     //i2c Test:
     i2c_read_buf(0x5C, buffer, 5);
@@ -123,7 +118,11 @@ void main ()
 #endif
 
     //Port test
-    out(port_a, 0x02);
+    port_a = 0x02;
+
+    //UART Test
+    snprintf(strbuf, sizeof(strbuf), "iceZ0mb1e SoC by abnoname\r\n");
+    uart_write(strbuf);
 
     //UART Terminal
     while(1)
@@ -133,13 +132,13 @@ void main ()
         switch(uart_rx)
         {
             case 'a':
-                out(port_a, getchar());
-                snprintf(strbuf, sizeof(strbuf), "port_a = 0x%X\n\r", in(port_a));
+                port_a = getchar();
+                snprintf(strbuf, sizeof(strbuf), "port_a = 0x%X\n\r", port_a);
                 uart_write(strbuf);
                 break;
             case 'b':
-                out(port_b, getchar());
-                snprintf(strbuf, sizeof(strbuf), "port_b = 0x%X\n\r", in(port_b));
+                port_b = getchar();
+                snprintf(strbuf, sizeof(strbuf), "port_b = 0x%X\n\r", port_b);
                 uart_write(strbuf);
                 break;
             case 'r':

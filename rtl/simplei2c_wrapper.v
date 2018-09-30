@@ -38,16 +38,14 @@ module simplei2c_wrapper (
 	output i2c_scl_out
 );
 
-    assign read_sel = !cs_n & !rd_n & wr_n;
-    assign write_sel = !cs_n & rd_n & !wr_n;
+    wire read_sel = !cs_n & !rd_n & wr_n;
+    wire write_sel = !cs_n & rd_n & !wr_n;
 
-	reg[7:0] reg_status = 8'h0;
+	wire[7:0] reg_status;
 	reg[7:0] reg_command = 8'h0;
 	reg[7:0] reg_data_wr = 8'h0;
 	reg[7:0] reg_clockdiv = 8'h0;
 	wire[7:0] reg_data_rd;
-
-	wire req_next;
 
     wire[7:0] read_data =
         (addr == 4'h00) ? reg_status :
@@ -73,14 +71,13 @@ module simplei2c_wrapper (
 				reg_command[0] <= 1'b0;
 			end
 		end
-		reg_status[0] <= req_next;
     end
 
 	wire i2c_clk_en;
 
 	clk_enable i2c_clk_divider (
 		.reset(!reset_n),
-		.divider( {8'h00, reg_clockdiv} ), //f=12E6/120=100kHz => div=120/2
+		.divider(reg_clockdiv), //f=12E6/120=100kHz => div=120/2
 		.clk_in(clk),
 		.clk_en(i2c_clk_en)
 	);
@@ -88,9 +85,9 @@ module simplei2c_wrapper (
 	simplei2c master (
 		.clk			(clk),
 		.clk_i2c_en		(i2c_clk_en),
-		.reset			( (!reset_n) | (reg_command[7]) ),
+		.reset			(!reset_n),
 
-		.req_next		(req_next),
+		.req_next		(reg_status[0]),
 
 		.start			(reg_command[0]),
 		.restart		(reg_command[1]),

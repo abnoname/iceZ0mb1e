@@ -51,13 +51,13 @@ module iceZ0mb1e  #(
 	localparam ROM_SIZE = (1 << ROM_WIDTH);
 	localparam RAM_SIZE = (1 << RAM_WIDTH);
 
-	reg         reset_n;
+	reg         reset_n = 1'b0;
 
 	//Z80 Bus:
-	reg         wait_n;
-	reg         int_n;
-	reg         nmi_n;
-	reg         busrq_n;
+	reg         wait_n = 1'b0;
+	reg         int_n = 1'b0;
+	reg         nmi_n = 1'b0;
+	reg         busrq_n = 1'b0;
 	wire        m1_n;
 	wire        mreq_n;
 	wire        iorq_n;
@@ -71,25 +71,15 @@ module iceZ0mb1e  #(
 	wire [7:0]  data_mosi;
 	//End
 
-	assign debug = iorq_n;
-
 	//Reset Controller:
-	reg [2:0] reset_state = 3'd 0;
 	always @(posedge clk) begin
-		case (reset_state)
-		3'd 0 : begin reset_n <= 1'b 0; reset_state <= 3'd 1; end
-		3'd 1 : begin reset_n <= 1'b 0; reset_state <= 3'd 2; end
-		3'd 2 : begin reset_n <= 1'b 0; reset_state <= 3'd 3; end
-		3'd 3 : begin
-			reset_n <= 1'b 0; reset_state <= 3'd 4;
-			wait_n <= 1;
-			int_n  <= 1;
-			nmi_n  <= 1;
-			busrq_n <= 1;
+		if( reset_n == 1'b0 ) begin
+			wait_n	<= 1'b1;
+			int_n	<= 1'b1;
+			nmi_n	<= 1'b1;
+			busrq_n	<= 1'b1;
+			reset_n	<= 1'b1;
 		end
-		3'd 4 : begin reset_n <= 1'b 1; end
-		default : begin reset_state <= 3'd 0; end
-		endcase
 	end
 
 	wire uart_cs_n, port_cs_n, i2c_cs_n, spi_cs_n;
@@ -104,15 +94,6 @@ module iceZ0mb1e  #(
 	//Memory Address Decoder:
 	assign rom_cs_n = ~(!mreq_n & (addr  < ROM_SIZE));
 	assign ram_cs_n = ~(!mreq_n & (addr >= RAM_LOC) & (addr < (RAM_LOC+RAM_SIZE)));
-
-	// always @(posedge clk) begin
-	// 	if(!iorq_n)begin
-	// 		wait_n <= 1'b0;
-	// 	end
-	// 	if(wait_n == 1'b0)begin
-	// 		wait_n <= 1'b1;
-	// 	end
-	// end
 
 	//SoC Info
 	initial begin
@@ -142,7 +123,7 @@ module iceZ0mb1e  #(
 		.busrq_n	(busrq_n),
 		.di			(data_miso[7:0])
 	);
-	defparam cpu.Mode = 1; // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
+	defparam cpu.Mode = 0; // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
 
 	membram #(ROM_WIDTH, `__def_fw_img, 1) rom
 	(

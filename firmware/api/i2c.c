@@ -24,7 +24,6 @@
 //
 
 #include <stdint.h>
-#include "ioport.h"
 #include "register.h"
 #include "i2c.h"
 #include "cpu.h"
@@ -39,41 +38,39 @@
 #define I2C_CMD_RD      0x08
 #define I2C_CMD_ACK_L   0x00
 #define I2C_CMD_ACK_Z   0x10
-#define I2C_CMD_RESET   0x80
 
 #define I2C_STAT_REQ    0x01
 
 uint8_t i2c_config(uint8_t clock_div)
 {
-    out(i2c_cmd, 0x00);
-    out(i2c_clkdiv, clock_div/2);
+    i2c_cmd = 0x00;
+    i2c_clkdiv = clock_div/2;
 }
 
 void i2c_wait_req()
 {
-    while((in(i2c_status) & I2C_STAT_REQ) == 0);
+    while((i2c_status & I2C_STAT_REQ) == 0);
 }
 
 void i2c_addr(uint8_t addr, uint8_t mode)
 {
-    out(i2c_dat_out, (addr << 1) | mode);
-    out(i2c_cmd, I2C_CMD_ACK_Z | I2C_CMD_WR | I2C_CMD_START);
+    i2c_dat_out = (addr << 1) | mode;
+    i2c_cmd = I2C_CMD_ACK_Z | I2C_CMD_WR | I2C_CMD_START;
     i2c_wait_req();
 }
 
 void i2c_write(uint8_t value, uint8_t mode )
 {
-    out(i2c_dat_out, value);
-    out(i2c_dat_out, value);
-    out(i2c_cmd, I2C_CMD_WR | I2C_CMD_START | mode);
+    i2c_dat_out = value;
+    i2c_cmd = I2C_CMD_WR | I2C_CMD_START | mode;
     i2c_wait_req();
 }
 
 uint8_t i2c_read(uint8_t mode)
 {
-    out(i2c_cmd, I2C_CMD_RD | I2C_CMD_START | mode);
+    i2c_cmd = I2C_CMD_RD | I2C_CMD_START | mode;
     i2c_wait_req();
-    return in(i2c_dat_in);
+    return i2c_dat_in;
 }
 
 void i2c_read_buf(uint8_t addr, uint8_t *buf, uint16_t size)

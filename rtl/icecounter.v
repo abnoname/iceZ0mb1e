@@ -22,27 +22,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-module clk_divider(
-    input wire reset,
-	input wire[15:0] divider,
-    input wire clk_in,
-    output reg clk_out
+module icecounter (
+	input clk,
+	input clk_en,
+	input reset,
+
+    input[31:0] counter_in,
+    input[31:0] compare_in,
+
+    output[31:0] counter_out,
+    output[31:0] capture_out,
+
+    input count,
+    input count_en,
+
+    input updown,
+
+    input load,
+    input reset,
+    input store,
+
+    output overflow,
+    output underflow,
+    output compare
 );
 
-	reg [15:0] count = 0;
+	localparam STATE_IDLE = 0;
 
-	always @(posedge clk_in) begin
-		if (reset == 1) begin
-			clk_out <= 0;
-			count <= 0;
+	reg [4:0] fsm_state;
+
+    reg[31:0] count_reg;
+    reg[31:0] cmp_reg;
+    reg overflow;
+    reg zero;
+
+	always @(posedge clk) begin
+		if (reset == 1'b1) begin
+			fsm_state <= STATE_IDLE;
+            data_out <= 32'd 0;
+
 		end	else begin
-			if (count == divider) begin
-				clk_out <= ~clk_out;
-				count <= 0;
-			end else begin
-				count <= count + 1'b1;
+			if (clk_en == 1'b1) begin
+				case(fsm_state)
+					STATE_IDLE: begin
+					end
+				endcase
 			end
 		end
 	end
-
 endmodule

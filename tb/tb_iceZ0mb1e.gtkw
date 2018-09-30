@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
-[*] Sun Sep 30 16:15:12 2018
+[*] Sun Sep 30 18:15:35 2018
 [*]
 [dumpfile] "/media/storage/Daten/Projekte/iceZ0mb1e/simulation/_test.vcd"
-[dumpfile_mtime] "Sun Sep 30 16:14:09 2018"
-[dumpfile_size] 16891262
+[dumpfile_mtime] "Sun Sep 30 18:05:38 2018"
+[dumpfile_size] 17273261
 [savefile] "/media/storage/Daten/Projekte/iceZ0mb1e/tb/tb_iceZ0mb1e.gtkw"
-[timestart] 16880
+[timestart] 33178
 [size] 1366 684
 [pos] 0 68
-*-13.000000 33960 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-5.000000 33248 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb_iceZ0mb1e.
 [treeopen] tb_iceZ0mb1e.t1.
 [treeopen] tb_iceZ0mb1e.t1.i2c0.
@@ -25,17 +25,23 @@ tb_iceZ0mb1e.rx[0]
 @22
 tb_iceZ0mb1e.P1_out[7:0]
 tb_iceZ0mb1e.P2_out[7:0]
-@28
-tb_iceZ0mb1e.t1.iorq_n[0]
-@22
 tb_iceZ0mb1e.t1.addr[15:0]
+tb_iceZ0mb1e.t1.cpu.di[7:0]
+tb_iceZ0mb1e.t1.cpu.do[7:0]
 @28
-tb_iceZ0mb1e.t1.i2c0.reg_command[7:0]
+tb_iceZ0mb1e.t1.cpu.m1_n[0]
+tb_iceZ0mb1e.t1.mreq_n[0]
+tb_iceZ0mb1e.t1.iorq_n[0]
+tb_iceZ0mb1e.t1.rd_n[0]
+tb_iceZ0mb1e.t1.wr_n[0]
+tb_iceZ0mb1e.t1.i2c0.read_sel[0]
+@29
+tb_iceZ0mb1e.t1.i2c0.write_sel[0]
 @22
+tb_iceZ0mb1e.t1.i2c0.reg_command[7:0]
 tb_iceZ0mb1e.t1.i2c0.reg_status[7:0]
 tb_iceZ0mb1e.t1.i2c0.reg_data_rd[7:0]
 tb_iceZ0mb1e.t1.i2c0.reg_data_wr[7:0]
-@23
 tb_iceZ0mb1e.t1.i2c0.master.fsm_state[3:0]
 @28
 tb_iceZ0mb1e.t1.i2c0.master.start[0]

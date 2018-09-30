@@ -28,33 +28,33 @@
 
 #define XTAL_FREQ 12E6
 
-#define uart_dm0 0x18
-#define uart_thr 0x18
-#define uart_rbr 0x18
-#define uart_dm1 0x19
-#define uart_ier 0x19
-#define uart_iir 0x1a
-#define uart_lcr 0x1b
-#define uart_mcr 0x1c
-#define uart_lsr 0x1d
-#define uart_msr 0x1e
-#define uart_scr 0x1f
+__sfr __at 0x18 uart_dm0;
+__sfr __at 0x18 uart_thr;
+__sfr __at 0x18 uart_rbr;
+__sfr __at 0x19 uart_dm1;
+__sfr __at 0x19 uart_ier;
+__sfr __at 0x1a uart_iir;
+__sfr __at 0x1b uart_lcr;
+__sfr __at 0x1c uart_mcr;
+__sfr __at 0x1d uart_lsr;
+__sfr __at 0x1e uart_msr;
+__sfr __at 0x1f uart_scr;
 
-#define port_a   0x40
-#define port_b   0x41
-#define port_cfg 0x42
+__sfr __at 0x40 port_a;
+__sfr __at 0x41 port_b;
+__sfr __at 0x42 port_cfg;
 
-#define i2c_status  0x50
-#define i2c_clkdiv  0x52
-#define i2c_cmd     0x53
-#define i2c_dat_in  0x54
-#define i2c_dat_out 0x55
+__sfr __at 0x50 i2c_status;
+__sfr __at 0x52 i2c_clkdiv;
+__sfr __at 0x53 i2c_cmd;
+__sfr __at 0x54 i2c_dat_in;
+__sfr __at 0x55 i2c_dat_out;
 
-#define spi_status  0x60
-#define spi_cfg     0x61
-#define spi_clkdiv  0x62
-#define spi_cmd     0x63
-#define spi_dat_in  0x64
-#define spi_dat_out 0x65
+__sfr __at 0x60 spi_status;
+__sfr __at 0x61 spi_cfg;
+__sfr __at 0x62 spi_clkdiv;
+__sfr __at 0x63 spi_cmd;
+__sfr __at 0x64 spi_dat_in;
+__sfr __at 0x65 spi_dat_out;
 
 #endif
