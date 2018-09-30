@@ -38,24 +38,11 @@ uint16_t last_usable_addr = 0;
 int8_t free = 0;
 char strbuf[80];
 
-void delay(uint16_t t)
-{
-    uint16_t i;
-    for(i = 0; i < t; i++);
-}
-
 void Read_SPI_25L008A(uint8_t *buffer, uint16_t len)
 {
     uint8_t spi_send[4] = {0x3, 0x00, 0x00, 0x00};
 
-    spi_config(0);
     spi_xfer(spi_send, buffer, 4, len);
-}
-
-void Read_I2C_PCF8523(uint8_t *buffer, uint16_t len)
-{
-    i2c_write(0x68, 0x00);
-    i2c_read_buf(0x68, buffer, len);
 }
 
 void oled_reset()
@@ -93,25 +80,30 @@ void main ()
 {
     uint8_t *addr;
     uint8_t buffer[64];
-
     int8_t uart_rx = 0;
     int16_t x;
 
     //GPIO mode = output
     out(port_cfg, 0x00);
 
-    //UART Test
+    //Initialize:
     uart_initialize(9600);
+    spi_config(0, 12); //1MHz
+    i2c_config(60); //200kHz
+
+    //UART Test
     snprintf(strbuf, sizeof(strbuf), "iceZ0mb1e SoC by abnoname\r\n");
     uart_write(strbuf);
+
+    //i2c Test:
+    i2c_read_buf(0x5C, buffer, 5);
+    View_Memory(buffer, 5);
+    i2c_read_buf(0x68, buffer, 20);
+    View_Memory(buffer, 20);
 
     //SPI Test
     Read_SPI_25L008A(buffer, 64);
     View_Memory(buffer, 64);
-
-    //I2C Test
-    Read_I2C_PCF8523(buffer, 20);
-    View_Memory(buffer, 20);
 
     //I2C OLED display test:
     oled_reset();

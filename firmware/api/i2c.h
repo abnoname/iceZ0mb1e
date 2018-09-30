@@ -28,8 +28,11 @@
 
 #include <stdint.h>
 
-uint8_t i2c_read(uint8_t addr);
-uint8_t i2c_write(uint8_t addr, uint8_t cmd);
+uint8_t i2c_config(uint8_t clock_div);
+void i2c_wait_req();
+void i2c_addr(uint8_t addr, uint8_t mode);
+void i2c_write(uint8_t value, uint8_t mode );
+uint8_t i2c_read(uint8_t mode);
 void i2c_read_buf(uint8_t addr, uint8_t *buf, uint16_t size);
 void i2c_write_buf(uint8_t addr, uint8_t* buf, uint16_t size );
 

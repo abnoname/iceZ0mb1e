@@ -27,5 +27,6 @@
 #define __CPU_H
 
 void cpu_reset();
+void delay(uint16_t t);
 
 #endif

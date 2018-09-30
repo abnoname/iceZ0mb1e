@@ -38,18 +38,20 @@ module simplei2c_wrapper (
 	output i2c_scl_out
 );
 
-    wire read_sel = !cs_n & !rd_n & wr_n;
-    wire write_sel = !cs_n & rd_n & !wr_n;
+    assign read_sel = !cs_n & !rd_n & wr_n;
+    assign write_sel = !cs_n & rd_n & !wr_n;
 
-	wire[7:0] reg_status;
+	reg[7:0] reg_status = 8'h0;
 	reg[7:0] reg_command = 8'h0;
 	reg[7:0] reg_data_wr = 8'h0;
+	reg[7:0] reg_clockdiv = 8'h0;
 	wire[7:0] reg_data_rd;
 
-	assign reg_status[7:1] = 6'd0; //iverilog 12vvp_fun_muxz fix
+	wire req_next;
 
     wire[7:0] read_data =
         (addr == 4'h00) ? reg_status :
+		(addr == 4'h02) ? reg_clockdiv :
 		(addr == 4'h03) ? reg_command :
 		(addr == 4'h04) ? reg_data_rd :
 		(addr == 4'h05) ? reg_data_wr[7:0] :
@@ -61,17 +63,24 @@ module simplei2c_wrapper (
     begin
         if ( write_sel ) begin
             case(addr)
+				4'h02 : reg_clockdiv <= data_in;
 				4'h03 : reg_command <= data_in;
-				4'h05 : reg_data_wr[7:0] <= data_in;
+				4'h05 : reg_data_wr <= data_in;
             endcase
         end
+		if( i2c_clk_en == 1'b1 ) begin
+			if( reg_command[0] == 1'b1 ) begin
+				reg_command[0] <= 1'b0;
+			end
+		end
+		reg_status[0] <= req_next;
     end
 
 	wire i2c_clk_en;
 
 	clk_enable i2c_clk_divider (
 		.reset(!reset_n),
-		.divider(60/2), //f=12E6/60=200kHz => div=60/2
+		.divider( {8'h00, reg_clockdiv} ), //f=12E6/120=100kHz => div=120/2
 		.clk_in(clk),
 		.clk_en(i2c_clk_en)
 	);
@@ -81,7 +90,7 @@ module simplei2c_wrapper (
 		.clk_i2c_en		(i2c_clk_en),
 		.reset			( (!reset_n) | (reg_command[7]) ),
 
-		.req_next		(reg_status[0]),
+		.req_next		(req_next),
 
 		.start			(reg_command[0]),
 		.restart		(reg_command[1]),

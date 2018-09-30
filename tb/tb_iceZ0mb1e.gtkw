@@ -1,55 +1,57 @@
 [*]
-[*] GTKWave Analyzer v3.3.66 (w)1999-2015 BSI
-[*] Sun Feb 25 10:46:29 2018
+[*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
+[*] Sun Sep 30 16:15:12 2018
 [*]
 [dumpfile] "/media/storage/Daten/Projekte/iceZ0mb1e/simulation/_test.vcd"
-[dumpfile_mtime] "Sun Feb 25 10:42:35 2018"
-[dumpfile_size] 1099029
+[dumpfile_mtime] "Sun Sep 30 16:14:09 2018"
+[dumpfile_size] 16891262
 [savefile] "/media/storage/Daten/Projekte/iceZ0mb1e/tb/tb_iceZ0mb1e.gtkw"
-[timestart] 0
-[size] 1000 600
-[pos] 441 187
-*-11.000000 1739 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 16880
+[size] 1366 684
+[pos] 0 68
+*-13.000000 33960 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb_iceZ0mb1e.
 [treeopen] tb_iceZ0mb1e.t1.
 [treeopen] tb_iceZ0mb1e.t1.i2c0.
 [treeopen] tb_iceZ0mb1e.t1.spi0.
 [sst_width] 225
-[signals_width] 158
+[signals_width] 256
 [sst_expanded] 1
-[sst_vpaned_height] 152
+[sst_vpaned_height] 182
 @28
 tb_iceZ0mb1e.clk[0]
-tb_iceZ0mb1e.i2c_scl[0]
-tb_iceZ0mb1e.i2c_sda[0]
-tb_iceZ0mb1e.t1.i2c0.master.clk_i2c_en[0]
+tb_iceZ0mb1e.tx[0]
+tb_iceZ0mb1e.rx[0]
 @22
-tb_iceZ0mb1e.t1.i2c0.master.fsm_state[4:0]
+tb_iceZ0mb1e.P1_out[7:0]
+tb_iceZ0mb1e.P2_out[7:0]
+@28
+tb_iceZ0mb1e.t1.iorq_n[0]
+@22
+tb_iceZ0mb1e.t1.addr[15:0]
+@28
+tb_iceZ0mb1e.t1.i2c0.reg_command[7:0]
+@22
+tb_iceZ0mb1e.t1.i2c0.reg_status[7:0]
+tb_iceZ0mb1e.t1.i2c0.reg_data_rd[7:0]
+tb_iceZ0mb1e.t1.i2c0.reg_data_wr[7:0]
+@23
+tb_iceZ0mb1e.t1.i2c0.master.fsm_state[3:0]
 @28
 tb_iceZ0mb1e.t1.i2c0.master.start[0]
-tb_iceZ0mb1e.t1.i2c0.master.start_edge[0]
-tb_iceZ0mb1e.t1.i2c0.master.sync_start[1:0]
+tb_iceZ0mb1e.t1.i2c0.master.stop[0]
+tb_iceZ0mb1e.t1.i2c0.master.latch_stop[0]
+tb_iceZ0mb1e.t1.i2c0.master.restart[0]
+tb_iceZ0mb1e.t1.i2c0.master.latch_restart[0]
 tb_iceZ0mb1e.t1.i2c0.master.mode_rw[0]
-tb_iceZ0mb1e.t1.spi0.spi_clk_en[0]
-tb_iceZ0mb1e.t1.spi0.sclk[0]
-tb_iceZ0mb1e.t1.spi0.mosi[0]
-tb_iceZ0mb1e.t1.spi0.miso[0]
-tb_iceZ0mb1e.t1.spi0.cs[0]
-@22
-tb_iceZ0mb1e.t1.spi0.master.bit_count[7:0]
-tb_iceZ0mb1e.t1.spi0.master.fsm_state[4:0]
-@28
-tb_iceZ0mb1e.t1.spi0.master.latch_stop[0]
-@22
-tb_iceZ0mb1e.t1.spi0.master.data_read[7:0]
-tb_iceZ0mb1e.t1.spi0.master.data_write[7:0]
-@28
-tb_iceZ0mb1e.t1.spi0.master.req_next[0]
-tb_iceZ0mb1e.t1.spi0.master.start_edge[0]
-tb_iceZ0mb1e.t1.spi0.master.stop[0]
-@29
-tb_iceZ0mb1e.t1.spi0.master.CPOL[0]
-@28
-tb_iceZ0mb1e.t1.spi0.master.CPHA[0]
+tb_iceZ0mb1e.t1.i2c0.master.req_next[0]
+tb_iceZ0mb1e.i2c_scl[0]
+tb_iceZ0mb1e.i2c_sda_out[0]
+tb_iceZ0mb1e.i2c_sda_oen[0]
+tb_iceZ0mb1e.i2c_sda_in[0]
+tb_iceZ0mb1e.spi_sclk[0]
+tb_iceZ0mb1e.spi_miso[0]
+tb_iceZ0mb1e.spi_mosi[0]
+tb_iceZ0mb1e.spi_cs[0]
 [pattern_trace] 1
 [pattern_trace] 0

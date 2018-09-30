@@ -44,51 +44,53 @@ module simplei2c(
 	output i2c_scl_out
 );
 
-	localparam STATE_IDLE = 0;
-	localparam STATE_START_L = 1;
-	localparam STATE_START_H = 2;
-	localparam STATE_ACK_L = 3;
-	localparam STATE_ACK_H = 4;
-	localparam STATE_DATA_L = 5;
-	localparam STATE_DATA_H = 6;
-	localparam STATE_STOP_L = 7;
-	localparam STATE_STOP_H = 8;
+	localparam STATE_IDLE = 4'h0;
+	localparam STATE_START_L = 4'h1;
+	localparam STATE_START_H = 4'h2;
+	localparam STATE_DATA_L = 4'h3;
+	localparam STATE_DATA_H = 4'h4;
+	localparam STATE_ACK_L = 4'h5;
+	localparam STATE_ACK_H = 4'h6;
+	localparam STATE_STOP_L = 4'h7;
+	localparam STATE_STOP_H = 4'h8;
 
     `define MODE_WR 1'b0
     `define MODE_RD 1'b1
-
-	reg[1:0] sync_start;
-	wire start_edge = (sync_start == 2'b01);
 
 	reg [7:0] data_read;
 	reg req_next;
 
 	reg latch_stop;
+	reg latch_ack_sda;
+	reg latch_restart;
 
-	reg [4:0] fsm_state;
+	reg [3:0] fsm_state;
 	reg [7:0] bit_count;
 	reg i2c_sda;
 	reg i2c_scl;
 	wire i2c_scl_out = i2c_scl;
 	wire i2c_sda_out = i2c_sda;
+	wire i2c_sda_oen;
 
 	assign i2c_sda_oen = ((i2c_sda) == 1'b0) ? 1'b1 : 1'b0; //drive low -> driver enable
 
 	always @(posedge clk) begin
 		if (reset == 1'b1) begin
 			fsm_state <= STATE_IDLE;
-			sync_start <= 2'b00;
 			req_next <= 1'b0;
 		end	else begin
 			if (clk_i2c_en == 1'b1) begin
-				sync_start <= {sync_start[0], start};
+				if (start == 1'b1) begin
+					req_next <= 1'b0;
+					latch_stop <= stop;
+					latch_ack_sda <= ack_sda;
+					latch_restart <= restart;
+				end
 				case(fsm_state)
 					STATE_IDLE: begin
 						i2c_sda <= 1'b1;
 						i2c_scl <= 1'b1;
-						if (start_edge) begin
-							req_next <= 1'b0;
-							latch_stop <= 1'b0;
+						if (start == 1'b1) begin
 							fsm_state <= STATE_START_L;
 						end
 					end
@@ -102,26 +104,6 @@ module simplei2c(
 						i2c_scl <= 1'b0;
 						bit_count <= 8'd7;
 						fsm_state <= STATE_DATA_L;
-					end
-
-					STATE_ACK_L: begin
-						i2c_scl <= 1'b0;
-						i2c_sda <= ack_sda;
-						fsm_state <= STATE_ACK_H;
-					end
-					STATE_ACK_H: begin
-						i2c_scl <= 1'b1;
-						i2c_sda <= ack_sda;
-						if ( (latch_stop == 1'b1) & (restart == 1'b0) ) begin
-							req_next <= 1'b1;
-							fsm_state <= STATE_STOP_L;
-						end else if ( (restart == 1'b1) ) begin
-							fsm_state <= STATE_START_L;
-						end else begin
-							req_next <= 1'b0;
-							bit_count <= 8'd7;
-							fsm_state <= STATE_DATA_L;
-						end
 					end
 
 					STATE_DATA_L: begin
@@ -139,16 +121,31 @@ module simplei2c(
 							data_read[bit_count] <= i2c_sda_in;
 						end
 						if (bit_count == 8'd0) begin
+							fsm_state <= STATE_ACK_L;
 							req_next <= 1;
-							latch_stop <= stop;
-							if ( (start_edge == 1'b1) || (stop == 1'b1) ) begin //last byte
-								req_next <= 0;
-								fsm_state <= STATE_ACK_L;
-							end
-						end
-						else begin
+						end else begin
 							fsm_state <= STATE_DATA_L;
 							bit_count <= bit_count - 1;
+						end
+					end
+
+					STATE_ACK_L: begin
+						i2c_scl <= 1'b0;
+						i2c_sda <= latch_ack_sda;
+						fsm_state <= STATE_ACK_H;
+					end
+					STATE_ACK_H: begin
+						i2c_scl <= 1'b1;
+						i2c_sda <= latch_ack_sda;
+						if ( latch_stop == 1'b1 ) begin
+							fsm_state <= STATE_STOP_L;
+						end else if ( start == 1'b1 ) begin
+							bit_count <= 8'd7;
+							if ( latch_restart == 1'b1 ) begin
+								fsm_state <= STATE_START_L;
+							end else begin
+								fsm_state <= STATE_DATA_L;
+							end
 						end
 					end
 

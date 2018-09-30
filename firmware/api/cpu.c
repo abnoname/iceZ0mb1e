@@ -23,6 +23,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <stdint.h>
 #include "cpu.h"
 
 void cpu_reset()
@@ -30,4 +31,10 @@ void cpu_reset()
 __asm
     jp 0x0000
 __endasm;
+}
+
+void delay(uint16_t t)
+{
+    uint16_t i;
+    for(i = 0; i < t; i++);
 }

@@ -49,8 +49,6 @@ module simplespi(
 	localparam STATE_DATA_SETUP = 2;
 	localparam STATE_DATA_SAMPLE = 3;
 
-	reg[1:0] sync_start;
-	wire start_edge = (sync_start == 2'b01);
 	reg latch_finish;
 
 	reg [7:0] data_read;
@@ -65,17 +63,15 @@ module simplespi(
 	always @(posedge clk) begin
 		if (reset == 1'b1) begin
 			fsm_state <= STATE_IDLE;
-			sync_start <= 2'b00;
 			sclk_o <= 1'b 1;
 			req_next <= 1'b0;
 		end	else begin
 			if (clk_spi_en == 1'b1) begin
-				sync_start <= {sync_start[0], start};
 				case(fsm_state)
 					STATE_IDLE: begin
 						cs <= 1'b 1;
                         sclk_o <= 1'b 1;
-						if (start_edge) begin
+						if (start == 1'b1) begin
 							fsm_state <= STATE_START;
 						end
 					end
@@ -102,7 +98,7 @@ module simplespi(
 						data_read[bit_count] <= miso;
 						if (bit_count == 8'd0) begin
 							req_next <= 1;
-							if ( start_edge == 1'b1 ) begin
+							if ( start == 1'b1 ) begin
 								req_next <= 0;
 								fsm_state <= STATE_START;
 							end

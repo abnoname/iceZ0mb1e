@@ -45,12 +45,14 @@
 #define port_cfg 0x42
 
 #define i2c_status  0x50
+#define i2c_clkdiv  0x52
 #define i2c_cmd     0x53
 #define i2c_dat_in  0x54
 #define i2c_dat_out 0x55
 
 #define spi_status  0x60
 #define spi_cfg     0x61
+#define spi_clkdiv  0x62
 #define spi_cmd     0x63
 #define spi_dat_in  0x64
 #define spi_dat_out 0x65
