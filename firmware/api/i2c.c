@@ -41,7 +41,7 @@
 
 #define I2C_STAT_REQ    0x01
 
-uint8_t i2c_config(uint8_t clock_div)
+void i2c_config(uint8_t clock_div)
 {
     i2c_cmd = 0x00;
     i2c_clkdiv = clock_div/2;

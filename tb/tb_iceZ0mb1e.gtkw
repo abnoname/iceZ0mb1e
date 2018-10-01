@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.86 (w)1999-2017 BSI
-[*] Sun Sep 30 18:15:35 2018
+[*] Mon Oct  1 16:27:26 2018
 [*]
 [dumpfile] "/media/storage/Daten/Projekte/iceZ0mb1e/simulation/_test.vcd"
-[dumpfile_mtime] "Sun Sep 30 18:05:38 2018"
-[dumpfile_size] 17273261
+[dumpfile_mtime] "Mon Oct  1 16:26:55 2018"
+[dumpfile_size] 15615756
 [savefile] "/media/storage/Daten/Projekte/iceZ0mb1e/tb/tb_iceZ0mb1e.gtkw"
-[timestart] 33178
+[timestart] 27560
 [size] 1366 684
 [pos] 0 68
-*-5.000000 33248 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-11.000000 31847 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb_iceZ0mb1e.
 [treeopen] tb_iceZ0mb1e.t1.
 [treeopen] tb_iceZ0mb1e.t1.i2c0.
@@ -35,7 +35,6 @@ tb_iceZ0mb1e.t1.iorq_n[0]
 tb_iceZ0mb1e.t1.rd_n[0]
 tb_iceZ0mb1e.t1.wr_n[0]
 tb_iceZ0mb1e.t1.i2c0.read_sel[0]
-@29
 tb_iceZ0mb1e.t1.i2c0.write_sel[0]
 @22
 tb_iceZ0mb1e.t1.i2c0.reg_command[7:0]
@@ -46,9 +45,10 @@ tb_iceZ0mb1e.t1.i2c0.master.fsm_state[3:0]
 @28
 tb_iceZ0mb1e.t1.i2c0.master.start[0]
 tb_iceZ0mb1e.t1.i2c0.master.stop[0]
+@29
 tb_iceZ0mb1e.t1.i2c0.master.latch_stop[0]
+@28
 tb_iceZ0mb1e.t1.i2c0.master.restart[0]
-tb_iceZ0mb1e.t1.i2c0.master.latch_restart[0]
 tb_iceZ0mb1e.t1.i2c0.master.mode_rw[0]
 tb_iceZ0mb1e.t1.i2c0.master.req_next[0]
 tb_iceZ0mb1e.i2c_scl[0]

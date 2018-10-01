@@ -51,9 +51,8 @@ module iceZ0mb1e  #(
 	localparam ROM_SIZE = (1 << ROM_WIDTH);
 	localparam RAM_SIZE = (1 << RAM_WIDTH);
 
-	reg         reset_n = 1'b0;
-
 	//Z80 Bus:
+	reg         reset_n = 1'b0;
 	reg         wait_n = 1'b0;
 	reg         int_n = 1'b0;
 	reg         nmi_n = 1'b0;
@@ -69,7 +68,6 @@ module iceZ0mb1e  #(
 	wire [15:0] addr;
 	wire [7:0]  data_miso;
 	wire [7:0]  data_mosi;
-	//End
 
 	//Reset Controller:
 	always @(posedge clk) begin
@@ -85,15 +83,17 @@ module iceZ0mb1e  #(
 	wire uart_cs_n, port_cs_n, i2c_cs_n, spi_cs_n;
 	wire rom_cs_n, ram_cs_n;
 
-	//I/O Address, Note:
-	// only the lower 8-bits in peripheral mapped I/O are used to address I/O by the Z80 this means 256 ports
-	assign uart_cs_n = ~(!iorq_n & (addr[7:0] >= 8'h18) & (addr[7:0] < 8'h20)); // UART base 0x18
-	assign port_cs_n = ~(!iorq_n & (addr[7:0] >= 8'h40) & (addr[7:0] < 8'h50)); // PORT base 0x40
-	assign i2c_cs_n = ~(!iorq_n & (addr[7:0] >= 8'h50) & (addr[7:0] < 8'h60)); // i2c base 0x50
-	assign spi_cs_n = ~(!iorq_n & (addr[7:0] >= 8'h60) & (addr[7:0] < 8'h70)); // spi base 0x60
+	wire io_request = !iorq_n; //& mreq_n & m1_n;
+	wire mem_request = !mreq_n; //& iorq_n;
+
+	//I/O Address Decoder:
+	assign uart_cs_n = ~(io_request & (addr[7:3] == 5'b00011)); // UART base 0x18
+	assign port_cs_n = ~(io_request & (addr[7:3] == 5'b01000)); // PORT base 0x40
+	assign i2c_cs_n = ~(io_request & (addr[7:3] == 5'b01010)); // i2c base 0x50
+	assign spi_cs_n = ~(io_request & (addr[7:3] == 5'b01100)); // spi base 0x60
 	//Memory Address Decoder:
-	assign rom_cs_n = ~(!mreq_n & (addr  < ROM_SIZE));
-	assign ram_cs_n = ~(!mreq_n & (addr >= RAM_LOC) & (addr < (RAM_LOC+RAM_SIZE)));
+	assign rom_cs_n = ~(mem_request & (addr  < ROM_SIZE));
+	assign ram_cs_n = ~(mem_request & (addr >= RAM_LOC) & (addr < (RAM_LOC+RAM_SIZE)));
 
 	//SoC Info
 	initial begin
@@ -114,16 +114,18 @@ module iceZ0mb1e  #(
 		.halt_n		(halt_n),
 		.busak_n	(busak_n),
 		.A			(addr[15:0]),
-		.do			(data_mosi[7:0]),
+		.do			(data_mosi),
 		.reset_n	(reset_n),
 		.clk		(clk),
 		.wait_n		(wait_n),
 		.int_n		(int_n),
 		.nmi_n		(nmi_n),
 		.busrq_n	(busrq_n),
-		.di			(data_miso[7:0])
+		.di			(data_miso)
 	);
 	defparam cpu.Mode = 0; // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
+	defparam cpu.T2Write = 1; // 0 => wr_n active in T3, /=0 => wr_n active in T2
+	defparam cpu.IOWait = 1; // 0 => Single cycle I/O, 1 => Std I/O cycle
 
 	membram #(ROM_WIDTH, `__def_fw_img, 1) rom
 	(
@@ -210,7 +212,7 @@ endgenerate
 		.cs_n		(i2c_cs_n),
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),
-		.addr		(addr[3:0]),
+		.addr		(addr[2:0]),
 		.i2c_sda_in		(i2c_sda_in),
 		.i2c_sda_out	(i2c_sda_out),
 		.i2c_sda_oen	(i2c_sda_oen),
@@ -225,7 +227,7 @@ endgenerate
 		.cs_n		(spi_cs_n),
 		.rd_n		(rd_n),
 		.wr_n		(wr_n),
-		.addr		(addr[3:0]),
+		.addr		(addr[2:0]),
 		.sclk		(spi_sclk),
 		.mosi		(spi_mosi),
 		.miso		(spi_miso),

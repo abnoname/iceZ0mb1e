@@ -51,18 +51,16 @@ module simplei2c(
 	localparam STATE_DATA_H = 4'h4;
 	localparam STATE_ACK_L = 4'h5;
 	localparam STATE_ACK_H = 4'h6;
-	localparam STATE_STOP_L = 4'h7;
-	localparam STATE_STOP_H = 4'h8;
+	localparam STATE_REQ1 = 4'h7;
+	localparam STATE_REQ2 = 4'h8;
+	localparam STATE_STOP_L = 4'h9;
+	localparam STATE_STOP_H = 4'hA;
 
     `define MODE_WR 1'b0
     `define MODE_RD 1'b1
 
 	reg [7:0] data_read;
-	reg req_next;
-
-	reg latch_stop;
-	reg latch_ack_sda;
-	reg latch_restart;
+	wire req_next;
 
 	reg [3:0] fsm_state;
 	reg [7:0] bit_count;
@@ -74,92 +72,106 @@ module simplei2c(
 
 	assign i2c_sda_oen = ((i2c_sda) == 1'b0) ? 1'b1 : 1'b0; //drive low -> driver enable
 
+	assign req_next = (fsm_state == STATE_REQ1) | (fsm_state == STATE_IDLE);
+
 	always @(posedge clk) begin
 		if (reset == 1'b1) begin
 			fsm_state <= STATE_IDLE;
-			req_next <= 1'b0;
 		end	else begin
-			if (clk_i2c_en == 1'b1) begin
-				if (start == 1'b1) begin
-					req_next <= 1'b0;
-					latch_stop <= stop;
-					latch_ack_sda <= ack_sda;
-					latch_restart <= restart;
-				end
-				case(fsm_state)
-					STATE_IDLE: begin
-						i2c_sda <= 1'b1;
-						i2c_scl <= 1'b1;
-						if (start == 1'b1) begin
-							fsm_state <= STATE_START_L;
-						end
+			if (start == 1'b1) begin
+				bit_count <= 8'd7;
+			end
+			case(fsm_state)
+				STATE_IDLE: begin
+					i2c_sda <= 1'b1;
+					i2c_scl <= 1'b1;
+					if (start == 1'b1) begin
+						fsm_state <= STATE_START_L;
 					end
+				end
 
-					STATE_START_L: begin
-						i2c_sda <= 1'b0;
-						i2c_scl <= 1'b1;
+				STATE_START_L: begin
+					i2c_sda <= 1'b0;
+					i2c_scl <= 1'b1;
+					if (clk_i2c_en == 1'b1) begin
 						fsm_state <= STATE_START_H;
 					end
-					STATE_START_H: begin
-						i2c_scl <= 1'b0;
-						bit_count <= 8'd7;
+				end
+				STATE_START_H: begin
+					i2c_scl <= 1'b0;
+					if (clk_i2c_en == 1'b1) begin
 						fsm_state <= STATE_DATA_L;
 					end
+				end
 
-					STATE_DATA_L: begin
-						i2c_scl <= 1'b0;
-						if (mode_rw == `MODE_WR) begin
-							i2c_sda <= data_write[bit_count];
-						end else begin
-							i2c_sda <= 1'b1; //high z
-						end
+				STATE_DATA_L: begin
+					i2c_scl <= 1'b0;
+					i2c_sda <= (mode_rw == `MODE_WR) ? data_write[bit_count] : 1'b1; //high z
+					if (clk_i2c_en == 1'b1) begin
 						fsm_state <= STATE_DATA_H;
 					end
-					STATE_DATA_H: begin
-						i2c_scl <= 1'b1;
-						if (mode_rw == `MODE_RD) begin
-							data_read[bit_count] <= i2c_sda_in;
-						end
+				end
+				STATE_DATA_H: begin
+					i2c_scl <= 1'b1;
+					data_read[bit_count] <= i2c_sda_in;
+					if (clk_i2c_en == 1'b1) begin
 						if (bit_count == 8'd0) begin
 							fsm_state <= STATE_ACK_L;
-							req_next <= 1;
 						end else begin
 							fsm_state <= STATE_DATA_L;
 							bit_count <= bit_count - 1;
 						end
 					end
+				end
 
-					STATE_ACK_L: begin
-						i2c_scl <= 1'b0;
-						i2c_sda <= latch_ack_sda;
+				STATE_ACK_L: begin
+					i2c_scl <= 1'b0;
+					i2c_sda <= ack_sda;
+					if (clk_i2c_en == 1'b1) begin
 						fsm_state <= STATE_ACK_H;
 					end
-					STATE_ACK_H: begin
-						i2c_scl <= 1'b1;
-						i2c_sda <= latch_ack_sda;
-						if ( latch_stop == 1'b1 ) begin
+				end
+				STATE_ACK_H: begin
+					i2c_scl <= 1'b1;
+					i2c_sda <= ack_sda;
+					if (clk_i2c_en == 1'b1) begin
+						if ( stop == 1'b1 ) begin
 							fsm_state <= STATE_STOP_L;
-						end else if ( start == 1'b1 ) begin
-							bit_count <= 8'd7;
-							if ( latch_restart == 1'b1 ) begin
-								fsm_state <= STATE_START_L;
-							end else begin
-								fsm_state <= STATE_DATA_L;
-							end
+						end else begin
+							fsm_state <= STATE_REQ1;
 						end
 					end
+				end
 
-					STATE_STOP_L: begin
-						i2c_scl <= 1'b0;
-						i2c_sda <= 1'b0;
+				STATE_REQ1: begin
+					if (start == 1'b1) begin
+						fsm_state <= STATE_REQ2;
+					end
+				end
+				STATE_REQ2: begin
+					if (clk_i2c_en == 1'b1) begin
+						if ( restart == 1'b1 ) begin
+							fsm_state <= STATE_START_L;
+						end else begin
+							fsm_state <= STATE_DATA_L;
+						end
+					end
+				end
+
+				STATE_STOP_L: begin
+					i2c_scl <= 1'b0;
+					i2c_sda <= 1'b0;
+					if (clk_i2c_en == 1'b1) begin
 						fsm_state <= STATE_STOP_H;
 					end
-					STATE_STOP_H: begin
-						i2c_scl <= 1'b1;
+				end
+				STATE_STOP_H: begin
+					i2c_scl <= 1'b1;
+					if (clk_i2c_en == 1'b1) begin
 						fsm_state <= STATE_IDLE;
 					end
-				endcase
-			end
+				end
+			endcase
 		end
 	end
 endmodule

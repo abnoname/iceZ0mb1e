@@ -49,17 +49,23 @@ module simpleio (
     reg[7:0] out_1, out_2;
     reg[7:0] in_1, in_2;
 
-    wire[7:0] read_port =
-        (addr == 2'b00) ? ((cfgreg[0] == `MODE_RD) ? in_1 : out_1) :
-        (addr == 2'b01) ? ((cfgreg[1] == `MODE_RD) ? in_2 : out_2) :
-        8'h00;
+    reg[7:0] read_data;
 
     assign P1_oen = (cfgreg[0] == `MODE_WR) ? 1'b1 : 1'b0;
     assign P2_oen = (cfgreg[1] == `MODE_WR) ? 1'b1 : 1'b0;
     assign P1_out = out_1;
     assign P2_out = out_2;
 
-	assign data_out = (read_sel) ? read_port : 8'bz;
+	assign data_out = (read_sel) ? read_data : 8'bz;
+
+    always @(*)
+	begin
+		case(addr)
+			2'h0 : read_data = ((cfgreg[0] == `MODE_RD) ? in_1 : out_1);
+			3'h1 : read_data = ((cfgreg[1] == `MODE_RD) ? in_2 : out_2);
+			default : read_data = 8'h00;
+		endcase
+	end
 
     always @(posedge clk)
     begin

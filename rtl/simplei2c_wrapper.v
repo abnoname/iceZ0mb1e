@@ -31,7 +31,7 @@ module simplei2c_wrapper (
     input cs_n,
     input rd_n,
     input wr_n,
-    input[3:0] addr,
+    input[2:0] addr,
 	input i2c_sda_in,
 	output i2c_sda_out,
 	output i2c_sda_oen,
@@ -41,39 +41,44 @@ module simplei2c_wrapper (
     wire read_sel = !cs_n & !rd_n & wr_n;
     wire write_sel = !cs_n & rd_n & !wr_n;
 
+	wire i2c_clk_en;
+
 	wire[7:0] reg_status;
 	reg[7:0] reg_command = 8'h0;
 	reg[7:0] reg_data_wr = 8'h0;
 	reg[7:0] reg_clockdiv = 8'h0;
 	wire[7:0] reg_data_rd;
 
-    wire[7:0] read_data =
-        (addr == 4'h00) ? reg_status :
-		(addr == 4'h02) ? reg_clockdiv :
-		(addr == 4'h03) ? reg_command :
-		(addr == 4'h04) ? reg_data_rd :
-		(addr == 4'h05) ? reg_data_wr[7:0] :
-        8'h00;
+    reg[7:0] read_data;
 
 	assign data_out = (read_sel) ? read_data : 8'bz;
+
+    always @(*)
+	begin
+		case(addr)
+			3'h0 : read_data = reg_status;
+			3'h2 : read_data = reg_clockdiv;
+			3'h3 : read_data = reg_command;
+			3'h4 : read_data = reg_data_rd;
+			3'h5 : read_data = reg_data_wr;
+			default : read_data = 8'h00;
+		endcase
+	end
 
     always @(posedge clk)
     begin
         if ( write_sel ) begin
             case(addr)
-				4'h02 : reg_clockdiv <= data_in;
-				4'h03 : reg_command <= data_in;
-				4'h05 : reg_data_wr <= data_in;
+				3'h2 : reg_clockdiv <= data_in;
+				3'h3 : reg_command <= data_in;
+				3'h5 : reg_data_wr <= data_in;
             endcase
         end
-		if( i2c_clk_en == 1'b1 ) begin
-			if( reg_command[0] == 1'b1 ) begin
-				reg_command[0] <= 1'b0;
-			end
+
+		if( reg_command[0] == 1'b1) begin
+			reg_command[0] <= 1'b0;
 		end
     end
-
-	wire i2c_clk_en;
 
 	clk_enable i2c_clk_divider (
 		.reset(!reset_n),
