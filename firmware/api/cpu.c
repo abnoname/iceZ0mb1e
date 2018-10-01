@@ -33,8 +33,20 @@ __asm
 __endasm;
 }
 
+void cpu_nop()
+{
+__asm
+    nop
+__endasm;
+}
+
 void delay(uint16_t t)
 {
     uint16_t i;
-    for(i = 0; i < t; i++);
+    for(i = 0; i < t; i++)
+    {
+__asm
+    nop
+__endasm;
+    }
 }

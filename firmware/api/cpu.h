@@ -26,7 +26,10 @@
 #ifndef __CPU_H
 #define __CPU_H
 
+#include <stdint.h>
+
 void cpu_reset();
+void cpu_nop();
 void delay(uint16_t t);
 
 #endif

@@ -55,6 +55,7 @@ void i2c_wait_req()
 void i2c_addr(uint8_t addr, uint8_t mode)
 {
     i2c_dat_out = (addr << 1) | mode;
+    delay(30); //HACK
     i2c_cmd = I2C_CMD_ACK_Z | I2C_CMD_WR | I2C_CMD_START;
     i2c_wait_req();
 }
@@ -62,6 +63,7 @@ void i2c_addr(uint8_t addr, uint8_t mode)
 void i2c_write(uint8_t value, uint8_t mode )
 {
     i2c_dat_out = value;
+    delay(30); //HACK
     i2c_cmd = I2C_CMD_WR | I2C_CMD_START | mode;
     i2c_wait_req();
 }

@@ -83,17 +83,14 @@ module iceZ0mb1e  #(
 	wire uart_cs_n, port_cs_n, i2c_cs_n, spi_cs_n;
 	wire rom_cs_n, ram_cs_n;
 
-	wire io_request = !iorq_n; //& mreq_n & m1_n;
-	wire mem_request = !mreq_n; //& iorq_n;
-
 	//I/O Address Decoder:
-	assign uart_cs_n = ~(io_request & (addr[7:3] == 5'b00011)); // UART base 0x18
-	assign port_cs_n = ~(io_request & (addr[7:3] == 5'b01000)); // PORT base 0x40
-	assign i2c_cs_n = ~(io_request & (addr[7:3] == 5'b01010)); // i2c base 0x50
-	assign spi_cs_n = ~(io_request & (addr[7:3] == 5'b01100)); // spi base 0x60
+	assign uart_cs_n = ~(!iorq_n & (addr[7:3] == 5'b00011)); // UART base 0x18
+	assign port_cs_n = ~(!iorq_n & (addr[7:3] == 5'b01000)); // PORT base 0x40
+	assign i2c_cs_n = ~(!iorq_n & (addr[7:3] == 5'b01010)); // i2c base 0x50
+	assign spi_cs_n = ~(!iorq_n & (addr[7:3] == 5'b01100)); // spi base 0x60
 	//Memory Address Decoder:
-	assign rom_cs_n = ~(mem_request & (addr  < ROM_SIZE));
-	assign ram_cs_n = ~(mem_request & (addr >= RAM_LOC) & (addr < (RAM_LOC+RAM_SIZE)));
+	assign rom_cs_n = ~(!mreq_n & (addr  < ROM_SIZE));
+	assign ram_cs_n = ~(!mreq_n & (addr >= RAM_LOC) & (addr < (RAM_LOC+RAM_SIZE)));
 
 	//SoC Info
 	initial begin
