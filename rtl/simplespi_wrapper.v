@@ -76,10 +76,8 @@ module simplespi_wrapper (
             endcase
         end
 
-		if( spi_clk_en == 1'b1 ) begin
-			if( reg_command[0] == 1'b1 ) begin
-				reg_command[0] <= 1'b0;
-			end
+		if( reg_command[0] == 1'b1 ) begin
+			reg_command[0] <= 1'b0;
 		end
     end
 

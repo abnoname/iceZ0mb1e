@@ -52,11 +52,14 @@ module simplespi(
 	reg latch_finish;
 
 	reg [7:0] data_read;
-	reg req_next;
+	wire req_next;
     reg sclk_o, cs, mosi;
 
 	assign sclk = (CPOL == 1'b 1) ? sclk_o : ~sclk_o;
 
+	assign req_next = (bit_count == 8'd0);
+
+	reg start_sync;
 	reg [4:0] fsm_state;
 	reg [7:0] bit_count;
 
@@ -64,20 +67,23 @@ module simplespi(
 		if (reset == 1'b1) begin
 			fsm_state <= STATE_IDLE;
 			sclk_o <= 1'b 1;
-			req_next <= 1'b0;
+			start_sync <= 1'b0;
 		end	else begin
+			if (start == 1'b1) begin
+				start_sync <= 1'b1;
+			end
 			if (clk_spi_en == 1'b1) begin
 				case(fsm_state)
 					STATE_IDLE: begin
 						cs <= 1'b 1;
                         sclk_o <= 1'b 1;
-						if (start == 1'b1) begin
+						if (start_sync == 1'b1) begin
+							start_sync <= 1'b0;
 							fsm_state <= STATE_START;
 						end
 					end
 
 					STATE_START: begin
-						req_next <= 1'b0;
 						latch_finish <= finish;
 						bit_count <= 8'd 7;
 						fsm_state <= STATE_DATA_SETUP;
@@ -97,9 +103,8 @@ module simplespi(
 						sclk_o <= (CPHA == 1'b0) ? 1'b0 : 1'b1;
 						data_read[bit_count] <= miso;
 						if (bit_count == 8'd0) begin
-							req_next <= 1;
-							if ( start == 1'b1 ) begin
-								req_next <= 0;
+							if (start_sync == 1'b1) begin
+								start_sync <= 1'b0;
 								fsm_state <= STATE_START;
 							end
 							if (latch_finish == 1'b 1) begin
