@@ -1,0 +1,105 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next), page 1.
+Hexadecimal [16-Bits]
+
+
+
+                              1 ;--------------------------------------------------------------------------
+                              2 ;  crt0.s - Generic crt0.s for a Z80
+                              3 ;
+                              4 ;  Copyright (C) 2000, Michael Hope
+                              5 ;  Modified for iceZ0mb1e - FPGA 8-Bit TV80 SoC (C) 2018, Franz Neumann
+                              6 ;
+                              7 ;  This library is free software; you can redistribute it and/or modify it
+                              8 ;  under the terms of the GNU General Public License as published by the
+                              9 ;  Free Software Foundation; either version 2.1, or (at your option) any
+                             10 ;  later version.
+                             11 ;
+                             12 ;  This library is distributed in the hope that it will be useful,
+                             13 ;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+                             14 ;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+                             15 ;  GNU General Public License for more details.
+                             16 ;
+                             17 ;  You should have received a copy of the GNU General Public License
+                             18 ;  along with this library; see the file COPYING. If not, write to the
+                             19 ;  Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
+                             20 ;   MA 02110-1301, USA.
+                             21 ;
+                             22 ;  As a special exception, if you link this library with other files,
+                             23 ;  some of which are compiled with SDCC, to produce an executable,
+                             24 ;  this library does not by itself cause the resulting executable to
+                             25 ;  be covered by the GNU General Public License. This exception does
+                             26 ;  not however invalidate any other reasons why the executable file
+                             27 ;   might be covered by the GNU General Public License.
+                             28 ;--------------------------------------------------------------------------
+                             29 
+                     9FFF    30 stacktop = #0x9FFF
+                             31 
+                             32             .module crt0
+                             33             .globl	_main
+                             34 
+                             35             .area	_HEADER (ABS)
+                             36 
+                             37             ;; Reset vector
+   0000                      38             .org 	0
+   0000 C3 00 01      [10]   39             jp	init
+                             40 
+   0008                      41             .org	0x08
+   0008 ED 4D         [14]   42             reti
+   0010                      43             .org	0x10
+   0010 ED 4D         [14]   44             reti
+   0018                      45             .org	0x18
+   0018 ED 4D         [14]   46             reti
+   0020                      47             .org	0x20
+   0020 ED 4D         [14]   48             reti
+   0028                      49             .org	0x28
+   0028 ED 4D         [14]   50             reti
+   0030                      51             .org	0x30
+   0030 ED 4D         [14]   52             reti
+   0038                      53             .org	0x38
+   0038 ED 4D         [14]   54             reti
+                             55 
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next), page 2.
+Hexadecimal [16-Bits]
+
+
+
+   0100                      56             .org	0x100
+   0100                      57 init:
+   0100 31 FF 9F      [10]   58             ld	sp,#stacktop                    ;; Stack at the top of memory.
+                             59 
+                             60 ;; Initialise global variables
+   0103 CD 00 00      [17]   61             call    gsinit
+   0106 CD 00 00      [17]   62             call	_main
+   0109 C3 04 00      [10]   63             jp	_exit
+                             64 
+                             65 ;; Ordering of segments for the linker.
+                             66             .area	_HOME
+                             67             .area	_CODE
+                             68             .area   _GSINIT
+                             69             .area   _GSFINAL
+                             70 
+                             71             .area	_DATA
+                             72             .area	_BSEG
+                             73             .area   _BSS
+                             74             .area   _HEAP
+                             75 
+                             76             .area   _CODE
+                             77 
+   0000                      78 __clock::
+   0000 3E 02         [ 7]   79             ld	a,#2
+   0002 CF            [11]   80             rst     0x08
+   0003 C9            [10]   81             ret
+                             82 
+   0004                      83 _exit::
+                             84             ;; Exit - special code to the emulator
+   0004 3E 00         [ 7]   85             ld	a,#0
+   0006 CF            [11]   86             rst     0x08
+   0007                      87             1$:
+   0007 76            [ 4]   88             halt
+   0008 18 FD         [12]   89             jr	1$
+                             90 
+                             91 .area   _GSINIT
+   0000                      92             gsinit::
+                             93 
+                             94 .area   _GSFINAL
+   0000 C9            [10]   95             ret

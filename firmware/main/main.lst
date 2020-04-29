@@ -1,0 +1,742 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.8.0 #10562 (Linux)
+                              4 ;--------------------------------------------------------
+                              5 	.module main
+                              6 	.optsdcc -mz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _main
+                             12 	.globl _View_Memory
+                             13 	.globl _oled_reset
+                             14 	.globl _Read_SPI_25L008A
+                             15 	.globl _ssd1306_box
+                             16 	.globl _ssd1306_line
+                             17 	.globl _ssd1306_write
+                             18 	.globl _ssd1306_update
+                             19 	.globl _ssd1306_clear
+                             20 	.globl _ssd1306_initialize
+                             21 	.globl _spi_xfer
+                             22 	.globl _spi_config
+                             23 	.globl _i2c_read_buf
+                             24 	.globl _i2c_config
+                             25 	.globl _uart_initialize
+                             26 	.globl _uart_write
+                             27 	.globl _getchar
+                             28 	.globl _putchar
+                             29 	.globl _delay
+                             30 	.globl _cpu_reset
+                             31 	.globl _mini_snprintf
+                             32 	.globl _free
+                             33 	.globl _last_usable_addr
+                             34 	.globl _start
+                             35 	.globl _strbuf
+                             36 ;--------------------------------------------------------
+                             37 ; special function registers
+                             38 ;--------------------------------------------------------
+                     0018    39 _uart_dm0	=	0x0018
+                     0018    40 _uart_thr	=	0x0018
+                     0018    41 _uart_rbr	=	0x0018
+                     0019    42 _uart_dm1	=	0x0019
+                     0019    43 _uart_ier	=	0x0019
+                     001A    44 _uart_iir	=	0x001a
+                     001B    45 _uart_lcr	=	0x001b
+                     001C    46 _uart_mcr	=	0x001c
+                     001D    47 _uart_lsr	=	0x001d
+                     001E    48 _uart_msr	=	0x001e
+                     001F    49 _uart_scr	=	0x001f
+                     0040    50 _port_a	=	0x0040
+                     0041    51 _port_b	=	0x0041
+                     0042    52 _port_cfg	=	0x0042
+                     0050    53 _i2c_status	=	0x0050
+                     0052    54 _i2c_clkdiv	=	0x0052
+                     0053    55 _i2c_cmd	=	0x0053
+                     0054    56 _i2c_dat_in	=	0x0054
+                     0055    57 _i2c_dat_out	=	0x0055
+                     0060    58 _spi_status	=	0x0060
+                     0061    59 _spi_cfg	=	0x0061
+                     0062    60 _spi_clkdiv	=	0x0062
+                     0063    61 _spi_cmd	=	0x0063
+                     0064    62 _spi_dat_in	=	0x0064
+                     0065    63 _spi_dat_out	=	0x0065
+                             64 ;--------------------------------------------------------
+                             65 ; ram data
+                             66 ;--------------------------------------------------------
+                             67 	.area _DATA
+   0000                      68 _strbuf::
+   0000                      69 	.ds 80
+                             70 ;--------------------------------------------------------
+                             71 ; ram data
+                             72 ;--------------------------------------------------------
+                             73 	.area _INITIALIZED
+   0000                      74 _start::
+   0000                      75 	.ds 1
+   0001                      76 _last_usable_addr::
+   0001                      77 	.ds 2
+   0003                      78 _free::
+   0003                      79 	.ds 1
+                             80 ;--------------------------------------------------------
+                             81 ; absolute external ram data
+                             82 ;--------------------------------------------------------
+                             83 	.area _DABS (ABS)
+                             84 ;--------------------------------------------------------
+                             85 ; global & static initialisations
+                             86 ;--------------------------------------------------------
+                             87 	.area _HOME
+                             88 	.area _GSINIT
+                             89 	.area _GSFINAL
+                             90 	.area _GSINIT
+                             91 ;--------------------------------------------------------
+                             92 ; Home
+                             93 ;--------------------------------------------------------
+                             94 	.area _HOME
+                             95 	.area _HOME
+                             96 ;--------------------------------------------------------
+                             97 ; code
+                             98 ;--------------------------------------------------------
+                             99 	.area _CODE
+                            100 ;main/main.c:40: void Read_SPI_25L008A(uint8_t *buffer, uint16_t len)
+                            101 ;	---------------------------------
+                            102 ; Function Read_SPI_25L008A
+                            103 ; ---------------------------------
+   0000                     104 _Read_SPI_25L008A::
+   0000 F5            [11]  105 	push	af
+   0001 F5            [11]  106 	push	af
+                            107 ;main/main.c:42: uint8_t spi_send[4] = {0x3, 0x00, 0x00, 0x00};
+   0002 21 00 00      [10]  108 	ld	hl, #0x0000
+   0005 39            [11]  109 	add	hl, sp
+   0006 EB            [ 4]  110 	ex	de, hl
+   0007 3E 03         [ 7]  111 	ld	a, #0x03
+   0009 12            [ 7]  112 	ld	(de), a
+   000A 4B            [ 4]  113 	ld	c, e
+   000B 42            [ 4]  114 	ld	b, d
+   000C 03            [ 6]  115 	inc	bc
+   000D AF            [ 4]  116 	xor	a, a
+   000E 02            [ 7]  117 	ld	(bc), a
+   000F 4B            [ 4]  118 	ld	c, e
+   0010 42            [ 4]  119 	ld	b, d
+   0011 03            [ 6]  120 	inc	bc
+   0012 03            [ 6]  121 	inc	bc
+   0013 AF            [ 4]  122 	xor	a, a
+   0014 02            [ 7]  123 	ld	(bc), a
+   0015 4B            [ 4]  124 	ld	c, e
+   0016 42            [ 4]  125 	ld	b, d
+   0017 03            [ 6]  126 	inc	bc
+   0018 03            [ 6]  127 	inc	bc
+   0019 03            [ 6]  128 	inc	bc
+   001A AF            [ 4]  129 	xor	a, a
+   001B 02            [ 7]  130 	ld	(bc), a
+                            131 ;main/main.c:44: spi_xfer(spi_send, buffer, 4, len);
+   001C 21 08 00      [10]  132 	ld	hl, #8
+   001F 39            [11]  133 	add	hl, sp
+   0020 4E            [ 7]  134 	ld	c, (hl)
+   0021 23            [ 6]  135 	inc	hl
+   0022 46            [ 7]  136 	ld	b, (hl)
+   0023 C5            [11]  137 	push	bc
+   0024 21 04 00      [10]  138 	ld	hl, #0x0004
+   0027 E5            [11]  139 	push	hl
+   0028 21 0A 00      [10]  140 	ld	hl, #10
+   002B 39            [11]  141 	add	hl, sp
+   002C 4E            [ 7]  142 	ld	c, (hl)
+   002D 23            [ 6]  143 	inc	hl
+   002E 46            [ 7]  144 	ld	b, (hl)
+   002F C5            [11]  145 	push	bc
+   0030 D5            [11]  146 	push	de
+   0031 CDr00r00      [17]  147 	call	_spi_xfer
+   0034 F1            [10]  148 	pop	af
+   0035 F1            [10]  149 	pop	af
+   0036 F1            [10]  150 	pop	af
+   0037 F1            [10]  151 	pop	af
+                            152 ;main/main.c:45: }
+   0038 F1            [10]  153 	pop	af
+   0039 F1            [10]  154 	pop	af
+   003A C9            [10]  155 	ret
+                            156 ;main/main.c:47: void oled_reset()
+                            157 ;	---------------------------------
+                            158 ; Function oled_reset
+                            159 ; ---------------------------------
+   003B                     160 _oled_reset::
+                            161 ;main/main.c:49: port_b = 0x00;
+   003B 3E 00         [ 7]  162 	ld	a, #0x00
+   003D D3 41         [11]  163 	out	(_port_b), a
+                            164 ;main/main.c:50: delay(50000);
+   003F 21 50 C3      [10]  165 	ld	hl, #0xc350
+   0042 E5            [11]  166 	push	hl
+   0043 CDr00r00      [17]  167 	call	_delay
+   0046 F1            [10]  168 	pop	af
+                            169 ;main/main.c:51: port_b = 0x01;
+   0047 3E 01         [ 7]  170 	ld	a, #0x01
+   0049 D3 41         [11]  171 	out	(_port_b), a
+                            172 ;main/main.c:52: delay(50000);
+   004B 21 50 C3      [10]  173 	ld	hl, #0xc350
+   004E E5            [11]  174 	push	hl
+   004F CDr00r00      [17]  175 	call	_delay
+   0052 F1            [10]  176 	pop	af
+                            177 ;main/main.c:53: port_b = 0x00;
+   0053 3E 00         [ 7]  178 	ld	a, #0x00
+   0055 D3 41         [11]  179 	out	(_port_b), a
+                            180 ;main/main.c:54: delay(50000);
+   0057 21 50 C3      [10]  181 	ld	hl, #0xc350
+   005A E5            [11]  182 	push	hl
+   005B CDr00r00      [17]  183 	call	_delay
+   005E F1            [10]  184 	pop	af
+                            185 ;main/main.c:55: port_b = 0x01;
+   005F 3E 01         [ 7]  186 	ld	a, #0x01
+   0061 D3 41         [11]  187 	out	(_port_b), a
+                            188 ;main/main.c:56: delay(50000);
+   0063 21 50 C3      [10]  189 	ld	hl, #0xc350
+   0066 E5            [11]  190 	push	hl
+   0067 CDr00r00      [17]  191 	call	_delay
+   006A F1            [10]  192 	pop	af
+                            193 ;main/main.c:57: }
+   006B C9            [10]  194 	ret
+                            195 ;main/main.c:59: void View_Memory(uint8_t *mem, uint16_t len)
+                            196 ;	---------------------------------
+                            197 ; Function View_Memory
+                            198 ; ---------------------------------
+   006C                     199 _View_Memory::
+   006C CDr00r00      [17]  200 	call	___sdcc_enter_ix
+                            201 ;main/main.c:63: for(x = 0; x < len; x++)
+   006F 01 00 00      [10]  202 	ld	bc, #0x0000
+   0072                     203 00105$:
+   0072 79            [ 4]  204 	ld	a, c
+   0073 DD 96 06      [19]  205 	sub	a, 6 (ix)
+   0076 78            [ 4]  206 	ld	a, b
+   0077 DD 9E 07      [19]  207 	sbc	a, 7 (ix)
+   007A 30 4C         [12]  208 	jr	NC,00103$
+                            209 ;main/main.c:65: if((x%16) == 0)
+   007C 79            [ 4]  210 	ld	a, c
+   007D E6 0F         [ 7]  211 	and	a, #0x0f
+   007F 20 1D         [12]  212 	jr	NZ,00102$
+                            213 ;main/main.c:67: snprintf(strbuf, sizeof(strbuf), "\r\n%04X: ", x);
+   0081 C5            [11]  214 	push	bc
+   0082 C5            [11]  215 	push	bc
+   0083 21rE4r00      [10]  216 	ld	hl, #___str_0
+   0086 E5            [11]  217 	push	hl
+   0087 21 50 00      [10]  218 	ld	hl, #0x0050
+   008A E5            [11]  219 	push	hl
+   008B 21r00r00      [10]  220 	ld	hl, #_strbuf
+   008E E5            [11]  221 	push	hl
+   008F CDr00r00      [17]  222 	call	_mini_snprintf
+   0092 F1            [10]  223 	pop	af
+   0093 F1            [10]  224 	pop	af
+   0094 F1            [10]  225 	pop	af
+   0095 21r00r00      [10]  226 	ld	hl, #_strbuf
+   0098 E3            [19]  227 	ex	(sp),hl
+   0099 CDr00r00      [17]  228 	call	_uart_write
+   009C F1            [10]  229 	pop	af
+   009D C1            [10]  230 	pop	bc
+   009E                     231 00102$:
+                            232 ;main/main.c:70: snprintf(strbuf, sizeof(strbuf), "%02X", mem[x]);
+   009E DD 6E 04      [19]  233 	ld	l, 4 (ix)
+   00A1 DD 66 05      [19]  234 	ld	h, 5 (ix)
+   00A4 09            [11]  235 	add	hl, bc
+   00A5 5E            [ 7]  236 	ld	e, (hl)
+   00A6 16 00         [ 7]  237 	ld	d, #0x00
+   00A8 C5            [11]  238 	push	bc
+   00A9 D5            [11]  239 	push	de
+   00AA 21rEDr00      [10]  240 	ld	hl, #___str_1
+   00AD E5            [11]  241 	push	hl
+   00AE 21 50 00      [10]  242 	ld	hl, #0x0050
+   00B1 E5            [11]  243 	push	hl
+   00B2 21r00r00      [10]  244 	ld	hl, #_strbuf
+   00B5 E5            [11]  245 	push	hl
+   00B6 CDr00r00      [17]  246 	call	_mini_snprintf
+   00B9 F1            [10]  247 	pop	af
+   00BA F1            [10]  248 	pop	af
+   00BB F1            [10]  249 	pop	af
+   00BC 21r00r00      [10]  250 	ld	hl, #_strbuf
+   00BF E3            [19]  251 	ex	(sp),hl
+   00C0 CDr00r00      [17]  252 	call	_uart_write
+   00C3 F1            [10]  253 	pop	af
+   00C4 C1            [10]  254 	pop	bc
+                            255 ;main/main.c:63: for(x = 0; x < len; x++)
+   00C5 03            [ 6]  256 	inc	bc
+   00C6 18 AA         [12]  257 	jr	00105$
+   00C8                     258 00103$:
+                            259 ;main/main.c:74: snprintf(strbuf, sizeof(strbuf), "\r\n");
+   00C8 21rF2r00      [10]  260 	ld	hl, #___str_2
+   00CB E5            [11]  261 	push	hl
+   00CC 21 50 00      [10]  262 	ld	hl, #0x0050
+   00CF E5            [11]  263 	push	hl
+   00D0 21r00r00      [10]  264 	ld	hl, #_strbuf
+   00D3 E5            [11]  265 	push	hl
+   00D4 CDr00r00      [17]  266 	call	_mini_snprintf
+   00D7 F1            [10]  267 	pop	af
+   00D8 F1            [10]  268 	pop	af
+                            269 ;main/main.c:75: uart_write(strbuf);
+   00D9 21r00r00      [10]  270 	ld	hl, #_strbuf
+   00DC E3            [19]  271 	ex	(sp),hl
+   00DD CDr00r00      [17]  272 	call	_uart_write
+   00E0 F1            [10]  273 	pop	af
+                            274 ;main/main.c:76: }
+   00E1 DD E1         [14]  275 	pop	ix
+   00E3 C9            [10]  276 	ret
+   00E4                     277 ___str_0:
+   00E4 0D                  278 	.db 0x0d
+   00E5 0A                  279 	.db 0x0a
+   00E6 25 30 34 58 3A 20   280 	.ascii "%04X: "
+   00EC 00                  281 	.db 0x00
+   00ED                     282 ___str_1:
+   00ED 25 30 32 58         283 	.ascii "%02X"
+   00F1 00                  284 	.db 0x00
+   00F2                     285 ___str_2:
+   00F2 0D                  286 	.db 0x0d
+   00F3 0A                  287 	.db 0x0a
+   00F4 00                  288 	.db 0x00
+                            289 ;main/main.c:78: void main ()
+                            290 ;	---------------------------------
+                            291 ; Function main
+                            292 ; ---------------------------------
+   00F5                     293 _main::
+   00F5 CDr00r00      [17]  294 	call	___sdcc_enter_ix
+   00F8 21 C0 FF      [10]  295 	ld	hl, #-64
+   00FB 39            [11]  296 	add	hl, sp
+   00FC F9            [ 6]  297 	ld	sp, hl
+                            298 ;main/main.c:86: port_cfg = 0x00;
+   00FD 3E 00         [ 7]  299 	ld	a, #0x00
+   00FF D3 42         [11]  300 	out	(_port_cfg), a
+                            301 ;main/main.c:89: uart_initialize(9600);
+   0101 21 80 25      [10]  302 	ld	hl, #0x2580
+   0104 E5            [11]  303 	push	hl
+   0105 CDr00r00      [17]  304 	call	_uart_initialize
+                            305 ;main/main.c:90: spi_config(0, 12); //1MHz
+   0108 26 0C         [ 7]  306 	ld	h,#0x0c
+   010A E3            [19]  307 	ex	(sp),hl
+   010B 33            [ 6]  308 	inc	sp
+   010C AF            [ 4]  309 	xor	a, a
+   010D F5            [11]  310 	push	af
+   010E 33            [ 6]  311 	inc	sp
+   010F CDr00r00      [17]  312 	call	_spi_config
+                            313 ;main/main.c:91: i2c_config(120); //100kHz
+   0112 26 78         [ 7]  314 	ld	h,#0x78
+   0114 E3            [19]  315 	ex	(sp),hl
+   0115 33            [ 6]  316 	inc	sp
+   0116 CDr00r00      [17]  317 	call	_i2c_config
+   0119 33            [ 6]  318 	inc	sp
+                            319 ;main/main.c:94: i2c_read_buf(0x5C, buffer, 5);
+   011A 21 00 00      [10]  320 	ld	hl, #0x0000
+   011D 39            [11]  321 	add	hl, sp
+   011E 4D            [ 4]  322 	ld	c, l
+   011F 44            [ 4]  323 	ld	b, h
+   0120 E5            [11]  324 	push	hl
+   0121 11 05 00      [10]  325 	ld	de, #0x0005
+   0124 D5            [11]  326 	push	de
+   0125 C5            [11]  327 	push	bc
+   0126 3E 5C         [ 7]  328 	ld	a, #0x5c
+   0128 F5            [11]  329 	push	af
+   0129 33            [ 6]  330 	inc	sp
+   012A CDr00r00      [17]  331 	call	_i2c_read_buf
+   012D F1            [10]  332 	pop	af
+   012E F1            [10]  333 	pop	af
+   012F 33            [ 6]  334 	inc	sp
+   0130 E1            [10]  335 	pop	hl
+                            336 ;main/main.c:95: View_Memory(buffer, 5);
+   0131 4D            [ 4]  337 	ld	c, l
+   0132 44            [ 4]  338 	ld	b, h
+   0133 E5            [11]  339 	push	hl
+   0134 11 05 00      [10]  340 	ld	de, #0x0005
+   0137 D5            [11]  341 	push	de
+   0138 C5            [11]  342 	push	bc
+   0139 CDr6Cr00      [17]  343 	call	_View_Memory
+   013C F1            [10]  344 	pop	af
+   013D F1            [10]  345 	pop	af
+   013E E1            [10]  346 	pop	hl
+                            347 ;main/main.c:96: i2c_read_buf(0x68, buffer, 20);
+   013F 4D            [ 4]  348 	ld	c, l
+   0140 44            [ 4]  349 	ld	b, h
+   0141 E5            [11]  350 	push	hl
+   0142 11 14 00      [10]  351 	ld	de, #0x0014
+   0145 D5            [11]  352 	push	de
+   0146 C5            [11]  353 	push	bc
+   0147 3E 68         [ 7]  354 	ld	a, #0x68
+   0149 F5            [11]  355 	push	af
+   014A 33            [ 6]  356 	inc	sp
+   014B CDr00r00      [17]  357 	call	_i2c_read_buf
+   014E F1            [10]  358 	pop	af
+   014F F1            [10]  359 	pop	af
+   0150 33            [ 6]  360 	inc	sp
+   0151 E1            [10]  361 	pop	hl
+                            362 ;main/main.c:97: View_Memory(buffer, 20);
+   0152 4D            [ 4]  363 	ld	c, l
+   0153 44            [ 4]  364 	ld	b, h
+   0154 E5            [11]  365 	push	hl
+   0155 11 14 00      [10]  366 	ld	de, #0x0014
+   0158 D5            [11]  367 	push	de
+   0159 C5            [11]  368 	push	bc
+   015A CDr6Cr00      [17]  369 	call	_View_Memory
+   015D F1            [10]  370 	pop	af
+   015E F1            [10]  371 	pop	af
+   015F E1            [10]  372 	pop	hl
+                            373 ;main/main.c:100: Read_SPI_25L008A(buffer, 64);
+   0160 4D            [ 4]  374 	ld	c, l
+   0161 44            [ 4]  375 	ld	b, h
+   0162 E5            [11]  376 	push	hl
+   0163 11 40 00      [10]  377 	ld	de, #0x0040
+   0166 D5            [11]  378 	push	de
+   0167 C5            [11]  379 	push	bc
+   0168 CDr00r00      [17]  380 	call	_Read_SPI_25L008A
+   016B F1            [10]  381 	pop	af
+   016C F1            [10]  382 	pop	af
+   016D E1            [10]  383 	pop	hl
+                            384 ;main/main.c:101: View_Memory(buffer, 64);
+   016E 01 40 00      [10]  385 	ld	bc, #0x0040
+   0171 C5            [11]  386 	push	bc
+   0172 E5            [11]  387 	push	hl
+   0173 CDr6Cr00      [17]  388 	call	_View_Memory
+   0176 F1            [10]  389 	pop	af
+   0177 F1            [10]  390 	pop	af
+                            391 ;main/main.c:104: oled_reset();
+   0178 CDr3Br00      [17]  392 	call	_oled_reset
+                            393 ;main/main.c:105: ssd1306_initialize(0x3C);
+   017B 3E 3C         [ 7]  394 	ld	a, #0x3c
+   017D F5            [11]  395 	push	af
+   017E 33            [ 6]  396 	inc	sp
+   017F CDr00r00      [17]  397 	call	_ssd1306_initialize
+   0182 33            [ 6]  398 	inc	sp
+                            399 ;main/main.c:106: ssd1306_clear();
+   0183 CDr00r00      [17]  400 	call	_ssd1306_clear
+                            401 ;main/main.c:107: ssd1306_write(0, 0, "iceZ0mb1e SoC");
+   0186 21r0Dr03      [10]  402 	ld	hl, #___str_3
+   0189 E5            [11]  403 	push	hl
+   018A AF            [ 4]  404 	xor	a, a
+   018B F5            [11]  405 	push	af
+   018C 33            [ 6]  406 	inc	sp
+   018D AF            [ 4]  407 	xor	a, a
+   018E F5            [11]  408 	push	af
+   018F 33            [ 6]  409 	inc	sp
+   0190 CDr00r00      [17]  410 	call	_ssd1306_write
+   0193 F1            [10]  411 	pop	af
+                            412 ;main/main.c:108: ssd1306_write(2, 0, "by abnoname");
+   0194 21r1Br03      [10]  413 	ld	hl, #___str_4
+   0197 E3            [19]  414 	ex	(sp),hl
+   0198 AF            [ 4]  415 	xor	a, a
+   0199 57            [ 4]  416 	ld	d,a
+   019A 1E 02         [ 7]  417 	ld	e,#0x02
+   019C D5            [11]  418 	push	de
+   019D CDr00r00      [17]  419 	call	_ssd1306_write
+   01A0 F1            [10]  420 	pop	af
+                            421 ;main/main.c:109: ssd1306_write(3, 0, "0123456789 Test");
+   01A1 21r27r03      [10]  422 	ld	hl, #___str_5
+   01A4 E3            [19]  423 	ex	(sp),hl
+   01A5 AF            [ 4]  424 	xor	a, a
+   01A6 57            [ 4]  425 	ld	d,a
+   01A7 1E 03         [ 7]  426 	ld	e,#0x03
+   01A9 D5            [11]  427 	push	de
+   01AA CDr00r00      [17]  428 	call	_ssd1306_write
+   01AD F1            [10]  429 	pop	af
+                            430 ;main/main.c:110: ssd1306_write(4, 0, "Framebuffer On");
+   01AE 21r37r03      [10]  431 	ld	hl, #___str_6
+   01B1 E3            [19]  432 	ex	(sp),hl
+   01B2 AF            [ 4]  433 	xor	a, a
+   01B3 57            [ 4]  434 	ld	d,a
+   01B4 1E 04         [ 7]  435 	ld	e,#0x04
+   01B6 D5            [11]  436 	push	de
+   01B7 CDr00r00      [17]  437 	call	_ssd1306_write
+   01BA F1            [10]  438 	pop	af
+   01BB F1            [10]  439 	pop	af
+                            440 ;main/main.c:112: ssd1306_update();
+   01BC CDr00r00      [17]  441 	call	_ssd1306_update
+                            442 ;main/main.c:115: ssd1306_line(0, 48, 127, 63, 1);
+   01BF 3E 01         [ 7]  443 	ld	a, #0x01
+   01C1 F5            [11]  444 	push	af
+   01C2 33            [ 6]  445 	inc	sp
+   01C3 21 3F 00      [10]  446 	ld	hl, #0x003f
+   01C6 E5            [11]  447 	push	hl
+   01C7 2E 7F         [ 7]  448 	ld	l, #0x7f
+   01C9 E5            [11]  449 	push	hl
+   01CA 2E 30         [ 7]  450 	ld	l, #0x30
+   01CC E5            [11]  451 	push	hl
+   01CD 2E 00         [ 7]  452 	ld	l, #0x00
+   01CF E5            [11]  453 	push	hl
+   01D0 CDr00r00      [17]  454 	call	_ssd1306_line
+   01D3 21 09 00      [10]  455 	ld	hl, #9
+   01D6 39            [11]  456 	add	hl, sp
+   01D7 F9            [ 6]  457 	ld	sp, hl
+                            458 ;main/main.c:116: ssd1306_box(0, 127, 48, 63, 1);
+   01D8 3E 01         [ 7]  459 	ld	a, #0x01
+   01DA F5            [11]  460 	push	af
+   01DB 33            [ 6]  461 	inc	sp
+   01DC 21 3F 00      [10]  462 	ld	hl, #0x003f
+   01DF E5            [11]  463 	push	hl
+   01E0 2E 30         [ 7]  464 	ld	l, #0x30
+   01E2 E5            [11]  465 	push	hl
+   01E3 2E 7F         [ 7]  466 	ld	l, #0x7f
+   01E5 E5            [11]  467 	push	hl
+   01E6 2E 00         [ 7]  468 	ld	l, #0x00
+   01E8 E5            [11]  469 	push	hl
+   01E9 CDr00r00      [17]  470 	call	_ssd1306_box
+   01EC 21 09 00      [10]  471 	ld	hl, #9
+   01EF 39            [11]  472 	add	hl, sp
+   01F0 F9            [ 6]  473 	ld	sp, hl
+                            474 ;main/main.c:117: ssd1306_update();
+   01F1 CDr00r00      [17]  475 	call	_ssd1306_update
+                            476 ;main/main.c:121: port_a = 0x02;
+   01F4 3E 02         [ 7]  477 	ld	a, #0x02
+   01F6 D3 40         [11]  478 	out	(_port_a), a
+                            479 ;main/main.c:124: snprintf(strbuf, sizeof(strbuf), "iceZ0mb1e SoC by abnoname\r\n");
+   01F8 21r46r03      [10]  480 	ld	hl, #___str_7
+   01FB E5            [11]  481 	push	hl
+   01FC 21 50 00      [10]  482 	ld	hl, #0x0050
+   01FF E5            [11]  483 	push	hl
+   0200 21r00r00      [10]  484 	ld	hl, #_strbuf
+   0203 E5            [11]  485 	push	hl
+   0204 CDr00r00      [17]  486 	call	_mini_snprintf
+   0207 F1            [10]  487 	pop	af
+   0208 F1            [10]  488 	pop	af
+                            489 ;main/main.c:125: uart_write(strbuf);
+   0209 21r00r00      [10]  490 	ld	hl, #_strbuf
+   020C E3            [19]  491 	ex	(sp),hl
+   020D CDr00r00      [17]  492 	call	_uart_write
+   0210 F1            [10]  493 	pop	af
+                            494 ;main/main.c:128: while(1)
+   0211                     495 00115$:
+                            496 ;main/main.c:130: uart_rx = getchar();
+   0211 CDr00r00      [17]  497 	call	_getchar
+   0214 4D            [ 4]  498 	ld	c, l
+                            499 ;main/main.c:132: switch(uart_rx)
+   0215 79            [ 4]  500 	ld	a,c
+   0216 FE 61         [ 7]  501 	cp	a,#0x61
+   0218 28 17         [12]  502 	jr	Z,00101$
+   021A FE 62         [ 7]  503 	cp	a,#0x62
+   021C 28 3B         [12]  504 	jr	Z,00102$
+   021E FE 63         [ 7]  505 	cp	a,#0x63
+   0220 28 64         [12]  506 	jr	Z,00104$
+   0222 FE 6D         [ 7]  507 	cp	a,#0x6d
+   0224 28 6F         [12]  508 	jr	Z,00105$
+   0226 FE 72         [ 7]  509 	cp	a,#0x72
+   0228 28 57         [12]  510 	jr	Z,00103$
+   022A D6 74         [ 7]  511 	sub	a, #0x74
+   022C 28 76         [12]  512 	jr	Z,00106$
+   022E C3r01r03      [10]  513 	jp	00112$
+                            514 ;main/main.c:134: case 'a':
+   0231                     515 00101$:
+                            516 ;main/main.c:135: port_a = getchar();
+   0231 CDr00r00      [17]  517 	call	_getchar
+   0234 7D            [ 4]  518 	ld	a, l
+   0235 D3 40         [11]  519 	out	(_port_a), a
+                            520 ;main/main.c:136: snprintf(strbuf, sizeof(strbuf), "port_a = 0x%X\n\r", port_a);
+   0237 DB 40         [11]  521 	in	a, (_port_a)
+   0239 4F            [ 4]  522 	ld	c, a
+   023A 06 00         [ 7]  523 	ld	b, #0x00
+   023C C5            [11]  524 	push	bc
+   023D 21r62r03      [10]  525 	ld	hl, #___str_8
+   0240 E5            [11]  526 	push	hl
+   0241 21 50 00      [10]  527 	ld	hl, #0x0050
+   0244 E5            [11]  528 	push	hl
+   0245 21r00r00      [10]  529 	ld	hl, #_strbuf
+   0248 E5            [11]  530 	push	hl
+   0249 CDr00r00      [17]  531 	call	_mini_snprintf
+   024C F1            [10]  532 	pop	af
+   024D F1            [10]  533 	pop	af
+   024E F1            [10]  534 	pop	af
+                            535 ;main/main.c:137: uart_write(strbuf);
+   024F 21r00r00      [10]  536 	ld	hl, #_strbuf
+   0252 E3            [19]  537 	ex	(sp),hl
+   0253 CDr00r00      [17]  538 	call	_uart_write
+   0256 F1            [10]  539 	pop	af
+                            540 ;main/main.c:138: break;
+   0257 18 B8         [12]  541 	jr	00115$
+                            542 ;main/main.c:139: case 'b':
+   0259                     543 00102$:
+                            544 ;main/main.c:140: port_b = getchar();
+   0259 CDr00r00      [17]  545 	call	_getchar
+   025C 7D            [ 4]  546 	ld	a, l
+   025D D3 41         [11]  547 	out	(_port_b), a
+                            548 ;main/main.c:141: snprintf(strbuf, sizeof(strbuf), "port_b = 0x%X\n\r", port_b);
+   025F DB 41         [11]  549 	in	a, (_port_b)
+   0261 4F            [ 4]  550 	ld	c, a
+   0262 06 00         [ 7]  551 	ld	b, #0x00
+   0264 C5            [11]  552 	push	bc
+   0265 21r72r03      [10]  553 	ld	hl, #___str_9
+   0268 E5            [11]  554 	push	hl
+   0269 21 50 00      [10]  555 	ld	hl, #0x0050
+   026C E5            [11]  556 	push	hl
+   026D 21r00r00      [10]  557 	ld	hl, #_strbuf
+   0270 E5            [11]  558 	push	hl
+   0271 CDr00r00      [17]  559 	call	_mini_snprintf
+   0274 F1            [10]  560 	pop	af
+   0275 F1            [10]  561 	pop	af
+   0276 F1            [10]  562 	pop	af
+                            563 ;main/main.c:142: uart_write(strbuf);
+   0277 21r00r00      [10]  564 	ld	hl, #_strbuf
+   027A E3            [19]  565 	ex	(sp),hl
+   027B CDr00r00      [17]  566 	call	_uart_write
+   027E F1            [10]  567 	pop	af
+                            568 ;main/main.c:143: break;
+   027F 18 90         [12]  569 	jr	00115$
+                            570 ;main/main.c:144: case 'r':
+   0281                     571 00103$:
+                            572 ;main/main.c:145: cpu_reset();
+   0281 CDr00r00      [17]  573 	call	_cpu_reset
+                            574 ;main/main.c:146: break;
+   0284 18 8B         [12]  575 	jr	00115$
+                            576 ;main/main.c:147: case 'c':
+   0286                     577 00104$:
+                            578 ;main/main.c:148: View_Memory((uint8_t*)0x0000, 0x2000);
+   0286 21 00 20      [10]  579 	ld	hl, #0x2000
+   0289 E5            [11]  580 	push	hl
+   028A 26 00         [ 7]  581 	ld	h, #0x00
+   028C E5            [11]  582 	push	hl
+   028D CDr6Cr00      [17]  583 	call	_View_Memory
+   0290 F1            [10]  584 	pop	af
+   0291 F1            [10]  585 	pop	af
+                            586 ;main/main.c:149: break;
+   0292 C3r11r02      [10]  587 	jp	00115$
+                            588 ;main/main.c:150: case 'm':
+   0295                     589 00105$:
+                            590 ;main/main.c:151: View_Memory((uint8_t*)0x8000, 0x2000);
+   0295 21 00 20      [10]  591 	ld	hl, #0x2000
+   0298 E5            [11]  592 	push	hl
+   0299 26 80         [ 7]  593 	ld	h, #0x80
+   029B E5            [11]  594 	push	hl
+   029C CDr6Cr00      [17]  595 	call	_View_Memory
+   029F F1            [10]  596 	pop	af
+   02A0 F1            [10]  597 	pop	af
+                            598 ;main/main.c:152: break;
+   02A1 C3r11r02      [10]  599 	jp	00115$
+                            600 ;main/main.c:153: case 't':
+   02A4                     601 00106$:
+                            602 ;main/main.c:155: last_usable_addr = 0;
+   02A4 21 00 00      [10]  603 	ld	hl, #0x0000
+   02A7 22r01r00      [16]  604 	ld	(_last_usable_addr), hl
+                            605 ;main/main.c:156: addr = &free;
+   02AA 01r03r00      [10]  606 	ld	bc, #_free+0
+                            607 ;main/main.c:157: while((uint16_t)addr < 0xFFFF)
+   02AD                     608 00109$:
+   02AD 59            [ 4]  609 	ld	e, c
+   02AE 50            [ 4]  610 	ld	d, b
+   02AF 7B            [ 4]  611 	ld	a, e
+   02B0 D6 FF         [ 7]  612 	sub	a, #0xff
+   02B2 7A            [ 4]  613 	ld	a, d
+   02B3 DE FF         [ 7]  614 	sbc	a, #0xff
+   02B5 30 12         [12]  615 	jr	NC,00111$
+                            616 ;main/main.c:159: *(addr) = 0x55;
+   02B7 3E 55         [ 7]  617 	ld	a, #0x55
+   02B9 02            [ 7]  618 	ld	(bc), a
+                            619 ;main/main.c:160: *(addr) = 0xAA;
+   02BA 3E AA         [ 7]  620 	ld	a, #0xaa
+   02BC 02            [ 7]  621 	ld	(bc), a
+                            622 ;main/main.c:161: if(*(addr) != 0xAA)
+   02BD 0A            [ 7]  623 	ld	a, (bc)
+   02BE D6 AA         [ 7]  624 	sub	a, #0xaa
+   02C0 20 07         [12]  625 	jr	NZ,00111$
+                            626 ;main/main.c:165: last_usable_addr = (uint16_t)addr;
+   02C2 ED 53r01r00   [20]  627 	ld	(_last_usable_addr), de
+                            628 ;main/main.c:166: addr += 1;
+   02C6 03            [ 6]  629 	inc	bc
+   02C7 18 E4         [12]  630 	jr	00109$
+   02C9                     631 00111$:
+                            632 ;main/main.c:170: );
+   02C9 01r00r00      [10]  633 	ld	bc, #_start+0
+   02CC 59            [ 4]  634 	ld	e, c
+   02CD 50            [ 4]  635 	ld	d, b
+   02CE FD 21r01r00   [14]  636 	ld	iy, #_last_usable_addr
+   02D2 FD 7E 00      [19]  637 	ld	a, 0 (iy)
+   02D5 93            [ 4]  638 	sub	a, e
+   02D6 5F            [ 4]  639 	ld	e, a
+   02D7 FD 7E 01      [19]  640 	ld	a, 1 (iy)
+   02DA 9A            [ 4]  641 	sbc	a, d
+   02DB 57            [ 4]  642 	ld	d, a
+                            643 ;main/main.c:169: (uint16_t)&start, last_usable_addr, last_usable_addr-(uint16_t)&start
+                            644 ;main/main.c:168: snprintf(strbuf, sizeof(strbuf), "RAM: start = 0x%X, last usable = 0x%X, ramsize = %u\n\r",
+   02DC D5            [11]  645 	push	de
+   02DD 2Ar01r00      [16]  646 	ld	hl, (_last_usable_addr)
+   02E0 E5            [11]  647 	push	hl
+   02E1 C5            [11]  648 	push	bc
+   02E2 21r82r03      [10]  649 	ld	hl, #___str_10
+   02E5 E5            [11]  650 	push	hl
+   02E6 21 50 00      [10]  651 	ld	hl, #0x0050
+   02E9 E5            [11]  652 	push	hl
+   02EA 21r00r00      [10]  653 	ld	hl, #_strbuf
+   02ED E5            [11]  654 	push	hl
+   02EE CDr00r00      [17]  655 	call	_mini_snprintf
+   02F1 21 0C 00      [10]  656 	ld	hl, #12
+   02F4 39            [11]  657 	add	hl, sp
+   02F5 F9            [ 6]  658 	ld	sp, hl
+                            659 ;main/main.c:171: uart_write(strbuf);
+   02F6 21r00r00      [10]  660 	ld	hl, #_strbuf
+   02F9 E5            [11]  661 	push	hl
+   02FA CDr00r00      [17]  662 	call	_uart_write
+   02FD F1            [10]  663 	pop	af
+                            664 ;main/main.c:172: break;
+   02FE C3r11r02      [10]  665 	jp	00115$
+                            666 ;main/main.c:173: default:
+   0301                     667 00112$:
+                            668 ;main/main.c:174: putchar(uart_rx);
+   0301 79            [ 4]  669 	ld	a, c
+   0302 17            [ 4]  670 	rla
+   0303 9F            [ 4]  671 	sbc	a, a
+   0304 47            [ 4]  672 	ld	b, a
+   0305 C5            [11]  673 	push	bc
+   0306 CDr00r00      [17]  674 	call	_putchar
+   0309 F1            [10]  675 	pop	af
+                            676 ;main/main.c:176: }
+                            677 ;main/main.c:178: }
+   030A C3r11r02      [10]  678 	jp	00115$
+   030D                     679 ___str_3:
+   030D 69 63 65 5A 30 6D   680 	.ascii "iceZ0mb1e SoC"
+        62 31 65 20 53 6F
+        43
+   031A 00                  681 	.db 0x00
+   031B                     682 ___str_4:
+   031B 62 79 20 61 62 6E   683 	.ascii "by abnoname"
+        6F 6E 61 6D 65
+   0326 00                  684 	.db 0x00
+   0327                     685 ___str_5:
+   0327 30 31 32 33 34 35   686 	.ascii "0123456789 Test"
+        36 37 38 39 20 54
+        65 73 74
+   0336 00                  687 	.db 0x00
+   0337                     688 ___str_6:
+   0337 46 72 61 6D 65 62   689 	.ascii "Framebuffer On"
+        75 66 66 65 72 20
+        4F 6E
+   0345 00                  690 	.db 0x00
+   0346                     691 ___str_7:
+   0346 69 63 65 5A 30 6D   692 	.ascii "iceZ0mb1e SoC by abnoname"
+        62 31 65 20 53 6F
+        43 20 62 79 20 61
+        62 6E 6F 6E 61 6D
+        65
+   035F 0D                  693 	.db 0x0d
+   0360 0A                  694 	.db 0x0a
+   0361 00                  695 	.db 0x00
+   0362                     696 ___str_8:
+   0362 70 6F 72 74 5F 61   697 	.ascii "port_a = 0x%X"
+        20 3D 20 30 78 25
+        58
+   036F 0A                  698 	.db 0x0a
+   0370 0D                  699 	.db 0x0d
+   0371 00                  700 	.db 0x00
+   0372                     701 ___str_9:
+   0372 70 6F 72 74 5F 62   702 	.ascii "port_b = 0x%X"
+        20 3D 20 30 78 25
+        58
+   037F 0A                  703 	.db 0x0a
+   0380 0D                  704 	.db 0x0d
+   0381 00                  705 	.db 0x00
+   0382                     706 ___str_10:
+   0382 52 41 4D 3A 20 73   707 	.ascii "RAM: start = 0x%X, last usable = 0x%X, ramsize = %u"
+        74 61 72 74 20 3D
+        20 30 78 25 58 2C
+        20 6C 61 73 74 20
+        75 73 61 62 6C 65
+        20 3D 20 30 78 25
+        58 2C 20 72 61 6D
+        73 69 7A 65 20 3D
+        20 25 75
+   03B5 0A                  708 	.db 0x0a
+   03B6 0D                  709 	.db 0x0d
+   03B7 00                  710 	.db 0x00
+                            711 	.area _CODE
+                            712 	.area _INITIALIZER
+   0000                     713 __xinit__start:
+   0000 00                  714 	.db #0x00	;  0
+   0001                     715 __xinit__last_usable_addr:
+   0001 00 00               716 	.dw #0x0000
+   0003                     717 __xinit__free:
+   0003 00                  718 	.db #0x00	;  0
+                            719 	.area _CABS (ABS)

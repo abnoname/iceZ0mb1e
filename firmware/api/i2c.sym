@@ -1,0 +1,60 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next), page 1.
+Hexadecimal [16-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  2710 L
+    .__.ABS.                                                    =  0000 G
+    .__.CPU.                                                    =  0000 L
+    .__.H$L.                                                    =  0000 L
+    ___sdcc_enter_ix                                               **** GX
+    _delay                                                         **** GX
+  0 _i2c_addr                                                      0026 GR
+    _i2c_clkdiv                                                 =  0052 
+    _i2c_cmd                                                    =  0053 
+  0 _i2c_config                                                    0000 GR
+    _i2c_dat_in                                                 =  0054 
+    _i2c_dat_out                                                =  0055 
+  0 _i2c_read                                                      005D GR
+  0 _i2c_read_buf                                                  006D GR
+    _i2c_status                                                 =  0050 
+  0 _i2c_wait_req                                                  0020 GR
+  0 _i2c_write                                                     0042 GR
+  0 _i2c_write_buf                                                 00EA GR
+    _port_a                                                     =  0040 
+    _port_b                                                     =  0041 
+    _port_cfg                                                   =  0042 
+    _spi_cfg                                                    =  0061 
+    _spi_clkdiv                                                 =  0062 
+    _spi_cmd                                                    =  0063 
+    _spi_dat_in                                                 =  0064 
+    _spi_dat_out                                                =  0065 
+    _spi_status                                                 =  0060 
+    _uart_dm0                                                   =  0018 
+    _uart_dm1                                                   =  0019 
+    _uart_ier                                                   =  0019 
+    _uart_iir                                                   =  001A 
+    _uart_lcr                                                   =  001B 
+    _uart_lsr                                                   =  001D 
+    _uart_mcr                                                   =  001C 
+    _uart_msr                                                   =  001E 
+    _uart_rbr                                                   =  0018 
+    _uart_scr                                                   =  001F 
+    _uart_thr                                                   =  0018 
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next), page 2.
+Hexadecimal [16-Bits]
+
+Area Table
+
+   0 _CODE                                      size  14C   flags    0
+   1 _DATA                                      size    0   flags    0
+   2 _INITIALIZED                               size    0   flags    0
+   3 _DABS                                      size    0   flags    8
+   4 _HOME                                      size    0   flags    0
+   5 _GSINIT                                    size    0   flags    0
+   6 _GSFINAL                                   size    0   flags    0
+   7 _INITIALIZER                               size    0   flags    0
+   8 _CABS                                      size    0   flags    8
+

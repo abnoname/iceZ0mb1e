@@ -113,6 +113,12 @@ ICEPROG = sudo iceprog
 ICETIME = icetime
 QFLOW = qflow
 
+WSLENV ?= notwsl
+ifndef WSLENV
+    # this runs when you _are_ in WSL
+    ICEPROG = iceprog.exe
+endif
+
 #Tool Options
 YOSYSFLAGS = -f "verilog -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\"" -p "synth_ice40 -blif $(FPGA_BLIF_OUT);"
 COFLAGS = -s tb_iceZ0mb1e -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\" -D__def_vcd_file=\"$(VCD_OUT)\"

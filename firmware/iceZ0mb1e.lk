@@ -1,0 +1,18 @@
+-mjwx
+-i iceZ0mb1e.ihx
+-b _CODE = 0x0200
+-b _DATA = 0x8000
+-k /usr/bin/../share/sdcc/lib/z80
+-k /usr/share/sdcc/lib/z80
+-l z80
+crt0/crt0.rel
+api/uart.rel
+api/spi.rel
+api/cpu.rel
+api/i2c.rel
+mini-string/mini-string.rel
+mini-printf/mini-printf.rel
+ssd1306/ssd1306.rel
+main/main.rel
+
+-e

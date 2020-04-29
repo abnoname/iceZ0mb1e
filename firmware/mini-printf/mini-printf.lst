@@ -1,0 +1,906 @@
+                              1 ;--------------------------------------------------------
+                              2 ; File Created by SDCC : free open source ANSI-C Compiler
+                              3 ; Version 3.8.0 #10562 (Linux)
+                              4 ;--------------------------------------------------------
+                              5 	.module mini_printf
+                              6 	.optsdcc -mz80
+                              7 	
+                              8 ;--------------------------------------------------------
+                              9 ; Public variables in this module
+                             10 ;--------------------------------------------------------
+                             11 	.globl _mini_vsnprintf
+                             12 	.globl _mini_snprintf
+                             13 ;--------------------------------------------------------
+                             14 ; special function registers
+                             15 ;--------------------------------------------------------
+                             16 ;--------------------------------------------------------
+                             17 ; ram data
+                             18 ;--------------------------------------------------------
+                             19 	.area _DATA
+                             20 ;--------------------------------------------------------
+                             21 ; ram data
+                             22 ;--------------------------------------------------------
+                             23 	.area _INITIALIZED
+                             24 ;--------------------------------------------------------
+                             25 ; absolute external ram data
+                             26 ;--------------------------------------------------------
+                             27 	.area _DABS (ABS)
+                             28 ;--------------------------------------------------------
+                             29 ; global & static initialisations
+                             30 ;--------------------------------------------------------
+                             31 	.area _HOME
+                             32 	.area _GSINIT
+                             33 	.area _GSFINAL
+                             34 	.area _GSINIT
+                             35 ;--------------------------------------------------------
+                             36 ; Home
+                             37 ;--------------------------------------------------------
+                             38 	.area _HOME
+                             39 	.area _HOME
+                             40 ;--------------------------------------------------------
+                             41 ; code
+                             42 ;--------------------------------------------------------
+                             43 	.area _CODE
+                             44 ;mini-printf/mini-printf.c:47: mini_strlen(const char *s)
+                             45 ;	---------------------------------
+                             46 ; Function mini_strlen
+                             47 ; ---------------------------------
+   0000                      48 _mini_strlen:
+                             49 ;mini-printf/mini-printf.c:50: while (s[len] != '\0') len++;
+   0000 01 00 00      [10]   50 	ld	bc, #0x0000
+   0003                      51 00101$:
+   0003 21 02 00      [10]   52 	ld	hl, #2
+   0006 39            [11]   53 	add	hl, sp
+   0007 7E            [ 7]   54 	ld	a, (hl)
+   0008 23            [ 6]   55 	inc	hl
+   0009 66            [ 7]   56 	ld	h, (hl)
+   000A 6F            [ 4]   57 	ld	l, a
+   000B 09            [11]   58 	add	hl, bc
+   000C 7E            [ 7]   59 	ld	a, (hl)
+   000D B7            [ 4]   60 	or	a, a
+   000E 28 03         [12]   61 	jr	Z,00103$
+   0010 03            [ 6]   62 	inc	bc
+   0011 18 F0         [12]   63 	jr	00101$
+   0013                      64 00103$:
+                             65 ;mini-printf/mini-printf.c:51: return len;
+   0013 69            [ 4]   66 	ld	l, c
+   0014 60            [ 4]   67 	ld	h, b
+                             68 ;mini-printf/mini-printf.c:52: }
+   0015 C9            [10]   69 	ret
+                             70 ;mini-printf/mini-printf.c:55: mini_itoa(int value, unsigned int radix, unsigned int uppercase, unsigned int unsig,
+                             71 ;	---------------------------------
+                             72 ; Function mini_itoa
+                             73 ; ---------------------------------
+   0016                      74 _mini_itoa:
+   0016 CDr00r00      [17]   75 	call	___sdcc_enter_ix
+   0019 F5            [11]   76 	push	af
+   001A F5            [11]   77 	push	af
+   001B F5            [11]   78 	push	af
+   001C F5            [11]   79 	push	af
+                             80 ;mini-printf/mini-printf.c:58: char	*pbuffer = buffer;
+   001D DD 4E 0C      [19]   81 	ld	c, 12 (ix)
+   0020 DD 46 0D      [19]   82 	ld	b, 13 (ix)
+                             83 ;mini-printf/mini-printf.c:59: int	negative = 0;
+   0023 11 00 00      [10]   84 	ld	de, #0x0000
+                             85 ;mini-printf/mini-printf.c:63: if (radix > 16)
+   0026 3E 10         [ 7]   86 	ld	a, #0x10
+   0028 DD BE 06      [19]   87 	cp	a, 6 (ix)
+   002B 3E 00         [ 7]   88 	ld	a, #0x00
+   002D DD 9E 07      [19]   89 	sbc	a, 7 (ix)
+   0030 30 06         [12]   90 	jr	NC,00102$
+                             91 ;mini-printf/mini-printf.c:64: return 0;
+   0032 21 00 00      [10]   92 	ld	hl, #0x0000
+   0035 C3r9Dr01      [10]   93 	jp	00119$
+   0038                      94 00102$:
+                             95 ;mini-printf/mini-printf.c:66: if (value < 0 && !unsig) {
+   0038 DD CB 05 7E   [20]   96 	bit	7, 5 (ix)
+   003C 28 1A         [12]   97 	jr	Z,00130$
+   003E DD 7E 0B      [19]   98 	ld	a, 11 (ix)
+   0041 DD B6 0A      [19]   99 	or	a, 10 (ix)
+   0044 20 12         [12]  100 	jr	NZ,00130$
+                            101 ;mini-printf/mini-printf.c:67: negative = 1;
+   0046 11 01 00      [10]  102 	ld	de, #0x0001
+                            103 ;mini-printf/mini-printf.c:68: value = -value;
+   0049 AF            [ 4]  104 	xor	a, a
+   004A DD 96 04      [19]  105 	sub	a, 4 (ix)
+   004D DD 77 04      [19]  106 	ld	4 (ix), a
+   0050 3E 00         [ 7]  107 	ld	a, #0x00
+   0052 DD 9E 05      [19]  108 	sbc	a, 5 (ix)
+   0055 DD 77 05      [19]  109 	ld	5 (ix), a
+                            110 ;mini-printf/mini-printf.c:72: do {
+   0058                     111 00130$:
+   0058                     112 00106$:
+                            113 ;mini-printf/mini-printf.c:73: int digit = value % radix;
+   0058 DD 7E 04      [19]  114 	ld	a, 4 (ix)
+   005B DD 77 F9      [19]  115 	ld	-7 (ix), a
+   005E DD 7E 05      [19]  116 	ld	a, 5 (ix)
+   0061 DD 77 FA      [19]  117 	ld	-6 (ix), a
+   0064 C5            [11]  118 	push	bc
+   0065 D5            [11]  119 	push	de
+   0066 DD 6E 06      [19]  120 	ld	l, 6 (ix)
+   0069 DD 66 07      [19]  121 	ld	h, 7 (ix)
+   006C E5            [11]  122 	push	hl
+   006D DD 6E F9      [19]  123 	ld	l, -7 (ix)
+   0070 DD 66 FA      [19]  124 	ld	h, -6 (ix)
+   0073 E5            [11]  125 	push	hl
+   0074 CDr00r00      [17]  126 	call	__moduint
+   0077 F1            [10]  127 	pop	af
+   0078 F1            [10]  128 	pop	af
+   0079 D1            [10]  129 	pop	de
+   007A C1            [10]  130 	pop	bc
+                            131 ;mini-printf/mini-printf.c:74: *(pbuffer++) = (digit < 10 ? '0' + digit : (uppercase ? 'A' : 'a') + digit - 10);
+   007B DD 71 FB      [19]  132 	ld	-5 (ix), c
+   007E DD 70 FC      [19]  133 	ld	-4 (ix), b
+   0081 03            [ 6]  134 	inc	bc
+   0082 DD 75 F8      [19]  135 	ld	-8 (ix), l
+   0085 7D            [ 4]  136 	ld	a, l
+   0086 D6 0A         [ 7]  137 	sub	a, #0x0a
+   0088 7C            [ 4]  138 	ld	a, h
+   0089 17            [ 4]  139 	rla
+   008A 3F            [ 4]  140 	ccf
+   008B 1F            [ 4]  141 	rra
+   008C DE 80         [ 7]  142 	sbc	a, #0x80
+   008E 30 07         [12]  143 	jr	NC,00121$
+   0090 DD 7E F8      [19]  144 	ld	a, -8 (ix)
+   0093 C6 30         [ 7]  145 	add	a, #0x30
+   0095 18 16         [12]  146 	jr	00122$
+   0097                     147 00121$:
+   0097 DD 7E 09      [19]  148 	ld	a, 9 (ix)
+   009A DD B6 08      [19]  149 	or	a, 8 (ix)
+   009D 28 05         [12]  150 	jr	Z,00123$
+   009F 21 41 00      [10]  151 	ld	hl, #0x0041
+   00A2 18 03         [12]  152 	jr	00124$
+   00A4                     153 00123$:
+   00A4 21 61 00      [10]  154 	ld	hl, #0x0061
+   00A7                     155 00124$:
+   00A7 7D            [ 4]  156 	ld	a, l
+   00A8 DD 86 F8      [19]  157 	add	a, -8 (ix)
+   00AB C6 F6         [ 7]  158 	add	a, #0xf6
+   00AD                     159 00122$:
+   00AD DD 6E FB      [19]  160 	ld	l, -5 (ix)
+   00B0 DD 66 FC      [19]  161 	ld	h, -4 (ix)
+   00B3 77            [ 7]  162 	ld	(hl), a
+                            163 ;mini-printf/mini-printf.c:75: value /= radix;
+   00B4 C5            [11]  164 	push	bc
+   00B5 D5            [11]  165 	push	de
+   00B6 DD 6E 06      [19]  166 	ld	l, 6 (ix)
+   00B9 DD 66 07      [19]  167 	ld	h, 7 (ix)
+   00BC E5            [11]  168 	push	hl
+   00BD DD 6E F9      [19]  169 	ld	l, -7 (ix)
+   00C0 DD 66 FA      [19]  170 	ld	h, -6 (ix)
+   00C3 E5            [11]  171 	push	hl
+   00C4 CDr00r00      [17]  172 	call	__divuint
+   00C7 F1            [10]  173 	pop	af
+   00C8 F1            [10]  174 	pop	af
+   00C9 D1            [10]  175 	pop	de
+   00CA C1            [10]  176 	pop	bc
+   00CB DD 75 04      [19]  177 	ld	4 (ix), l
+   00CE DD 74 05      [19]  178 	ld	5 (ix), h
+                            179 ;mini-printf/mini-printf.c:76: } while (value > 0);
+   00D1 AF            [ 4]  180 	xor	a, a
+   00D2 DD BE 04      [19]  181 	cp	a, 4 (ix)
+   00D5 DD 9E 05      [19]  182 	sbc	a, 5 (ix)
+   00D8 E2rDDr00      [10]  183 	jp	PO, 00188$
+   00DB EE 80         [ 7]  184 	xor	a, #0x80
+   00DD                     185 00188$:
+   00DD FAr58r00      [10]  186 	jp	M, 00106$
+                            187 ;mini-printf/mini-printf.c:78: for (i = (pbuffer - buffer); i < zero_pad; i++)
+   00E0 79            [ 4]  188 	ld	a, c
+   00E1 DD 96 0C      [19]  189 	sub	a, 12 (ix)
+   00E4 DD 77 FB      [19]  190 	ld	-5 (ix), a
+   00E7 78            [ 4]  191 	ld	a, b
+   00E8 DD 9E 0D      [19]  192 	sbc	a, 13 (ix)
+   00EB DD 77 FC      [19]  193 	ld	-4 (ix), a
+   00EE                     194 00114$:
+                            195 ;mini-printf/mini-printf.c:79: *(pbuffer++) = '0';
+   00EE 21 01 00      [10]  196 	ld	hl, #0x0001
+   00F1 09            [11]  197 	add	hl, bc
+   00F2 DD 75 F9      [19]  198 	ld	-7 (ix), l
+   00F5 DD 74 FA      [19]  199 	ld	-6 (ix), h
+                            200 ;mini-printf/mini-printf.c:78: for (i = (pbuffer - buffer); i < zero_pad; i++)
+   00F8 DD 7E FB      [19]  201 	ld	a, -5 (ix)
+   00FB DD 96 0E      [19]  202 	sub	a, 14 (ix)
+   00FE DD 7E FC      [19]  203 	ld	a, -4 (ix)
+   0101 DD 9E 0F      [19]  204 	sbc	a, 15 (ix)
+   0104 30 13         [12]  205 	jr	NC,00138$
+                            206 ;mini-printf/mini-printf.c:79: *(pbuffer++) = '0';
+   0106 3E 30         [ 7]  207 	ld	a, #0x30
+   0108 02            [ 7]  208 	ld	(bc), a
+   0109 DD 4E F9      [19]  209 	ld	c, -7 (ix)
+   010C DD 46 FA      [19]  210 	ld	b, -6 (ix)
+                            211 ;mini-printf/mini-printf.c:78: for (i = (pbuffer - buffer); i < zero_pad; i++)
+   010F DD 34 FB      [23]  212 	inc	-5 (ix)
+   0112 20 DA         [12]  213 	jr	NZ,00114$
+   0114 DD 34 FC      [23]  214 	inc	-4 (ix)
+   0117 18 D5         [12]  215 	jr	00114$
+   0119                     216 00138$:
+   0119 69            [ 4]  217 	ld	l, c
+   011A 60            [ 4]  218 	ld	h, b
+                            219 ;mini-printf/mini-printf.c:81: if (negative)
+   011B 7A            [ 4]  220 	ld	a, d
+   011C B3            [ 4]  221 	or	a, e
+   011D 28 09         [12]  222 	jr	Z,00111$
+                            223 ;mini-printf/mini-printf.c:82: *(pbuffer++) = '-';
+   011F 3E 2D         [ 7]  224 	ld	a, #0x2d
+   0121 02            [ 7]  225 	ld	(bc), a
+   0122 DD 6E F9      [19]  226 	ld	l, -7 (ix)
+   0125 DD 66 FA      [19]  227 	ld	h, -6 (ix)
+   0128                     228 00111$:
+                            229 ;mini-printf/mini-printf.c:84: *(pbuffer) = '\0';
+   0128 36 00         [10]  230 	ld	(hl), #0x00
+                            231 ;mini-printf/mini-printf.c:88: len = (pbuffer - buffer);
+   012A 7D            [ 4]  232 	ld	a, l
+   012B DD 96 0C      [19]  233 	sub	a, 12 (ix)
+   012E 4F            [ 4]  234 	ld	c, a
+   012F 7C            [ 4]  235 	ld	a, h
+   0130 DD 9E 0D      [19]  236 	sbc	a, 13 (ix)
+   0133 47            [ 4]  237 	ld	b, a
+   0134 DD 71 FD      [19]  238 	ld	-3 (ix), c
+   0137 DD 70 FE      [19]  239 	ld	-2 (ix), b
+                            240 ;mini-printf/mini-printf.c:89: for (i = 0; i < len / 2; i++) {
+   013A DD 7E FD      [19]  241 	ld	a, -3 (ix)
+   013D DD 77 FB      [19]  242 	ld	-5 (ix), a
+   0140 DD 7E FE      [19]  243 	ld	a, -2 (ix)
+   0143 DD 77 FC      [19]  244 	ld	-4 (ix), a
+   0146 DD CB FC 3E   [23]  245 	srl	-4 (ix)
+   014A DD CB FB 1E   [23]  246 	rr	-5 (ix)
+   014E 01 00 00      [10]  247 	ld	bc, #0x0000
+   0151                     248 00117$:
+   0151 79            [ 4]  249 	ld	a, c
+   0152 DD 96 FB      [19]  250 	sub	a, -5 (ix)
+   0155 78            [ 4]  251 	ld	a, b
+   0156 DD 9E FC      [19]  252 	sbc	a, -4 (ix)
+   0159 30 3C         [12]  253 	jr	NC,00112$
+                            254 ;mini-printf/mini-printf.c:90: char j = buffer[i];
+   015B DD 7E 0C      [19]  255 	ld	a, 12 (ix)
+   015E 81            [ 4]  256 	add	a, c
+   015F DD 77 F9      [19]  257 	ld	-7 (ix), a
+   0162 DD 7E 0D      [19]  258 	ld	a, 13 (ix)
+   0165 88            [ 4]  259 	adc	a, b
+   0166 DD 77 FA      [19]  260 	ld	-6 (ix), a
+   0169 DD 6E F9      [19]  261 	ld	l, -7 (ix)
+   016C DD 66 FA      [19]  262 	ld	h, -6 (ix)
+   016F 7E            [ 7]  263 	ld	a, (hl)
+   0170 DD 77 FF      [19]  264 	ld	-1 (ix), a
+                            265 ;mini-printf/mini-printf.c:91: buffer[i] = buffer[len-i-1];
+   0173 DD 7E FD      [19]  266 	ld	a, -3 (ix)
+   0176 91            [ 4]  267 	sub	a, c
+   0177 5F            [ 4]  268 	ld	e, a
+   0178 DD 7E FE      [19]  269 	ld	a, -2 (ix)
+   017B 98            [ 4]  270 	sbc	a, b
+   017C 57            [ 4]  271 	ld	d, a
+   017D 1B            [ 6]  272 	dec	de
+   017E DD 7E 0C      [19]  273 	ld	a, 12 (ix)
+   0181 83            [ 4]  274 	add	a, e
+   0182 5F            [ 4]  275 	ld	e, a
+   0183 DD 7E 0D      [19]  276 	ld	a, 13 (ix)
+   0186 8A            [ 4]  277 	adc	a, d
+   0187 57            [ 4]  278 	ld	d, a
+   0188 1A            [ 7]  279 	ld	a, (de)
+   0189 DD 6E F9      [19]  280 	ld	l, -7 (ix)
+   018C DD 66 FA      [19]  281 	ld	h, -6 (ix)
+   018F 77            [ 7]  282 	ld	(hl), a
+                            283 ;mini-printf/mini-printf.c:92: buffer[len-i-1] = j;
+   0190 DD 7E FF      [19]  284 	ld	a, -1 (ix)
+   0193 12            [ 7]  285 	ld	(de), a
+                            286 ;mini-printf/mini-printf.c:89: for (i = 0; i < len / 2; i++) {
+   0194 03            [ 6]  287 	inc	bc
+   0195 18 BA         [12]  288 	jr	00117$
+   0197                     289 00112$:
+                            290 ;mini-printf/mini-printf.c:95: return len;
+   0197 DD 6E FD      [19]  291 	ld	l, -3 (ix)
+   019A DD 66 FE      [19]  292 	ld	h, -2 (ix)
+   019D                     293 00119$:
+                            294 ;mini-printf/mini-printf.c:96: }
+   019D DD F9         [10]  295 	ld	sp, ix
+   019F DD E1         [14]  296 	pop	ix
+   01A1 C9            [10]  297 	ret
+                            298 ;mini-printf/mini-printf.c:104: _putc(int ch, struct mini_buff *b)
+                            299 ;	---------------------------------
+                            300 ; Function _putc
+                            301 ; ---------------------------------
+   01A2                     302 __putc:
+   01A2 CDr00r00      [17]  303 	call	___sdcc_enter_ix
+   01A5 F5            [11]  304 	push	af
+                            305 ;mini-printf/mini-printf.c:106: if ((unsigned int)((b->pbuffer - b->buffer) + 1) >= b->buffer_len)
+   01A6 DD 5E 06      [19]  306 	ld	e, 6 (ix)
+   01A9 DD 56 07      [19]  307 	ld	d, 7 (ix)
+   01AC D5            [11]  308 	push	de
+   01AD FD E1         [14]  309 	pop	iy
+   01AF FD 23         [10]  310 	inc	iy
+   01B1 FD 23         [10]  311 	inc	iy
+   01B3 FD 4E 00      [19]  312 	ld	c, 0 (iy)
+   01B6 FD 46 01      [19]  313 	ld	b, 1 (iy)
+   01B9 6B            [ 4]  314 	ld	l, e
+   01BA 62            [ 4]  315 	ld	h, d
+   01BB 7E            [ 7]  316 	ld	a, (hl)
+   01BC 23            [ 6]  317 	inc	hl
+   01BD 66            [ 7]  318 	ld	h, (hl)
+   01BE 6F            [ 4]  319 	ld	l, a
+   01BF 79            [ 4]  320 	ld	a, c
+   01C0 95            [ 4]  321 	sub	a, l
+   01C1 6F            [ 4]  322 	ld	l, a
+   01C2 78            [ 4]  323 	ld	a, b
+   01C3 9C            [ 4]  324 	sbc	a, h
+   01C4 67            [ 4]  325 	ld	h, a
+   01C5 23            [ 6]  326 	inc	hl
+   01C6 33            [ 6]  327 	inc	sp
+   01C7 33            [ 6]  328 	inc	sp
+   01C8 E5            [11]  329 	push	hl
+   01C9 EB            [ 4]  330 	ex	de,hl
+   01CA 11 04 00      [10]  331 	ld	de, #0x0004
+   01CD 19            [11]  332 	add	hl, de
+   01CE 5E            [ 7]  333 	ld	e, (hl)
+   01CF 23            [ 6]  334 	inc	hl
+   01D0 56            [ 7]  335 	ld	d, (hl)
+   01D1 DD 7E FE      [19]  336 	ld	a, -2 (ix)
+   01D4 93            [ 4]  337 	sub	a, e
+   01D5 DD 7E FF      [19]  338 	ld	a, -1 (ix)
+   01D8 9A            [ 4]  339 	sbc	a, d
+   01D9 38 05         [12]  340 	jr	C,00102$
+                            341 ;mini-printf/mini-printf.c:107: return 0;
+   01DB 21 00 00      [10]  342 	ld	hl, #0x0000
+   01DE 18 12         [12]  343 	jr	00103$
+   01E0                     344 00102$:
+                            345 ;mini-printf/mini-printf.c:108: *(b->pbuffer++) = ch;
+   01E0 59            [ 4]  346 	ld	e, c
+   01E1 50            [ 4]  347 	ld	d, b
+   01E2 13            [ 6]  348 	inc	de
+   01E3 FD 73 00      [19]  349 	ld	0 (iy), e
+   01E6 FD 72 01      [19]  350 	ld	1 (iy), d
+   01E9 DD 7E 04      [19]  351 	ld	a, 4 (ix)
+   01EC 02            [ 7]  352 	ld	(bc), a
+                            353 ;mini-printf/mini-printf.c:109: *(b->pbuffer) = '\0';
+   01ED AF            [ 4]  354 	xor	a, a
+   01EE 12            [ 7]  355 	ld	(de), a
+                            356 ;mini-printf/mini-printf.c:110: return 1;
+   01EF 21 01 00      [10]  357 	ld	hl, #0x0001
+   01F2                     358 00103$:
+                            359 ;mini-printf/mini-printf.c:111: }
+   01F2 F1            [10]  360 	pop	af
+   01F3 DD E1         [14]  361 	pop	ix
+   01F5 C9            [10]  362 	ret
+                            363 ;mini-printf/mini-printf.c:114: _puts(char *s, unsigned int len, struct mini_buff *b)
+                            364 ;	---------------------------------
+                            365 ; Function _puts
+                            366 ; ---------------------------------
+   01F6                     367 __puts:
+   01F6 CDr00r00      [17]  368 	call	___sdcc_enter_ix
+   01F9 F5            [11]  369 	push	af
+   01FA F5            [11]  370 	push	af
+                            371 ;mini-printf/mini-printf.c:118: if (b->buffer_len - (b->pbuffer - b->buffer) - 1 < len)
+   01FB DD 5E 08      [19]  372 	ld	e, 8 (ix)
+   01FE DD 56 09      [19]  373 	ld	d, 9 (ix)
+   0201 D5            [11]  374 	push	de
+   0202 FD E1         [14]  375 	pop	iy
+   0204 FD 7E 04      [19]  376 	ld	a, 4 (iy)
+   0207 DD 77 FE      [19]  377 	ld	-2 (ix), a
+   020A FD 7E 05      [19]  378 	ld	a, 5 (iy)
+   020D DD 77 FF      [19]  379 	ld	-1 (ix), a
+   0210 21 02 00      [10]  380 	ld	hl, #0x0002
+   0213 19            [11]  381 	add	hl, de
+   0214 E3            [19]  382 	ex	(sp), hl
+   0215 E1            [10]  383 	pop	hl
+   0216 E5            [11]  384 	push	hl
+   0217 4E            [ 7]  385 	ld	c, (hl)
+   0218 23            [ 6]  386 	inc	hl
+   0219 46            [ 7]  387 	ld	b, (hl)
+   021A EB            [ 4]  388 	ex	de,hl
+   021B 5E            [ 7]  389 	ld	e, (hl)
+   021C 23            [ 6]  390 	inc	hl
+   021D 56            [ 7]  391 	ld	d, (hl)
+   021E 79            [ 4]  392 	ld	a, c
+   021F 93            [ 4]  393 	sub	a, e
+   0220 4F            [ 4]  394 	ld	c, a
+   0221 78            [ 4]  395 	ld	a, b
+   0222 9A            [ 4]  396 	sbc	a, d
+   0223 47            [ 4]  397 	ld	b, a
+   0224 DD 7E FE      [19]  398 	ld	a, -2 (ix)
+   0227 91            [ 4]  399 	sub	a, c
+   0228 4F            [ 4]  400 	ld	c, a
+   0229 DD 7E FF      [19]  401 	ld	a, -1 (ix)
+   022C 98            [ 4]  402 	sbc	a, b
+   022D 47            [ 4]  403 	ld	b, a
+   022E 0B            [ 6]  404 	dec	bc
+   022F 79            [ 4]  405 	ld	a, c
+   0230 DD 96 06      [19]  406 	sub	a, 6 (ix)
+   0233 78            [ 4]  407 	ld	a, b
+   0234 DD 9E 07      [19]  408 	sbc	a, 7 (ix)
+   0237 30 06         [12]  409 	jr	NC,00111$
+                            410 ;mini-printf/mini-printf.c:119: len = b->buffer_len - (b->pbuffer - b->buffer) - 1;
+   0239 DD 71 06      [19]  411 	ld	6 (ix), c
+   023C DD 70 07      [19]  412 	ld	7 (ix), b
+                            413 ;mini-printf/mini-printf.c:122: for (i = 0; i < len; i++)
+   023F                     414 00111$:
+   023F 11 00 00      [10]  415 	ld	de, #0x0000
+   0242                     416 00105$:
+                            417 ;mini-printf/mini-printf.c:118: if (b->buffer_len - (b->pbuffer - b->buffer) - 1 < len)
+   0242 E1            [10]  418 	pop	hl
+   0243 E5            [11]  419 	push	hl
+   0244 4E            [ 7]  420 	ld	c, (hl)
+   0245 23            [ 6]  421 	inc	hl
+   0246 46            [ 7]  422 	ld	b, (hl)
+                            423 ;mini-printf/mini-printf.c:122: for (i = 0; i < len; i++)
+   0247 7B            [ 4]  424 	ld	a, e
+   0248 DD 96 06      [19]  425 	sub	a, 6 (ix)
+   024B 7A            [ 4]  426 	ld	a, d
+   024C DD 9E 07      [19]  427 	sbc	a, 7 (ix)
+   024F 30 21         [12]  428 	jr	NC,00103$
+                            429 ;mini-printf/mini-printf.c:123: *(b->pbuffer++) = s[i];
+   0251 21 01 00      [10]  430 	ld	hl, #0x0001
+   0254 09            [11]  431 	add	hl, bc
+   0255 DD 75 FE      [19]  432 	ld	-2 (ix), l
+   0258 DD 74 FF      [19]  433 	ld	-1 (ix), h
+   025B E1            [10]  434 	pop	hl
+   025C E5            [11]  435 	push	hl
+   025D DD 7E FE      [19]  436 	ld	a, -2 (ix)
+   0260 77            [ 7]  437 	ld	(hl), a
+   0261 23            [ 6]  438 	inc	hl
+   0262 DD 7E FF      [19]  439 	ld	a, -1 (ix)
+   0265 77            [ 7]  440 	ld	(hl), a
+   0266 DD 6E 04      [19]  441 	ld	l, 4 (ix)
+   0269 DD 66 05      [19]  442 	ld	h, 5 (ix)
+   026C 19            [11]  443 	add	hl, de
+   026D 7E            [ 7]  444 	ld	a, (hl)
+   026E 02            [ 7]  445 	ld	(bc), a
+                            446 ;mini-printf/mini-printf.c:122: for (i = 0; i < len; i++)
+   026F 13            [ 6]  447 	inc	de
+   0270 18 D0         [12]  448 	jr	00105$
+   0272                     449 00103$:
+                            450 ;mini-printf/mini-printf.c:124: *(b->pbuffer) = '\0';
+   0272 AF            [ 4]  451 	xor	a, a
+   0273 02            [ 7]  452 	ld	(bc), a
+                            453 ;mini-printf/mini-printf.c:126: return len;
+   0274 DD 6E 06      [19]  454 	ld	l, 6 (ix)
+   0277 DD 66 07      [19]  455 	ld	h, 7 (ix)
+                            456 ;mini-printf/mini-printf.c:127: }
+   027A DD F9         [10]  457 	ld	sp, ix
+   027C DD E1         [14]  458 	pop	ix
+   027E C9            [10]  459 	ret
+                            460 ;mini-printf/mini-printf.c:130: mini_vsnprintf(char *buffer, unsigned int buffer_len, const char *fmt, va_list va)
+                            461 ;	---------------------------------
+                            462 ; Function mini_vsnprintf
+                            463 ; ---------------------------------
+   027F                     464 _mini_vsnprintf::
+   027F CDr00r00      [17]  465 	call	___sdcc_enter_ix
+   0282 21 C1 FF      [10]  466 	ld	hl, #-63
+   0285 39            [11]  467 	add	hl, sp
+   0286 F9            [ 6]  468 	ld	sp, hl
+                            469 ;mini-printf/mini-printf.c:136: b.buffer = buffer;
+   0287 21 18 00      [10]  470 	ld	hl, #0x0018
+   028A 39            [11]  471 	add	hl, sp
+   028B DD 7E 04      [19]  472 	ld	a, 4 (ix)
+   028E 77            [ 7]  473 	ld	(hl), a
+   028F 23            [ 6]  474 	inc	hl
+   0290 DD 7E 05      [19]  475 	ld	a, 5 (ix)
+   0293 77            [ 7]  476 	ld	(hl), a
+                            477 ;mini-printf/mini-printf.c:137: b.pbuffer = buffer;
+   0294 21 18 00      [10]  478 	ld	hl, #0x0018
+   0297 39            [11]  479 	add	hl, sp
+   0298 DD 75 F4      [19]  480 	ld	-12 (ix), l
+   029B DD 74 F5      [19]  481 	ld	-11 (ix), h
+   029E DD 7E F4      [19]  482 	ld	a, -12 (ix)
+   02A1 C6 02         [ 7]  483 	add	a, #0x02
+   02A3 DD 77 F0      [19]  484 	ld	-16 (ix), a
+   02A6 DD 7E F5      [19]  485 	ld	a, -11 (ix)
+   02A9 CE 00         [ 7]  486 	adc	a, #0x00
+   02AB DD 77 F1      [19]  487 	ld	-15 (ix), a
+   02AE DD 6E F0      [19]  488 	ld	l, -16 (ix)
+   02B1 DD 66 F1      [19]  489 	ld	h, -15 (ix)
+   02B4 DD 7E 04      [19]  490 	ld	a, 4 (ix)
+   02B7 77            [ 7]  491 	ld	(hl), a
+   02B8 23            [ 6]  492 	inc	hl
+   02B9 DD 7E 05      [19]  493 	ld	a, 5 (ix)
+   02BC 77            [ 7]  494 	ld	(hl), a
+                            495 ;mini-printf/mini-printf.c:138: b.buffer_len = buffer_len;
+   02BD DD 7E F4      [19]  496 	ld	a, -12 (ix)
+   02C0 C6 04         [ 7]  497 	add	a, #0x04
+   02C2 DD 77 EA      [19]  498 	ld	-22 (ix), a
+   02C5 DD 7E F5      [19]  499 	ld	a, -11 (ix)
+   02C8 CE 00         [ 7]  500 	adc	a, #0x00
+   02CA DD 77 EB      [19]  501 	ld	-21 (ix), a
+   02CD DD 6E EA      [19]  502 	ld	l, -22 (ix)
+   02D0 DD 66 EB      [19]  503 	ld	h, -21 (ix)
+   02D3 DD 7E 06      [19]  504 	ld	a, 6 (ix)
+   02D6 77            [ 7]  505 	ld	(hl), a
+   02D7 23            [ 6]  506 	inc	hl
+   02D8 DD 7E 07      [19]  507 	ld	a, 7 (ix)
+   02DB 77            [ 7]  508 	ld	(hl), a
+                            509 ;mini-printf/mini-printf.c:140: while ((ch=*(fmt++))) {
+   02DC DD 7E F4      [19]  510 	ld	a, -12 (ix)
+   02DF DD 77 E1      [19]  511 	ld	-31 (ix), a
+   02E2 DD 7E F5      [19]  512 	ld	a, -11 (ix)
+   02E5 DD 77 E2      [19]  513 	ld	-30 (ix), a
+   02E8 21 00 00      [10]  514 	ld	hl, #0x0000
+   02EB 39            [11]  515 	add	hl, sp
+   02EC DD 75 F6      [19]  516 	ld	-10 (ix), l
+   02EF DD 74 F7      [19]  517 	ld	-9 (ix), h
+   02F2 DD 7E F4      [19]  518 	ld	a, -12 (ix)
+   02F5 DD 77 DF      [19]  519 	ld	-33 (ix), a
+   02F8 DD 7E F5      [19]  520 	ld	a, -11 (ix)
+   02FB DD 77 E0      [19]  521 	ld	-32 (ix), a
+   02FE DD 7E F6      [19]  522 	ld	a, -10 (ix)
+   0301 DD 77 FC      [19]  523 	ld	-4 (ix), a
+   0304 DD 7E F7      [19]  524 	ld	a, -9 (ix)
+   0307 DD 77 FD      [19]  525 	ld	-3 (ix), a
+   030A DD 7E F6      [19]  526 	ld	a, -10 (ix)
+   030D DD 77 E5      [19]  527 	ld	-27 (ix), a
+   0310 DD 7E F7      [19]  528 	ld	a, -9 (ix)
+   0313 DD 77 E6      [19]  529 	ld	-26 (ix), a
+   0316 DD 7E F4      [19]  530 	ld	a, -12 (ix)
+   0319 DD 77 E3      [19]  531 	ld	-29 (ix), a
+   031C DD 7E F5      [19]  532 	ld	a, -11 (ix)
+   031F DD 77 E4      [19]  533 	ld	-28 (ix), a
+   0322 DD 7E F6      [19]  534 	ld	a, -10 (ix)
+   0325 DD 77 F8      [19]  535 	ld	-8 (ix), a
+   0328 DD 7E F7      [19]  536 	ld	a, -9 (ix)
+   032B DD 77 F9      [19]  537 	ld	-7 (ix), a
+   032E DD 7E F4      [19]  538 	ld	a, -12 (ix)
+   0331 DD 77 FA      [19]  539 	ld	-6 (ix), a
+   0334 DD 7E F5      [19]  540 	ld	a, -11 (ix)
+   0337 DD 77 FB      [19]  541 	ld	-5 (ix), a
+   033A DD 7E F4      [19]  542 	ld	a, -12 (ix)
+   033D DD 77 FE      [19]  543 	ld	-2 (ix), a
+   0340 DD 7E F5      [19]  544 	ld	a, -11 (ix)
+   0343 DD 77 FF      [19]  545 	ld	-1 (ix), a
+   0346 DD 7E F4      [19]  546 	ld	a, -12 (ix)
+   0349 DD 77 EE      [19]  547 	ld	-18 (ix), a
+   034C DD 7E F5      [19]  548 	ld	a, -11 (ix)
+   034F DD 77 EF      [19]  549 	ld	-17 (ix), a
+   0352                     550 00122$:
+   0352 DD 6E 08      [19]  551 	ld	l, 8 (ix)
+   0355 DD 66 09      [19]  552 	ld	h, 9 (ix)
+   0358 4E            [ 7]  553 	ld	c, (hl)
+   0359 23            [ 6]  554 	inc	hl
+   035A DD 75 08      [19]  555 	ld	8 (ix), l
+   035D DD 74 09      [19]  556 	ld	9 (ix), h
+   0360 DD 71 E7      [19]  557 	ld	-25 (ix), c
+                            558 ;mini-printf/mini-printf.c:141: if ((unsigned int)((b.pbuffer - b.buffer) + 1) >= b.buffer_len)
+   0363 DD 6E F0      [19]  559 	ld	l, -16 (ix)
+   0366 DD 66 F1      [19]  560 	ld	h, -15 (ix)
+   0369 46            [ 7]  561 	ld	b, (hl)
+   036A 23            [ 6]  562 	inc	hl
+   036B 5E            [ 7]  563 	ld	e, (hl)
+   036C DD 6E F4      [19]  564 	ld	l, -12 (ix)
+   036F DD 66 F5      [19]  565 	ld	h, -11 (ix)
+   0372 56            [ 7]  566 	ld	d, (hl)
+   0373 23            [ 6]  567 	inc	hl
+   0374 6E            [ 7]  568 	ld	l, (hl)
+   0375 78            [ 4]  569 	ld	a, b
+   0376 92            [ 4]  570 	sub	a, d
+   0377 DD 77 F2      [19]  571 	ld	-14 (ix), a
+   037A 7B            [ 4]  572 	ld	a, e
+   037B 9D            [ 4]  573 	sbc	a, l
+   037C DD 77 F3      [19]  574 	ld	-13 (ix), a
+                            575 ;mini-printf/mini-printf.c:140: while ((ch=*(fmt++))) {
+   037F 79            [ 4]  576 	ld	a, c
+   0380 B7            [ 4]  577 	or	a, a
+   0381 CAr5Ar05      [10]  578 	jp	Z, 00125$
+                            579 ;mini-printf/mini-printf.c:141: if ((unsigned int)((b.pbuffer - b.buffer) + 1) >= b.buffer_len)
+   0384 DD 4E F2      [19]  580 	ld	c, -14 (ix)
+   0387 DD 46 F3      [19]  581 	ld	b, -13 (ix)
+   038A 03            [ 6]  582 	inc	bc
+   038B DD 6E EA      [19]  583 	ld	l, -22 (ix)
+   038E DD 66 EB      [19]  584 	ld	h, -21 (ix)
+   0391 5E            [ 7]  585 	ld	e, (hl)
+   0392 23            [ 6]  586 	inc	hl
+   0393 56            [ 7]  587 	ld	d, (hl)
+   0394 79            [ 4]  588 	ld	a, c
+   0395 93            [ 4]  589 	sub	a, e
+   0396 78            [ 4]  590 	ld	a, b
+   0397 9A            [ 4]  591 	sbc	a, d
+   0398 D2r5Ar05      [10]  592 	jp	NC, 00125$
+                            593 ;mini-printf/mini-printf.c:143: if (ch!='%')
+   039B DD 7E E7      [19]  594 	ld	a, -25 (ix)
+   039E D6 25         [ 7]  595 	sub	a, #0x25
+   03A0 28 2B         [12]  596 	jr	Z,00120$
+                            597 ;mini-printf/mini-printf.c:144: _putc(ch, &b);
+   03A2 DD 7E E1      [19]  598 	ld	a, -31 (ix)
+   03A5 DD 77 EC      [19]  599 	ld	-20 (ix), a
+   03A8 DD 7E E2      [19]  600 	ld	a, -30 (ix)
+   03AB DD 77 ED      [19]  601 	ld	-19 (ix), a
+   03AE DD 7E E7      [19]  602 	ld	a, -25 (ix)
+   03B1 DD 77 E8      [19]  603 	ld	-24 (ix), a
+   03B4 DD 36 E9 00   [19]  604 	ld	-23 (ix), #0x00
+   03B8 DD 6E EC      [19]  605 	ld	l, -20 (ix)
+   03BB DD 66 ED      [19]  606 	ld	h, -19 (ix)
+   03BE E5            [11]  607 	push	hl
+   03BF DD 6E E8      [19]  608 	ld	l, -24 (ix)
+   03C2 DD 66 E9      [19]  609 	ld	h, -23 (ix)
+   03C5 E5            [11]  610 	push	hl
+   03C6 CDrA2r01      [17]  611 	call	__putc
+   03C9 F1            [10]  612 	pop	af
+   03CA F1            [10]  613 	pop	af
+   03CB 18 85         [12]  614 	jr	00122$
+   03CD                     615 00120$:
+                            616 ;mini-printf/mini-printf.c:146: char zero_pad = 0;
+   03CD 1E 00         [ 7]  617 	ld	e, #0x00
+                            618 ;mini-printf/mini-printf.c:150: ch=*(fmt++);
+   03CF DD 6E 08      [19]  619 	ld	l, 8 (ix)
+   03D2 DD 66 09      [19]  620 	ld	h, 9 (ix)
+   03D5 4E            [ 7]  621 	ld	c, (hl)
+   03D6 23            [ 6]  622 	inc	hl
+   03D7 DD 75 08      [19]  623 	ld	8 (ix), l
+   03DA DD 74 09      [19]  624 	ld	9 (ix), h
+                            625 ;mini-printf/mini-printf.c:153: if (ch=='0') {
+   03DD 79            [ 4]  626 	ld	a, c
+   03DE D6 30         [ 7]  627 	sub	a, #0x30
+   03E0 20 2F         [12]  628 	jr	NZ,00109$
+                            629 ;mini-printf/mini-printf.c:154: ch=*(fmt++);
+   03E2 DD 6E 08      [19]  630 	ld	l, 8 (ix)
+   03E5 DD 66 09      [19]  631 	ld	h, 9 (ix)
+   03E8 46            [ 7]  632 	ld	b, (hl)
+   03E9 23            [ 6]  633 	inc	hl
+   03EA DD 75 08      [19]  634 	ld	8 (ix), l
+   03ED DD 74 09      [19]  635 	ld	9 (ix), h
+                            636 ;mini-printf/mini-printf.c:155: if (ch == '\0')
+   03F0 78            [ 4]  637 	ld	a, b
+   03F1 B7            [ 4]  638 	or	a, a
+   03F2 CAr5Ar05      [10]  639 	jp	Z, 00125$
+                            640 ;mini-printf/mini-printf.c:157: if (ch >= '0' && ch <= '9')
+   03F5 78            [ 4]  641 	ld	a, b
+   03F6 D6 30         [ 7]  642 	sub	a, #0x30
+   03F8 38 09         [12]  643 	jr	C,00106$
+   03FA 3E 39         [ 7]  644 	ld	a, #0x39
+   03FC 90            [ 4]  645 	sub	a, b
+   03FD 38 04         [12]  646 	jr	C,00106$
+                            647 ;mini-printf/mini-printf.c:158: zero_pad = ch - '0';
+   03FF 78            [ 4]  648 	ld	a, b
+   0400 C6 D0         [ 7]  649 	add	a, #0xd0
+   0402 5F            [ 4]  650 	ld	e, a
+   0403                     651 00106$:
+                            652 ;mini-printf/mini-printf.c:159: ch=*(fmt++);
+   0403 DD 6E 08      [19]  653 	ld	l, 8 (ix)
+   0406 DD 66 09      [19]  654 	ld	h, 9 (ix)
+   0409 4E            [ 7]  655 	ld	c, (hl)
+   040A 23            [ 6]  656 	inc	hl
+   040B DD 75 08      [19]  657 	ld	8 (ix), l
+   040E DD 74 09      [19]  658 	ld	9 (ix), h
+   0411                     659 00109$:
+                            660 ;mini-printf/mini-printf.c:162: switch (ch) {
+   0411 79            [ 4]  661 	ld	a, c
+   0412 B7            [ 4]  662 	or	a, a
+   0413 CAr5Ar05      [10]  663 	jp	Z,00125$
+   0416 79            [ 4]  664 	ld	a, c
+   0417 D6 58         [ 7]  665 	sub	a, #0x58
+   0419 20 03         [12]  666 	jr	NZ, 00207$
+   041B 3E 01         [ 7]  667 	ld	a, #0x01
+   041D 20                  668 	.db	#0x20
+   041E                     669 00207$:
+   041E AF            [ 4]  670 	xor	a, a
+   041F                     671 00208$:
+   041F 47            [ 4]  672 	ld	b, a
+                            673 ;mini-printf/mini-printf.c:168: len = mini_itoa(va_arg(va, unsigned int), 10, 0, (ch=='u'), bf, zero_pad);
+   0420 DD 73 E8      [19]  674 	ld	-24 (ix), e
+   0423 DD 36 E9 00   [19]  675 	ld	-23 (ix), #0x00
+   0427 DD 6E 0A      [19]  676 	ld	l, 10 (ix)
+   042A DD 66 0B      [19]  677 	ld	h, 11 (ix)
+   042D 23            [ 6]  678 	inc	hl
+   042E 23            [ 6]  679 	inc	hl
+   042F 5D            [ 4]  680 	ld	e, l
+   0430 54            [ 4]  681 	ld	d, h
+   0431 1B            [ 6]  682 	dec	de
+   0432 1B            [ 6]  683 	dec	de
+   0433 DD 73 EC      [19]  684 	ld	-20 (ix), e
+   0436 DD 72 ED      [19]  685 	ld	-19 (ix), d
+                            686 ;mini-printf/mini-printf.c:162: switch (ch) {
+   0439 78            [ 4]  687 	ld	a, b
+   043A B7            [ 4]  688 	or	a, a
+   043B C2rB9r04      [10]  689 	jp	NZ, 00114$
+   043E 79            [ 4]  690 	ld	a,c
+   043F FE 63         [ 7]  691 	cp	a,#0x63
+   0441 CAr09r05      [10]  692 	jp	Z,00115$
+   0444 D6 75         [ 7]  693 	sub	a, #0x75
+   0446 20 03         [12]  694 	jr	NZ, 00210$
+   0448 3E 01         [ 7]  695 	ld	a, #0x01
+   044A 20                  696 	.db	#0x20
+   044B                     697 00210$:
+   044B AF            [ 4]  698 	xor	a, a
+   044C                     699 00211$:
+   044C DD 77 E7      [19]  700 	ld	-25 (ix), a
+   044F 79            [ 4]  701 	ld	a,c
+   0450 FE 64         [ 7]  702 	cp	a,#0x64
+   0452 28 13         [12]  703 	jr	Z,00112$
+   0454 D6 73         [ 7]  704 	sub	a, #0x73
+   0456 CAr23r05      [10]  705 	jp	Z,00116$
+   0459 DD 7E E7      [19]  706 	ld	a, -25 (ix)
+   045C B7            [ 4]  707 	or	a, a
+   045D 20 08         [12]  708 	jr	NZ,00112$
+   045F 79            [ 4]  709 	ld	a, c
+   0460 D6 78         [ 7]  710 	sub	a, #0x78
+   0462 28 55         [12]  711 	jr	Z,00114$
+   0464 C3r48r05      [10]  712 	jp	00117$
+                            713 ;mini-printf/mini-printf.c:167: case 'd':
+   0467                     714 00112$:
+                            715 ;mini-printf/mini-printf.c:168: len = mini_itoa(va_arg(va, unsigned int), 10, 0, (ch=='u'), bf, zero_pad);
+   0467 DD 4E F6      [19]  716 	ld	c, -10 (ix)
+   046A DD 46 F7      [19]  717 	ld	b, -9 (ix)
+   046D C5            [11]  718 	push	bc
+   046E FD E1         [14]  719 	pop	iy
+   0470 DD 4E E7      [19]  720 	ld	c, -25 (ix)
+   0473 06 00         [ 7]  721 	ld	b, #0x00
+   0475 DD 75 0A      [19]  722 	ld	10 (ix), l
+   0478 DD 74 0B      [19]  723 	ld	11 (ix), h
+   047B DD 6E EC      [19]  724 	ld	l, -20 (ix)
+   047E DD 66 ED      [19]  725 	ld	h, -19 (ix)
+   0481 5E            [ 7]  726 	ld	e, (hl)
+   0482 23            [ 6]  727 	inc	hl
+   0483 56            [ 7]  728 	ld	d, (hl)
+   0484 DD 6E E8      [19]  729 	ld	l, -24 (ix)
+   0487 DD 66 E9      [19]  730 	ld	h, -23 (ix)
+   048A E5            [11]  731 	push	hl
+   048B FD E5         [15]  732 	push	iy
+   048D C5            [11]  733 	push	bc
+   048E 21 00 00      [10]  734 	ld	hl, #0x0000
+   0491 E5            [11]  735 	push	hl
+   0492 2E 0A         [ 7]  736 	ld	l, #0x0a
+   0494 E5            [11]  737 	push	hl
+   0495 D5            [11]  738 	push	de
+   0496 CDr16r00      [17]  739 	call	_mini_itoa
+   0499 FD 21 0C 00   [14]  740 	ld	iy, #12
+   049D FD 39         [15]  741 	add	iy, sp
+   049F FD F9         [10]  742 	ld	sp, iy
+                            743 ;mini-printf/mini-printf.c:169: _puts(bf, len, &b);
+   04A1 DD 4E DF      [19]  744 	ld	c, -33 (ix)
+   04A4 DD 46 E0      [19]  745 	ld	b, -32 (ix)
+   04A7 DD 5E FC      [19]  746 	ld	e, -4 (ix)
+   04AA DD 56 FD      [19]  747 	ld	d, -3 (ix)
+   04AD C5            [11]  748 	push	bc
+   04AE E5            [11]  749 	push	hl
+   04AF D5            [11]  750 	push	de
+   04B0 CDrF6r01      [17]  751 	call	__puts
+   04B3 F1            [10]  752 	pop	af
+   04B4 F1            [10]  753 	pop	af
+   04B5 F1            [10]  754 	pop	af
+                            755 ;mini-printf/mini-printf.c:170: break;
+   04B6 C3r52r03      [10]  756 	jp	00122$
+                            757 ;mini-printf/mini-printf.c:173: case 'X':
+   04B9                     758 00114$:
+                            759 ;mini-printf/mini-printf.c:174: len = mini_itoa(va_arg(va, unsigned int), 16, (ch=='X'), 1, bf, zero_pad);
+   04B9 DD 5E E5      [19]  760 	ld	e, -27 (ix)
+   04BC DD 56 E6      [19]  761 	ld	d, -26 (ix)
+   04BF D5            [11]  762 	push	de
+   04C0 FD E1         [14]  763 	pop	iy
+   04C2 48            [ 4]  764 	ld	c, b
+   04C3 06 00         [ 7]  765 	ld	b, #0x00
+   04C5 DD 75 0A      [19]  766 	ld	10 (ix), l
+   04C8 DD 74 0B      [19]  767 	ld	11 (ix), h
+   04CB DD 6E EC      [19]  768 	ld	l, -20 (ix)
+   04CE DD 66 ED      [19]  769 	ld	h, -19 (ix)
+   04D1 5E            [ 7]  770 	ld	e, (hl)
+   04D2 23            [ 6]  771 	inc	hl
+   04D3 56            [ 7]  772 	ld	d, (hl)
+   04D4 DD 6E E8      [19]  773 	ld	l, -24 (ix)
+   04D7 DD 66 E9      [19]  774 	ld	h, -23 (ix)
+   04DA E5            [11]  775 	push	hl
+   04DB FD E5         [15]  776 	push	iy
+   04DD 21 01 00      [10]  777 	ld	hl, #0x0001
+   04E0 E5            [11]  778 	push	hl
+   04E1 C5            [11]  779 	push	bc
+   04E2 2E 10         [ 7]  780 	ld	l, #0x10
+   04E4 E5            [11]  781 	push	hl
+   04E5 D5            [11]  782 	push	de
+   04E6 CDr16r00      [17]  783 	call	_mini_itoa
+   04E9 FD 21 0C 00   [14]  784 	ld	iy, #12
+   04ED FD 39         [15]  785 	add	iy, sp
+   04EF FD F9         [10]  786 	ld	sp, iy
+                            787 ;mini-printf/mini-printf.c:175: _puts(bf, len, &b);
+   04F1 DD 4E E3      [19]  788 	ld	c, -29 (ix)
+   04F4 DD 46 E4      [19]  789 	ld	b, -28 (ix)
+   04F7 DD 5E F8      [19]  790 	ld	e, -8 (ix)
+   04FA DD 56 F9      [19]  791 	ld	d, -7 (ix)
+   04FD C5            [11]  792 	push	bc
+   04FE E5            [11]  793 	push	hl
+   04FF D5            [11]  794 	push	de
+   0500 CDrF6r01      [17]  795 	call	__puts
+   0503 F1            [10]  796 	pop	af
+   0504 F1            [10]  797 	pop	af
+   0505 F1            [10]  798 	pop	af
+                            799 ;mini-printf/mini-printf.c:176: break;
+   0506 C3r52r03      [10]  800 	jp	00122$
+                            801 ;mini-printf/mini-printf.c:178: case 'c' :
+   0509                     802 00115$:
+                            803 ;mini-printf/mini-printf.c:179: _putc((char)(va_arg(va, int)), &b);
+   0509 DD 4E FA      [19]  804 	ld	c, -6 (ix)
+   050C DD 46 FB      [19]  805 	ld	b, -5 (ix)
+   050F DD 75 0A      [19]  806 	ld	10 (ix), l
+   0512 DD 74 0B      [19]  807 	ld	11 (ix), h
+   0515 1A            [ 7]  808 	ld	a, (de)
+   0516 5F            [ 4]  809 	ld	e, a
+   0517 16 00         [ 7]  810 	ld	d, #0x00
+   0519 C5            [11]  811 	push	bc
+   051A D5            [11]  812 	push	de
+   051B CDrA2r01      [17]  813 	call	__putc
+   051E F1            [10]  814 	pop	af
+   051F F1            [10]  815 	pop	af
+                            816 ;mini-printf/mini-printf.c:180: break;
+   0520 C3r52r03      [10]  817 	jp	00122$
+                            818 ;mini-printf/mini-printf.c:182: case 's' :
+   0523                     819 00116$:
+                            820 ;mini-printf/mini-printf.c:183: ptr = va_arg(va, char*);
+   0523 DD 75 0A      [19]  821 	ld	10 (ix), l
+   0526 DD 74 0B      [19]  822 	ld	11 (ix), h
+   0529 EB            [ 4]  823 	ex	de,hl
+   052A 4E            [ 7]  824 	ld	c, (hl)
+   052B 23            [ 6]  825 	inc	hl
+   052C 46            [ 7]  826 	ld	b, (hl)
+                            827 ;mini-printf/mini-printf.c:184: _puts(ptr, mini_strlen(ptr), &b);
+   052D DD 5E FE      [19]  828 	ld	e, -2 (ix)
+   0530 DD 56 FF      [19]  829 	ld	d, -1 (ix)
+   0533 C5            [11]  830 	push	bc
+   0534 D5            [11]  831 	push	de
+   0535 C5            [11]  832 	push	bc
+   0536 CDr00r00      [17]  833 	call	_mini_strlen
+   0539 F1            [10]  834 	pop	af
+   053A D1            [10]  835 	pop	de
+   053B C1            [10]  836 	pop	bc
+   053C D5            [11]  837 	push	de
+   053D E5            [11]  838 	push	hl
+   053E C5            [11]  839 	push	bc
+   053F CDrF6r01      [17]  840 	call	__puts
+   0542 F1            [10]  841 	pop	af
+   0543 F1            [10]  842 	pop	af
+   0544 F1            [10]  843 	pop	af
+                            844 ;mini-printf/mini-printf.c:185: break;
+   0545 C3r52r03      [10]  845 	jp	00122$
+                            846 ;mini-printf/mini-printf.c:187: default:
+   0548                     847 00117$:
+                            848 ;mini-printf/mini-printf.c:188: _putc(ch, &b);
+   0548 DD 5E EE      [19]  849 	ld	e, -18 (ix)
+   054B DD 56 EF      [19]  850 	ld	d, -17 (ix)
+   054E 06 00         [ 7]  851 	ld	b, #0x00
+   0550 D5            [11]  852 	push	de
+   0551 C5            [11]  853 	push	bc
+   0552 CDrA2r01      [17]  854 	call	__putc
+   0555 F1            [10]  855 	pop	af
+   0556 F1            [10]  856 	pop	af
+                            857 ;mini-printf/mini-printf.c:190: }
+   0557 C3r52r03      [10]  858 	jp	00122$
+                            859 ;mini-printf/mini-printf.c:193: end:
+   055A                     860 00125$:
+                            861 ;mini-printf/mini-printf.c:194: return b.pbuffer - b.buffer;
+   055A DD 6E F2      [19]  862 	ld	l, -14 (ix)
+   055D DD 66 F3      [19]  863 	ld	h, -13 (ix)
+                            864 ;mini-printf/mini-printf.c:195: }
+   0560 DD F9         [10]  865 	ld	sp, ix
+   0562 DD E1         [14]  866 	pop	ix
+   0564 C9            [10]  867 	ret
+                            868 ;mini-printf/mini-printf.c:199: mini_snprintf(char* buffer, unsigned int buffer_len, const char *fmt, ...)
+                            869 ;	---------------------------------
+                            870 ; Function mini_snprintf
+                            871 ; ---------------------------------
+   0565                     872 _mini_snprintf::
+                            873 ;mini-printf/mini-printf.c:203: va_start(va, fmt);
+   0565 21 08 00      [10]  874 	ld	hl,#0x0006+1+1
+   0568 39            [11]  875 	add	hl,sp
+                            876 ;mini-printf/mini-printf.c:204: ret = mini_vsnprintf(buffer, buffer_len, fmt, va);
+   0569 E5            [11]  877 	push	hl
+   056A 21 08 00      [10]  878 	ld	hl, #8
+   056D 39            [11]  879 	add	hl, sp
+   056E 4E            [ 7]  880 	ld	c, (hl)
+   056F 23            [ 6]  881 	inc	hl
+   0570 46            [ 7]  882 	ld	b, (hl)
+   0571 C5            [11]  883 	push	bc
+   0572 21 08 00      [10]  884 	ld	hl, #8
+   0575 39            [11]  885 	add	hl, sp
+   0576 4E            [ 7]  886 	ld	c, (hl)
+   0577 23            [ 6]  887 	inc	hl
+   0578 46            [ 7]  888 	ld	b, (hl)
+   0579 C5            [11]  889 	push	bc
+   057A 21 08 00      [10]  890 	ld	hl, #8
+   057D 39            [11]  891 	add	hl, sp
+   057E 4E            [ 7]  892 	ld	c, (hl)
+   057F 23            [ 6]  893 	inc	hl
+   0580 46            [ 7]  894 	ld	b, (hl)
+   0581 C5            [11]  895 	push	bc
+   0582 CDr7Fr02      [17]  896 	call	_mini_vsnprintf
+   0585 F1            [10]  897 	pop	af
+   0586 F1            [10]  898 	pop	af
+   0587 F1            [10]  899 	pop	af
+   0588 F1            [10]  900 	pop	af
+                            901 ;mini-printf/mini-printf.c:207: return ret;
+                            902 ;mini-printf/mini-printf.c:208: }
+   0589 C9            [10]  903 	ret
+                            904 	.area _CODE
+                            905 	.area _INITIALIZER
+                            906 	.area _CABS (ABS)
