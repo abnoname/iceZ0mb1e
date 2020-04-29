@@ -24,7 +24,7 @@
 //
 
 module membram #(
-    parameter ADDR_WIDTH = 15,
+    parameter ADDR_WIDTH = 14,
 	parameter MEM_HEX = "",
 	parameter MEM_INIT = 0
 ) (
@@ -49,10 +49,6 @@ module membram #(
         if( MEM_INIT > 0 ) begin
             $readmemh(MEM_HEX, mem_8, 0, (1 << ADDR_WIDTH)-1);
         end
-        // else begin
-        //     for(j = 0; j < (1 << ADDR_WIDTH); j = j+1)
-        //         mem_8[j] = 8'hFF;
-        // end
     end
 
     always @(posedge clk)
