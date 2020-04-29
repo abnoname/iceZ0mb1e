@@ -24,7 +24,7 @@
 //
 
 #include <stdint.h>
-#include "register.h"
+#include "icez0mb1e.h"
 #include "spi.h"
 
 #define SPI_CFG_CPHA    0x01

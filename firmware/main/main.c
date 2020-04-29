@@ -25,8 +25,8 @@
 
 #include <stdint.h>
 #include "mini-printf.h"
+#include "icez0mb1e.h"
 #include "cpu.h"
-#include "register.h"
 #include "uart.h"
 #include "i2c.h"
 #include "spi.h"
@@ -77,7 +77,7 @@ void View_Memory(uint8_t *mem, uint16_t len)
 
 void main ()
 {
-    uint8_t *addr;
+    uint16_t *addr;
     uint8_t buffer[64];
     int8_t uart_rx = 0;
     int16_t x;
@@ -91,13 +91,13 @@ void main ()
     i2c_config(120); //100kHz
 
     //i2c Test:
-    i2c_read_buf(0x5C, buffer, 5);
+    i2c_read_buf(0x5C, buffer, 5); // DHT12
     View_Memory(buffer, 5);
-    i2c_read_buf(0x68, buffer, 20);
+    i2c_read_buf(0x68, buffer, 20); // PCF8523
     View_Memory(buffer, 20);
 
     //SPI Test
-    Read_SPI_25L008A(buffer, 64);
+    Read_SPI_25L008A(buffer, 64); // 25L008A
     View_Memory(buffer, 64);
 
     //I2C OLED display test:
@@ -145,25 +145,24 @@ void main ()
                 cpu_reset();
                 break;
             case 'c':
-                View_Memory((uint8_t*)0x0000, 0x2000);
+                View_Memory((uint8_t*)SYS_ROM_ADDR, SYS_ROM_SIZE);
                 break;
             case 'm':
-                View_Memory((uint8_t*)0x8000, 0x2000);
+                View_Memory((uint8_t*)SYS_RAM_ADDR, SYS_RAM_SIZE);
                 break;
             case 't':
                 //RAM Test
                 last_usable_addr = 0;
                 addr = &free;
-                while((uint16_t)addr < 0xFFFF)
+                while((uint16_t)addr < (SYS_RAM_ADDR+SYS_RAM_SIZE))
                 {
-                    *(addr) = 0x55;
-                    *(addr) = 0xAA;
-                    if(*(addr) != 0xAA)
+                    *(addr) = (uint16_t)addr;
+                    if(*(addr) != addr)
                     {
                         break;
                     }
                     last_usable_addr = (uint16_t)addr;
-                    addr += 1;
+                    addr++;
                 }
                 snprintf(strbuf, sizeof(strbuf), "RAM: start = 0x%X, last usable = 0x%X, ramsize = %u\n\r",
                     (uint16_t)&start, last_usable_addr, last_usable_addr-(uint16_t)&start

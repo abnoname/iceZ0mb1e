@@ -23,55 +23,46 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#ifndef __ICEZOMB1E_H
+#define __ICEZOMB1E_H
+
 #include <stdint.h>
-#include "icez0mb1e.h"
-#include "uart.h"
 
+#define SYS_XTAL_FREQ   12E6
 
-#if defined(__SDCC) && __SDCC_REVISION < 9624
-void putchar(char c)
-{
-    uart_thr = c;
-    while ((uart_lsr & SBIT_THRE) == 0);
-}
-#else
-int putchar(int c)
-{
-    uart_thr = c;
-    while ((uart_lsr & SBIT_THRE) == 0);
-    return c;
-}
+#define SYS_ROM_ADDR    0x0000
+#define SYS_ROM_SIZE    0x2000
+
+#define SYS_RAM_ADDR    0x8000
+#define SYS_RAM_SIZE    0x2000
+
+__sfr __at 0x18 uart_dm0;
+__sfr __at 0x18 uart_thr;
+__sfr __at 0x18 uart_rbr;
+__sfr __at 0x19 uart_dm1;
+__sfr __at 0x19 uart_ier;
+__sfr __at 0x1a uart_iir;
+__sfr __at 0x1b uart_lcr;
+__sfr __at 0x1c uart_mcr;
+__sfr __at 0x1d uart_lsr;
+__sfr __at 0x1e uart_msr;
+__sfr __at 0x1f uart_scr;
+
+__sfr __at 0x40 port_a;
+__sfr __at 0x41 port_b;
+__sfr __at 0x42 port_cfg;
+
+__sfr __at 0x50 i2c_status;
+__sfr __at 0x52 i2c_clkdiv;
+__sfr __at 0x53 i2c_cmd;
+__sfr __at 0x54 i2c_dat_in;
+__sfr __at 0x55 i2c_dat_out;
+
+__sfr __at 0x60 spi_status;
+__sfr __at 0x61 spi_cfg;
+__sfr __at 0x62 spi_clkdiv;
+__sfr __at 0x63 spi_cmd;
+__sfr __at 0x64 spi_dat_in;
+__sfr __at 0x65 spi_dat_out;
+
 #endif
-
-#if defined(__SDCC) && __SDCC_REVISION < 9989
-char getchar()
-#else
-int getchar()
-#endif
-{
-    while ((uart_lsr & SBIT_DR) == 0);
-    return uart_rbr;
-}
-
-void uart_write(char *str)
-{
-    uint16_t i = 0;
-
-    for(i = 0; str[i] != 0; i++)
-    {
-        putchar(str[i]);
-    }
-}
-
-void uart_initialize(uint16_t baud)
-{
-    // set divisor div = 12MHz / (9600 * 16) = 78
-    uint32_t div = (uint32_t)SYS_XTAL_FREQ / ((uint32_t)baud * (uint32_t)16);
-
-    uart_lcr = 0x80; /* SET DLAB ON */
-    uart_dm0 = (uint8_t)(div & 0xFF);
-    uart_dm1 = (uint8_t)(div >> 8);
-
-    uart_lcr = 0x03; /* 8 Bits, No Parity, 1 Stop Bit */
-    uart_mcr = 0x00;
-}

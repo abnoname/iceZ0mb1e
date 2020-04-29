@@ -24,7 +24,7 @@
 //
 
 #include <stdint.h>
-#include "register.h"
+#include "icez0mb1e.h"
 #include "i2c.h"
 #include "cpu.h"
 
