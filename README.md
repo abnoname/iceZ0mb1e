@@ -50,34 +50,9 @@ The included test firmware will check the RAM size and write some data to IO por
 </p>
 
 ### Installing yosys toolchain
-Installation of essentials for building and running yosys, icestorm and arachne-pnr toolchain (Ubuntu 16.04):
+Installation of essentials for running yosys, icestorm and arachne-pnr toolchain (Ubuntu 20.04):
 ```
-sudo apt-get install build-essential clang bison flex \
-                     libreadline-dev gawk tcl-dev libffi-dev \
-                     pkg-config python cmake libftdi-dev
-```
-
-Get yosys, icestorm and arachne-pnr (latest version supports Lattice UltraPlus) and compile toolchain:
-```
-git clone https://github.com/cliffordwolf/icestorm.git
-cd ./icestorm/
-make clean
-make -j$(nproc)
-sudo make install
-```
-```
-git clone https://github.com/cseed/arachne-pnr.git
-cd ./arachne-pnr/
-make clean
-make -j$(nproc)
-sudo make install
-```
-```
-git clone https://github.com/cliffordwolf/yosys.git
-cd ./yosys/
-make clean
-make -j$(nproc)
-sudo make install
+sudo apt-get install make yosys arachne-pnr fpga-icestorm
 ```
 
 ### Installing verilog simulator
@@ -90,7 +65,3 @@ sudo apt-get install iverilog gtkwave
 sudo apt-get install sdcc sdcc-doc sdcc-libraries sdcc-ucsim \
                      z80asm z80dasm srecord
 ```
-
-### Why iceZ0mb1e?
-* Because it is inspired by redz0mb1e project from fpgakuechle (http://www.mikrocontroller.net/svnbrowser/redz0mb1e/).
-* I ported redz0mb1e to Altera DE1 several years ago (http://abnoname.blogspot.de/2013/07/z1013-auf-fpga-portierung-fur-altera-de1.html).
