@@ -1,0 +1,7 @@
+synthesis
+.vscode
+simulation
+*.sym
+*.rel
+*.lst
+*.asm
