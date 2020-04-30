@@ -26,23 +26,9 @@
 ###############################################################################
 # Hardware
 ###############################################################################
-SRC = ./import/tv80/rtl/core/tv80_alu.v \
-		./import/tv80/rtl/core/tv80_core.v \
-		./import/tv80/rtl/core/tv80_mcode.v \
-		./import/tv80/rtl/core/tv80n.v \
-		./import/tv80/rtl/core/tv80_reg.v \
-		./import/tv80/rtl/core/tv80s.v
-SRC += ./import/tv80/rtl/uart/T16450.v
-SRC += ./rtl/clk_enable.v
-SRC += ./rtl/simpleio.v
-SRC += ./rtl/simplei2c.v
-SRC += ./rtl/simplespi.v
-SRC += ./rtl/simplei2c_wrapper.v
-SRC += ./rtl/simplespi_wrapper.v
-SRC += ./rtl/uart16540_wrapper.v
-SRC += ./rtl/membram.v
-SRC += ./rtl/memspram.v
-SRC += ./rtl/iceZ0mb1e.v
+SRC  = ./import/tv80/rtl/core/*.v
+SRC += ./import/tv80/rtl/uart/*.v
+SRC += ./rtl/*.v
 TESTBENCH = ./tb/tb_iceZ0mb1e.v
 GTKW_FILE = ./tb/tb_iceZ0mb1e.gtkw
 
@@ -135,7 +121,7 @@ firmware:
 ###############################################################################
 # Simulation
 ###############################################################################
-$(COMPILE_OUT): $(TESTBENCH) $(SRC)
+$(COMPILE_OUT): $(TESTBENCH)
 	-mkdir $(SIM_DIR)
 	$(COMPILER) $(COFLAGS) -o $(COMPILE_OUT) $(TESTBENCH) $(SRC)
 

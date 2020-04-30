@@ -39,7 +39,7 @@ module icecounter (
     input updown,
 
     input load,
-    input reset,
+    input res,
     input store,
 
     output overflow,
