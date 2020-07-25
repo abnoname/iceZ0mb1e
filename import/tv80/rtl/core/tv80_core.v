@@ -24,10 +24,10 @@
 
 module tv80_core (/*AUTOARG*/
   // Outputs
-  m1_n, iorq, no_read, write, rfsh_n, halt_n, busak_n, A, do, mc, ts, 
+  m1_n, iorq, no_read, write, rfsh_n, halt_n, busak_n, A, data_out, mc, ts,
   intcycle_n, IntE, stop, 
   // Inputs
-  reset_n, clk, cen, wait_n, int_n, nmi_n, busrq_n, dinst, di
+  reset_n, clk, cen, wait_n, int_n, nmi_n, busrq_n, dinst, data_in
   );
   // Beginning of automatic inputs (from unused autoinst inputs)
   // End of automatics
@@ -59,8 +59,8 @@ module tv80_core (/*AUTOARG*/
   output    busak_n;            
   output [15:0] A; 
   input [7:0]   dinst;  
-  input [7:0]   di;     
-  output [7:0]  do;     
+  input [7:0]   data_in;
+  output [7:0]  data_out;
   output [6:0]  mc;     
   output [6:0]  ts;     
   output        intcycle_n;     
@@ -73,7 +73,7 @@ module tv80_core (/*AUTOARG*/
   reg    halt_n;                
   reg    busak_n;               
   reg [15:0] A; 
-  reg [7:0]  do;        
+  reg [7:0]  data_out;
   reg [6:0]  mc;        
   reg [6:0]  ts;        
   reg   intcycle_n;     
@@ -130,7 +130,7 @@ module tv80_core (/*AUTOARG*/
   reg           INT_s;
   reg [1:0]     IStatus;
 
-  reg [7:0]     DI_Reg;
+  reg [7:0]     data_in_reg;
   reg           T_Res;
   reg [1:0]     XY_State;
   reg [2:0]     Pre_XY_F_M;
@@ -324,7 +324,7 @@ module tv80_core (/*AUTOARG*/
     end // always @ (...
   
           
-  always @(/*AUTOSENSE*/ALU_Q or BusAck or BusB or DI_Reg
+  always @(/*AUTOSENSE*/ALU_Q or BusAck or BusB or data_in_reg
            or ExchangeRp or IR or Save_ALU_r or Set_Addr_To or XY_Ind
            or XY_State or cen or last_tstate or mcycle)
     begin
@@ -345,7 +345,7 @@ module tv80_core (/*AUTOARG*/
       if (ExchangeRp)
         Save_Mux = BusB;
       else if (!Save_ALU_r)
-        Save_Mux = DI_Reg;
+        Save_Mux = data_in_reg;
       else
         Save_Mux = ALU_Q;
     end // always @ *
@@ -362,7 +362,7 @@ module tv80_core (/*AUTOARG*/
           XY_State <= #1 2'b00;
           IStatus <= #1 2'b00;
           mcycles <= #1 3'b000;
-          do <= #1 8'b00000000;
+          data_out <= #1 8'b00000000;
 
           ACC <= #1 8'hFF;
           F <= #1 8'hFF;
@@ -494,9 +494,9 @@ module tv80_core (/*AUTOARG*/
                       BTR_r <= #1 (I_BT || I_BC || I_BTR) && ~ No_BTR;
                       if (Jump == 1'b1 ) 
                         begin
-                          A[15:8] <= #1 DI_Reg;
+                          A[15:8] <= #1 data_in_reg;
                           A[7:0] <= #1 TmpAddr[7:0];
-                          PC[15:8] <= #1 DI_Reg;
+                          PC[15:8] <= #1 data_in_reg;
                           PC[7:0] <= #1 TmpAddr[7:0];
                         end 
                       else if (JumpXY == 1'b1 ) 
@@ -552,13 +552,13 @@ module tv80_core (/*AUTOARG*/
                                   else if (Mode == 2 ) 
                                     begin
                                       // Duplicate I/O address on 8080
-                                      A[15:8] <= #1 DI_Reg;
+                                      A[15:8] <= #1 data_in_reg;
                                     end 
                                   else 
                                     begin
                                       A[15:8] <= #1 ACC;
                                     end
-                                  A[7:0] <= #1 DI_Reg;
+                                  A[7:0] <= #1 data_in_reg;
                                 end // case: aIOA
 
                               
@@ -594,7 +594,7 @@ module tv80_core (/*AUTOARG*/
                                     end 
                                   else 
                                     begin
-                                      A[15:8] <= #1 DI_Reg;
+                                      A[15:8] <= #1 data_in_reg;
                                       A[7:0] <= #1 TmpAddr[7:0];
                                     end
                                 end // case: aZI
@@ -703,11 +703,11 @@ module tv80_core (/*AUTOARG*/
                 begin
                   if (LDZ == 1'b1 ) 
                     begin
-                      TmpAddr[7:0] <= #1 DI_Reg;
+                      TmpAddr[7:0] <= #1 data_in_reg;
                     end
                   if (LDW == 1'b1 ) 
                     begin
-                      TmpAddr[15:8] <= #1 DI_Reg;
+                      TmpAddr[15:8] <= #1 data_in_reg;
                     end
 
                   if (Special_LD[2] == 1'b1 ) 
@@ -765,7 +765,7 @@ module tv80_core (/*AUTOARG*/
                 begin
                   F[Flag_H] <= #1 1'b0;
                   F[Flag_N] <= #1 1'b0;
-                  if (DI_Reg[7:0] == 8'b00000000 ) 
+                  if (data_in_reg[7:0] == 8'b00000000 )
                     begin
                       F[Flag_Z] <= #1 1'b1;
                     end 
@@ -773,23 +773,23 @@ module tv80_core (/*AUTOARG*/
                     begin
                       F[Flag_Z] <= #1 1'b0;
                     end
-                  F[Flag_S] <= #1 DI_Reg[7];
-                  F[Flag_P] <= #1 ~ (^DI_Reg[7:0]);
+                  F[Flag_S] <= #1 data_in_reg[7];
+                  F[Flag_P] <= #1 ~ (^data_in_reg[7:0]);
                 end // if (T_Res == 1'b1 && I_INRC == 1'b1 )
               
 
               if (tstate[1] && Auto_Wait_t1 == 1'b0 ) 
                 begin
-                  do <= #1 BusB;
+                  data_out <= #1 BusB;
                   if (I_RLD == 1'b1 ) 
                     begin
-                      do[3:0] <= #1 BusA[3:0];
-                      do[7:4] <= #1 BusB[3:0];
+                      data_out[3:0] <= #1 BusA[3:0];
+                      data_out[7:4] <= #1 BusB[3:0];
                     end
                   if (I_RRD == 1'b1 ) 
                     begin
-                      do[3:0] <= #1 BusB[7:4];
-                      do[7:4] <= #1 BusA[3:0];
+                      data_out[3:0] <= #1 BusB[7:4];
+                      data_out[7:4] <= #1 BusA[3:0];
                     end
                 end
 
@@ -823,7 +823,7 @@ module tv80_core (/*AUTOARG*/
                     5'b10111 :
                       ACC <= #1 Save_Mux;
                     5'b10110 :
-                      do <= #1 Save_Mux;
+                      data_out <= #1 Save_Mux;
                     5'b11000 :
                       SP[7:0] <= #1 Save_Mux;
                     5'b11001 :
@@ -1021,7 +1021,7 @@ module tv80_core (/*AUTOARG*/
                   end
               end
             4'b0110 :
-              BusB <= #1 DI_Reg;
+              BusB <= #1 data_in_reg;
             4'b1000 :
               BusB <= #1 SP[7:0];
             4'b1001 :
@@ -1055,7 +1055,7 @@ module tv80_core (/*AUTOARG*/
                   end
               end
             4'b0110 :
-              BusA <= #1 DI_Reg;
+              BusA <= #1 data_in_reg;
             4'b1000 :
               BusA <= #1 SP[7:0];
             4'b1001 :
@@ -1098,11 +1098,11 @@ module tv80_core (/*AUTOARG*/
 `endif  
 
   always @(/*AUTOSENSE*/BusAck or Halt_FF or I_DJNZ or IntCycle
-           or IntE_FF1 or di or iorq_i or mcycle or tstate)
+           or IntE_FF1 or data_in or iorq_i or mcycle or tstate)
     begin
       mc = mcycle;
       ts = tstate;
-      DI_Reg = di;
+      data_in_reg = data_in;
       halt_n = ~ Halt_FF;
       busak_n = ~ BusAck;
       intcycle_n = ~ IntCycle;
@@ -1292,12 +1292,12 @@ module tv80_core (/*AUTOARG*/
         end
     end
 
-  always @(/*AUTOSENSE*/BTR_r or DI_Reg or IncDec_16 or JumpE or PC
+  always @(/*AUTOSENSE*/BTR_r or data_in_reg or IncDec_16 or JumpE or PC
            or RegBusA or RegBusC or SP or tstate)
     begin
       if (JumpE == 1'b1 ) 
         begin
-          PC16_B = { {8{DI_Reg[7]}}, DI_Reg };
+          PC16_B = { {8{data_in_reg[7]}}, data_in_reg };
         end 
       else if (BTR_r == 1'b1 ) 
         begin
@@ -1311,7 +1311,7 @@ module tv80_core (/*AUTOARG*/
       if (tstate[3])
         begin
           SP16_A = RegBusC;
-          SP16_B = { {8{DI_Reg[7]}}, DI_Reg };
+          SP16_B = { {8{data_in_reg[7]}}, data_in_reg };
         end
       else
         begin

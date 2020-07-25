@@ -24,9 +24,9 @@
 
 module tv80s (/*AUTOARG*/
   // Outputs
-  m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, halt_n, busak_n, A, do, 
+  m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, halt_n, busak_n, A, data_out,
   // Inputs
-  reset_n, clk, wait_n, int_n, nmi_n, busrq_n, di
+  reset_n, clk, wait_n, int_n, nmi_n, busrq_n, data_in
   );
 
   parameter Mode = 0;    // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
@@ -49,8 +49,8 @@ module tv80s (/*AUTOARG*/
   output        halt_n; 
   output        busak_n; 
   output [15:0] A;
-  input [7:0]   di;
-  output [7:0]  do;
+  input [7:0]   data_in;
+  output [7:0]  data_out;
 
   reg           mreq_n; 
   reg           iorq_n; 
@@ -62,7 +62,7 @@ module tv80s (/*AUTOARG*/
   wire          no_read;
   wire          write;
   wire          iorq;
-  reg [7:0]     di_reg;
+  reg [7:0]     data_in_reg;
   wire [6:0]    mcycle;
   wire [6:0]    tstate;
 
@@ -87,9 +87,9 @@ module tv80s (/*AUTOARG*/
      .IntE (),
      .stop (),
      .A (A),
-     .dinst (di),
-     .di (di_reg),
-     .do (do),
+     .dinst (data_in),
+     .data_in (data_in_reg),
+     .data_out (data_out),
      .mc (mcycle),
      .ts (tstate),
      .intcycle_n (intcycle_n)
@@ -103,7 +103,7 @@ module tv80s (/*AUTOARG*/
           wr_n   <= #1 1'b1;
           iorq_n <= #1 1'b1;
           mreq_n <= #1 1'b1;
-          di_reg <= #1 0;
+          data_in_reg <= #1 0;
         end
       else
         begin
@@ -154,7 +154,7 @@ module tv80s (/*AUTOARG*/
             end // else: !if(mcycle[0])
           
           if (tstate[2] && wait_n == 1'b1)
-            di_reg <= #1 di;
+            data_in_reg <= #1 data_in;
         end // else: !if(!reset_n)
     end // always @ (posedge clk or negedge reset_n)
   

@@ -110,15 +110,15 @@ module iceZ0mb1e  #(
 		.rfsh_n		(rfsh_n),
 		.halt_n		(halt_n),
 		.busak_n	(busak_n),
-		.A			(addr[15:0]),
-		.do			(data_mosi),
+		.A		(addr[15:0]),
+		.data_out	(data_mosi),
 		.reset_n	(reset_n),
 		.clk		(clk),
 		.wait_n		(wait_n),
 		.int_n		(int_n),
 		.nmi_n		(nmi_n),
 		.busrq_n	(busrq_n),
-		.di			(data_miso)
+		.data_in	(data_miso)
 	);
 	defparam cpu.Mode = 0; // 0 => Z80, 1 => Fast Z80, 2 => 8080, 3 => GB
 	defparam cpu.T2Write = 1; // 0 => wr_n active in T3, /=0 => wr_n active in T2
