@@ -1,5 +1,13 @@
 ### iceZ0mb1e
 
+This is a fork of: https://github.com/abnoname/iceZ0mb1e
+
+Changes:
+
+* Changed 'do' to 'data_out' to be compatible with SystemVerilog (SV added a do-loop and 'do' is now a reserved word)
+* Changed 'di' to 'data_in' to be consistent with above change
+
+
 iceZ0mb1e aims to build a TV80 based demonstration system-on-chip using complete open source FPGA toolchain flow (http://www.clifford.at/yosys/) including firmware compilation with SDCC.
 
 This is a completely free microcontroller based on customizable open source components.
