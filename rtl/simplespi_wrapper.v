@@ -47,10 +47,13 @@ module simplespi_wrapper (
 	reg[7:0] reg_data_wr = 8'h0;
 	reg[7:0] reg_clockdiv = 8'h0;
 	wire[7:0] reg_data_rd;
+	wire req_next;
 
     reg[7:0] read_data;
-
+    reg      err;
+    
 	assign data_out = (read_sel) ? read_data : 8'bz;
+	assign reg_status = {6'b0, err, req_next};
 
     always @(*)
 	begin
@@ -65,6 +68,14 @@ module simplespi_wrapper (
 		endcase
 	end
 
+    always @(posedge clk)
+    begin
+        if (write_sel) begin
+            err <= ~reg_status[0];
+        end
+    end
+    
+    
     always @(posedge clk)
     begin
         if ( write_sel ) begin
@@ -95,7 +106,7 @@ module simplespi_wrapper (
 		.clk_spi_en		(spi_clk_en),
 		.reset			(!reset_n),
 
-		.req_next		(reg_status[0]),
+		.req_next		(req_next),
 
 		.start			(reg_command[0]),
 		.finish			(reg_command[1]),
