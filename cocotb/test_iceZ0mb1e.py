@@ -18,7 +18,7 @@ from dv_test import dv_test
 @cocotb.test()
 async def test_icez0mb1e_gpio_loopback(dut):
 
-    en_gpio_loopback_test = False
+    en_gpio_loopback_test = True
     en_spi_test = True
 
     dv = dv_test(dut)
@@ -77,14 +77,19 @@ async def test_icez0mb1e_gpio_loopback(dut):
             # Bit [2]   toggle (ensure p1_in changes)
             # Bit [6:3] speed (div sys clk)
             # Bit [7]   done
-            speed = random.randrange(2, 16, 2)
+            speed = random.randrange(0, 16, 2)
             toggle = (toggle + 4) & 0x04
-            dut.P1_in.value = (speed << 3) | toggle | mode
+            P1_in = (speed << 3) | toggle | mode
+            dut.P1_in.value = P1_in
             spi_val = await spi_periph(dut, dut.spi_sclk, dut.spi_cs, dut.spi_mosi, dut.spi_miso, "{:08b}".format(int(spi_val)), mode )
             actual = int(spi_val,2)
             result = "pass" if actual == expect else "FAIL"
-            if result == "FAIL": err_cnt += 1
-            dv.info(result + " speed = " + str(speed)  + " mode = " + str(mode) + " spi_val = " + str(actual)+ " expect = " + str(expect) )
+            msg = result + " P1_in = " + hex(P1_in) + " speed = " + str(int(speed/2))  + " mode = " + str(mode) + " actual = " + str(actual)+ " expect = " + str(expect)
+            if result == "FAIL":
+                err_cnt += 1
+                dv.info(msg)
+            else:
+                dv.info(msg)
     
         dut.P1_in.value = 0x80
         if err_cnt == 0:
