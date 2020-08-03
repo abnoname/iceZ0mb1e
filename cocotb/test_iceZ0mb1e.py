@@ -58,25 +58,28 @@ async def test_icez0mb1e_gpio_loopback(dut):
      ### SPI TEST
      
     dv.info("SPI Test (all modes)")
+    #seed(1)
     spi_val = "10010111";
     err_cnt = 0;
+    incr = 0
     for i in range(20):
-        mode = i % 4
-        expect = 0x91 + i
+        mode = random.randrange(4) # i % 4
+        expect = random.randrange(256) # 0x91 + i
         dut.P2_in.value = expect
-        dut.P1_in.value = mode + 4
+        incr += 4
+        dut.P1_in.value = mode + incr
         spi_val = await spi_periph(dut, dut.spi_sclk, dut.spi_cs, dut.spi_mosi, dut.spi_miso, "{:08b}".format(int(spi_val)), mode )
         actual = int(spi_val,2)
         result = "pass" if actual == expect else "FAIL"
         if result == "FAIL": err_cnt += 1
         dv.info(result + ": mode = " + str(mode) + ". spi_val = " + str(actual)+ " expect = " + str(expect) )
 
+    dut.P1_in.value = 0x80
     if err_cnt == 0:
         dv.info("SPI Test Passed")
     else:
         dv.info("SPI Test Failed - Error Count = " + str(err_cnt) )
 
-    dut.P1_in = 0
     await ClockCycles(dut.clk,100)
     
 

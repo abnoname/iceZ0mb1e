@@ -100,15 +100,16 @@ void main ()
     // ========================================================================
     // SPI TEST
     
-    port_cfg = 0x3; // port_a contains mode, port_b contains data
-    uint8_t i3 = 0;
+    port_cfg = 0x3; // port_a contains mode (bit 7 id done), port_b contains data
     uint8_t mode = 0;
-    while (i3<10) {
-        if (port_a != mode) {
-            mode = port_a;
+    uint8_t done = 0;
+    while (!done) {
+        uint8_t a = port_a;
+        if (a != mode) {
+            mode = a;
+            done = mode & 0x80; // msb is done bit
             spi_config(mode & 0x03, 12);
             spi_xfer_single(port_b);
-            i3++;
         }
     }
     
