@@ -23,6 +23,7 @@ async def test_icez0mb1e_gpio_loopback(dut):
     cocotb.fork(clk.start())  # Start the clock
 
     dut.uart_txd = 0
+    await FallingEdge(dut.clk)
 
     ### =============================================================================================================
     ### GPIO LOOPBACK TEST
@@ -49,40 +50,35 @@ async def test_icez0mb1e_gpio_loopback(dut):
     else:
         dv.info("GPIO Loopback Test Failed - Error Count = " + str(gpio_result) )
 
+    dut.P1_in = 0
+    await ClockCycles(dut.clk,100)
+
+
+     ### =============================================================================================================
+     ### SPI TEST
+     
+    dv.info("SPI Test (all modes)")
+    spi_val = "10010111";
+    err_cnt = 0;
+    for i in range(20):
+        mode = i % 4
+        expect = 0x91 + i
+        dut.P2_in.value = expect
+        dut.P1_in.value = mode + 4
+        spi_val = await spi_periph(dut, dut.spi_sclk, dut.spi_cs, dut.spi_mosi, dut.spi_miso, "{:08b}".format(int(spi_val)), mode )
+        actual = int(spi_val,2)
+        result = "pass" if actual == expect else "FAIL"
+        if result == "FAIL": err_cnt += 1
+        dv.info(result + ": mode = " + str(mode) + ". spi_val = " + str(actual)+ " expect = " + str(expect) )
+
+    if err_cnt == 0:
+        dv.info("SPI Test Passed")
+    else:
+        dv.info("SPI Test Failed - Error Count = " + str(err_cnt) )
+
+    dut.P1_in = 0
     await ClockCycles(dut.clk,100)
     
-
-#      ### =============================================================================================================
-#      ### SPI TEST
-#      
-#      ### TEST MODE 0
-#     spi_val = "10010111";
-#     dut.P2_in <= 0x70
-#     for i in range(10):
-#         spi_val = await spi_periph(dut, dut.spi_sclk, dut.spi_cs, dut.spi_mosi, dut.spi_miso, "{:08b}".format(int(spi_val)) )
-#         dv.info("0. spi_val = " + str(int(spi_val,2)) + " expect = " + str(int(dut.P1_out.value.binstr,2)))
-#
-#     ### TEST MODE 1
-#     dut.P2_in <= 0x71
-#     for i in range(10):
-#         spi_val = await spi_periph(dut, dut.spi_sclk, dut.spi_cs, dut.spi_mosi, dut.spi_miso, "{:08b}".format(int(spi_val)), 1 )
-#         dv.info("1. spi_val = " + str(int(spi_val,2)) + " expect = " + str(int(dut.P1_out.value.binstr,2)))
-#
-#     ### TEST MODE 2
-#     dut.P2_in <= 0x72
-#     for i in range(10):
-#         spi_val = await spi_periph(dut, dut.spi_sclk, dut.spi_cs, dut.spi_mosi, dut.spi_miso, "{:08b}".format(int(spi_val)), 2 )
-#         dv.info("2. spi_val = " + str(int(spi_val,2)) + " expect = " + str(int(dut.P1_out.value.binstr,2)))
-#
-#     ### TEST MODE 3
-#     dut.P2_in <= 0x73
-#     for i in range(10):
-#         spi_val = await spi_periph(dut, dut.spi_sclk, dut.spi_cs, dut.spi_mosi, dut.spi_miso, "{:08b}".format(int(spi_val)), 3 )
-#         dv.info("3. spi_val = " + str(int(spi_val,2)) + " expect = " + str(int(dut.P1_out.value.binstr,2)))
-#
-#     dv.info("After SPI TEST")
-#     await ClockCycles(dut.clk,1000)
- 
 
     ### =============================================================================================================
 

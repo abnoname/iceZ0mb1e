@@ -94,6 +94,25 @@ void main ()
     port_a = err;
     // ========================================================================
 
+    uint8_t val = 0;
+    for (uint8_t i2; i2<20; i2++) val = port_a; // delay between tests
+
+    // ========================================================================
+    // SPI TEST
+    
+    port_cfg = 0x3; // port_a contains mode, port_b contains data
+    uint8_t i3 = 0;
+    uint8_t mode = 0;
+    while (i3<10) {
+        if (port_a != mode) {
+            mode = port_a;
+            spi_config(mode & 0x03, 12);
+            spi_xfer_single(port_b);
+            i3++;
+        }
+    }
+    
+    // ========================================================================
 
     //Initialize:
     uart_initialize(9600);
