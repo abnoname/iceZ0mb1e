@@ -36,7 +36,7 @@ module clk_enable(
 			clk_en <= 0;
 			count <= 0;
 		end	else begin
-			if (count == divider) begin
+			if (count >= divider) begin
 				clk_en <= 1'b1;
 				count <= 0;
 			end else begin
