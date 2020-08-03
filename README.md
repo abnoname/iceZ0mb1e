@@ -6,8 +6,17 @@ Changes:
 
 * Changed 'do' to 'data_out' to be compatible with SystemVerilog (SV added a do-loop and 'do' is now a reserved word)
 * Changed 'di' to 'data_in' to be consistent with above change
-* Added cocotb python test - gpio loopback
+* Added cocotb python tests - gpio loopback and spi test.
   * `cd cocotb; make -f makefile.firmware; make; gtkwaves iceZ0mb1e.fst`
+* Fixed corner-case bug in spi rtl, that happens when changing spi_clk 
+  frequency from slow to fast.  In this case the clock divider wraps at 256 causing
+  the busy-check polling loop to fail. This was caught with cocotb randomized test 
+  written in python. It most-likely  won't occur in real scenarios, but Murphy's Law
+  says "Anything that can go wrong will go wrong".
+  
+------------------------------------------------------------------------------------------
+
+
 
 iceZ0mb1e aims to build a TV80 based demonstration system-on-chip using complete open source FPGA toolchain flow (http://www.clifford.at/yosys/) including firmware compilation with SDCC.
 
