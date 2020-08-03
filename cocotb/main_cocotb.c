@@ -102,13 +102,15 @@ void main ()
     
     port_cfg = 0x3; // port_a contains mode (bit 7 id done), port_b contains data
     uint8_t mode = 0;
+    uint8_t speed = 6;
     uint8_t done = 0;
     while (!done) {
         uint8_t a = port_a;
         if (a != mode) {
-            mode = a;
+            mode = a & 0x03;
+            speed = (a >> 3) & 0x0F; 
             done = mode & 0x80; // msb is done bit
-            spi_config(mode & 0x03, 12);
+            spi_config(mode, speed);
             spi_xfer_single(port_b);
         }
     }
