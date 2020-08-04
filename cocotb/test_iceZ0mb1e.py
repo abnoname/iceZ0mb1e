@@ -9,6 +9,7 @@ from cocotb.triggers import FallingEdge
 from cocotb.triggers import RisingEdge
 from cocotb.triggers import ClockCycles
 from dv_test import dv_test
+from spi import spi
 
 
 # -----------------------------------------------------------------------------
@@ -22,6 +23,7 @@ async def test_icez0mb1e_gpio_loopback(dut):
     en_spi_test = True
 
     dv = dv_test(dut)
+    s = spi(dut.spi_sclk, dut.spi_cs, dut.spi_mosi, dut.spi_miso)
 
     clk = Clock(dut.clk, 10, units="ns")  # Create a 10us period clock on port clk
     cocotb.fork(clk.start())  # Start the clock
@@ -64,7 +66,7 @@ async def test_icez0mb1e_gpio_loopback(dut):
      
     if en_spi_test:
         dv.info("SPI Test (random modes and speeds)")
-        #seed(1)
+        random.seed(42)
         spi_val = "10010111";
         err_cnt = 0;
         toggle = 0
@@ -81,7 +83,8 @@ async def test_icez0mb1e_gpio_loopback(dut):
             toggle = (toggle + 4) & 0x04
             P1_in = (speed << 3) | toggle | mode
             dut.P1_in.value = P1_in
-            spi_val = await spi_periph(dut, dut.spi_sclk, dut.spi_cs, dut.spi_mosi, dut.spi_miso, "{:08b}".format(int(spi_val)), mode )
+#             spi_val = await s.periph("{:08b}".format(int(spi_val)), mode )
+            spi_val = await s.periph("{:08b}".format(i|0x80 ), mode )
             actual = int(spi_val,2)
             result = "pass" if actual == expect else "FAIL"
             msg = result + " P1_in = " + hex(P1_in) + " speed = " + str(int(speed/2))  + " mode = " + str(mode) + " actual = " + str(actual)+ " expect = " + str(expect)
@@ -101,54 +104,4 @@ async def test_icez0mb1e_gpio_loopback(dut):
     
 
     ### =============================================================================================================
-
-#
-#     for i in range(100):
-#         await Edge(dut.spi_mosi)
-#         val = dut.spi_mosi.value.binstr
-#         dv.info("mosi=" + val)
-#         dut.spi_miso <= dut.spi_mosi
-#     dv.info("after spi loop back")
-#     for i in range(2000):
-#         await FallingEdge(dut.clk)
-
-
-
-
-async def spi_periph(dut, sclk, cs_n, sdi, sdo, sdo_str, spi_mode = 0):
-    msb_first = True
-    loop_back = False
-    size = 8 ### len(sdo_str)
-    sdi_str = ""
-    cnt = 0
-    await FallingEdge(cs_n)
-    if msb_first:
-        sdo_str = sdo_str[::-1]
-        
-    # spi_mode cpol cpha
-    #    0      0    0    drive on falling sample on rising;  sclk=0 when idle
-    #    1      0    1    drive on rising  sample on falling; sclk=0 when idle
-    #    2      1    1    drive on rising  sample on falling; sclk=1 when idle
-    #    3      1    0    drive on falling sample on rising;  sclk=1 when idle
-    capture_edge = '1' if spi_mode == 0 or spi_mode == 3 else '0'
-        
-    sdo <= int(sdi.value.binstr,2) if loop_back else int(sdo_str[-1],2)
-    while cnt < size:
-        if cs_n.value.binstr != '0':
-            break
-        await Edge(sclk)
-        if sclk.value.binstr == capture_edge:
-            cnt += 1
-            sdi_str = sdi.value.binstr + sdi_str
-###         else:
-###             l = len(sdo_str)
-###             if l > 0:
-###                 sdo_str = sdo_str[:-1]
-###                 sdo <= int(sdo_str[-1],2)
-#         if loop_back:
-#             sdo <= int(sdi.value.binstr,2)
-    if msb_first:
-       sdi_str = sdi_str[::-1]
-    return sdi_str
-
 
