@@ -5,6 +5,7 @@ import cocotb
 from cocotb.triggers import Edge
 from cocotb.triggers import FallingEdge
 from cocotb.triggers import RisingEdge
+from cocotb.triggers import First
 from cocotb.monitors import Monitor
 
 # -----------------------------------------------------------------------------
@@ -28,32 +29,33 @@ class SPIMonitor(Monitor):
         self.cs_n = cs_n
         self.sdi = sdi
         self.sdo = sdo
+        self.sclk_re = RisingEdge(self.sclk)
+        self.sclk_fe = FallingEdge(self.sclk)
+        self.cs_n_edge = Edge(self.cs_n) if self.cs_n is not None else None
         Monitor.__init__(self, callback, event)
 
     async def rcv_value(self, sdo_binstr):
         sdi_binstr = ""
-        if self.cs_n is not None:
+        if self.cs_n is not None: # some 2-wire point-to-points do not have cs
             await FallingEdge(self.cs_n)
         if self.lsb_first:
-            sdo_binstr = sdo_binstr[::-1]
-
-        capture_edge = '1' if self.mode == 0 or self.mode == 3 else '0'
-
-        sdi_cnt = 0
-        sdo_cnt = 0
-        if self.mode == 0 or self.mode == 2:
-            if self.sdo is not None: self.sdo <= int(sdo_binstr[0], 2)
-            sdo_cnt = 1 if self.mode == 0 or self.mode == 2 else 0
-        while sdi_cnt < self.size:
-            if self.cs_n.value.binstr != '0': break # error
-            await Edge(self.sclk)
-            if self.sclk.value.binstr == capture_edge:
+            sdo_binstr = sdo_binstr[::-1]  # data bits sent from left to right
+        send_edge = None
+        if self.sdo is not None: # some 2-wire implementations are write only
+            send_edge = self.sclk_fe if self.mode in [0, 3] else self.sclk_re
+        capture_edge  = self.sclk_re if self.mode in [0, 3] else self.sclk_fe
+        if self.mode in [0, 2] and self.sdo is not None:
+            self.sdo <= int(sdo_binstr[0], 2) # drive before 1st clock
+            sdo_binstr = sdo_binstr[1:] # remove bit 0 (left-most bit)
+        while len(sdi_binstr) < self.size:
+            edge = await First(self.cs_n_edge, capture_edge, send_edge)
+            if edge == self.cs_n_edge:
+                break
+            elif edge == capture_edge:
                 sdi_binstr = sdi_binstr + self.sdi.value.binstr
-                sdi_cnt += 1
-            elif sdo_cnt < self.size: # Launch Edge
-                if self.sdo is not None: self.sdo <= int(sdo_binstr[sdo_cnt], 2)
-                sdo_cnt += 1
-
+            elif len(sdo_binstr) > 0: # Send Edge. Check if data is available
+                self.sdo <= int(sdo_binstr[0], 2)
+                sdo_binstr = sdo_binstr[1:] # remove bit 0 (left-most bit)
         if self.lsb_first:
            sdi_binstr = sdi_binstr[::-1]
         return sdi_binstr
