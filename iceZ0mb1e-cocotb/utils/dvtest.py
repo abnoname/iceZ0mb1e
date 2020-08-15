@@ -5,10 +5,11 @@ import cocotb
 
 # -----------------------------------------------------------------------------
 
-class dv_test:
+class DVTest:
 
-    def __init__(self, dut, msg_lvl="Fail", err_max=0):
+    def __init__(self, dut, name="", msg_lvl="Fail", err_max=0):
         self.dut = dut
+        self.name = name
         msg_lvls = {"None" : 0, "Summary" : 1, "Fail" : 2, "All" : 3}
         self.msg_lvl = msg_lvls[msg_lvl]
         self.err_max = err_max
@@ -16,18 +17,42 @@ class dv_test:
         self.tot_cnt = 0
 
 
-    def eq(self, act, exp, description=""):
-        if exp == None:
-            return
-        self.tot_cnt += 1
-        binstr = act.value.binstr
+    def convert_actual_to_int(self, act):
+        binstr = ""
+        if type(act) == int:
+            binstr = '{0:b}'.format(act)
+        elif type(act) == str:
+            binstr = act
+        else:
+            binstr = act.value.binstr
         try:
             val = int(binstr,2)
+            return val
         except ValueError:
             self.err_cnt += 1
             if self.msg_lvl >= 2:
                 self.dut._log.error("FAIL: act = " + binstr  + " exp = " + hex(exp) + " " + description)
+            return 0
+
+    def is_true(self, act, description=""):
+        self.tot_cnt += 1
+        if act == False:
+            self.err_cnt += 1
+            if self.msg_lvl >= 2:
+                self.dut._log.error("FAIL: act = False - " + description)
+            if self.err_max > 0 and self.err_cnt >= self.err_max:
+                self.done()
+        else:
+            if self.msg_lvl >= 3:
+                self.dut._log.info("pass: act = True - " + description)
+        return 0
+
+
+    def eq(self, act, exp, description=""):
+        if exp == None:
             return
+        val = self.convert_actual_to_int(act)
+        self.tot_cnt += 1
         if exp != val:
             self.err_cnt += 1
             if self.msg_lvl >= 2:
@@ -36,17 +61,17 @@ class dv_test:
                 self.done()
         else:
             if self.msg_lvl >= 3:
-                self.dut._log.info("PASS: act = " + hex(val) + " " + description)
+                self.dut._log.info("pass: act = " + hex(val) + " " + description)
 
 
     def done(self):
         test_pass = (self.err_cnt == 0)
         if self.msg_lvl >= 1:
             if test_pass:
-                msg = "TEST PASSED: All " + str(self.tot_cnt) + " checks passed"
+                msg = "TEST {} PASSED: All {} checks passed".format(self.name, self.tot_cnt)
                 self.dut._log.info(msg)
             else:
-                msg = "TEST FAILED: " + str(self.err_cnt) + " of " + str(self.tot_cnt) + " checks failed"
+                msg = "TEST {} FAILED: {} of {} checks failed".format(self.name, self.err_cnt, self.tot_cnt)
                 self.dut._log.error(msg)
         assert test_pass, msg
 
