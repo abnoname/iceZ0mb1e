@@ -69,6 +69,10 @@ else ifeq ($(TARGET),8k)
 	SRC += ./top/hx8k.v
 	ARACHNEFLAGS = -d 8k -P ct256
 	FPGA_PINMAP = ./pinmap/hx8k.pcf
+else ifeq ($(TARGET),tinybx)
+	SRC += ./top/tinybx.v
+	ARACHNEFLAGS = -d 8k -P cm81
+	FPGA_PINMAP = ./pinmap/tinybx.pcf
 else
 endif
 

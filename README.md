@@ -13,6 +13,12 @@ Changes:
   the busy-check polling loop to fail. This was caught with cocotb randomized test 
   written in python. It most-likely  won't occur in real scenarios, but Murphy's Law
   says "Anything that can go wrong will go wrong".
+* Add tinyfpba-bx target (tinybx)
+  * modified:   makefile - add tinybx target. change package tp cm81 and pinmap/top
+  * new file:   pinmap/tinybx.pcf - change pins to cm81 package
+  * new file:   top/tinybx.v - new outputs LED & USBPU
+
+
   
 ------------------------------------------------------------------------------------------
 
