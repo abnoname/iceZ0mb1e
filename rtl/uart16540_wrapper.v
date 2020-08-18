@@ -41,7 +41,7 @@ module uart16540_wrapper (
 	wire [7:0] uart_rd_data;
 	wire baudout;
 
-	assign data_out = (read_sel) ? uart_rd_data : 8'bz;
+	assign data_out = (read_sel) ? uart_rd_data : 8'b0;
 
 	T16450 uart0
 	(

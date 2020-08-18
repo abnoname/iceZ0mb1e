@@ -17,6 +17,14 @@ Changes:
   * modified:   makefile - add tinybx target. change package tp cm81 and pinmap/top
   * new file:   pinmap/tinybx.pcf - change pins to cm81 package
   * new file:   top/tinybx.v - new outputs LED & USBPU
+* Replace internal tri-state bus with logic to remove synthesis warning
+  * modified:   rtl/iceZ0mb1e.v
+  * modified:   rtl/membram.v
+  * modified:   rtl/memspram.v
+  * modified:   rtl/simplei2c_wrapper.v
+  * modified:   rtl/simpleio.v
+  * modified:   rtl/simplespi_wrapper.v
+  * modified:   rtl/uart16540_wrapper.v
 
 
   

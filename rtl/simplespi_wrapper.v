@@ -52,7 +52,7 @@ module simplespi_wrapper (
     reg[7:0] read_data;
     reg      err;
     
-	assign data_out = (read_sel) ? read_data : 8'bz;
+	assign data_out = (read_sel) ? read_data : 8'b0;
 	assign reg_status = {6'b0, err, req_next};
 
     always @(*)

@@ -69,6 +69,16 @@ module iceZ0mb1e  #(
 	wire [7:0]  data_miso;
 	wire [7:0]  data_mosi;
 
+        wire [7:0] data_miso_rom;
+        wire [7:0] data_miso_ram;
+        wire [7:0] data_miso_port;
+        wire [7:0] data_miso_uart;
+        wire [7:0] data_miso_i2c;
+        wire [7:0] data_miso_spi;
+        assign data_miso = data_miso_rom  | data_miso_ram | data_miso_port |
+                           data_miso_uart | data_miso_i2c | data_miso_spi;
+
+
 	//Reset Controller:
 	always @(posedge clk) begin
 		if( reset_n == 1'b0 ) begin
@@ -128,8 +138,8 @@ module iceZ0mb1e  #(
 	(
     	.clk		(clk),
     	.reset_n	(reset_n),
-    	.data_out	(data_miso),
-    	.data_in	(),
+    	.data_out	(data_miso_rom),
+    	.data_in	('h0),
     	.cs_n		(rom_cs_n),
     	.rd_n		(rd_n),
     	.wr_n		(wr_n),
@@ -143,7 +153,7 @@ generate
 		(
 			.clk		(clk),
 			.reset_n	(reset_n),
-			.data_out	(data_miso),
+			.data_out	(data_miso_ram),
 			.data_in	(data_mosi),
 			.cs_n		(ram_cs_n),
 			.rd_n		(rd_n),
@@ -159,7 +169,7 @@ generate
 		(
 			.clk		(clk),
 			.reset_n	(reset_n),
-			.data_out	(data_miso),
+			.data_out	(data_miso_ram),
 			.data_in	(data_mosi),
 			.cs_n		(ram_cs_n),
 			.rd_n		(rd_n),
@@ -173,7 +183,7 @@ endgenerate
 	(
 		.clk		(clk),
 		.reset_n	(reset_n),
-		.data_out	(data_miso),
+		.data_out	(data_miso_port),
 		.data_in	(data_mosi),
 		.cs_n		(port_cs_n),
 		.rd_n		(rd_n),
@@ -191,7 +201,7 @@ endgenerate
 	(
 		.clk		(clk),
 		.reset_n	(reset_n),
-		.data_out	(data_miso),
+		.data_out	(data_miso_uart),
 		.data_in	(data_mosi),
 		.cs_n		(uart_cs_n),
 		.rd_n		(rd_n),
@@ -204,7 +214,7 @@ endgenerate
 	simplei2c_wrapper i2c0 (
 		.clk		(clk),
 		.reset_n	(reset_n),
-		.data_out	(data_miso),
+		.data_out	(data_miso_i2c),
 		.data_in	(data_mosi),
 		.cs_n		(i2c_cs_n),
 		.rd_n		(rd_n),
@@ -219,7 +229,7 @@ endgenerate
 	simplespi_wrapper spi0 (
 		.clk		(clk),
 		.reset_n	(reset_n),
-		.data_out	(data_miso),
+		.data_out	(data_miso_spi),
 		.data_in	(data_mosi),
 		.cs_n		(spi_cs_n),
 		.rd_n		(rd_n),

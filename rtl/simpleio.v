@@ -56,7 +56,7 @@ module simpleio (
     assign P1_out = out_1;
     assign P2_out = out_2;
 
-	assign data_out = (read_sel) ? read_data : 8'bz;
+	assign data_out = (read_sel) ? read_data : 8'b0;
 
     always @(*)
 	begin

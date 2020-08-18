@@ -51,7 +51,7 @@ module simplei2c_wrapper (
 
     reg[7:0] read_data;
 
-	assign data_out = (read_sel) ? read_data : 8'bz;
+	assign data_out = (read_sel) ? read_data : 8'b0;
 
     always @(*)
 	begin
@@ -86,6 +86,10 @@ module simplei2c_wrapper (
 		.clk_in(clk),
 		.clk_en(i2c_clk_en)
 	);
+
+
+	wire req_next;
+	assign reg_status = {7'b0, req_next};
 
 	simplei2c master (
 		.clk			(clk),

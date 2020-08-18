@@ -40,7 +40,7 @@ module memspram #(
     wire write_sel = !cs_n & rd_n & !wr_n;
 
 	wire [15:0] spram_q;
-	assign data_out = (read_sel) ? spram_q[7:0] : 8'bz;
+	assign data_out = (read_sel) ? spram_q[7:0] : 8'b0;
 
 	//SB_SPRAM256KA.ADDRESS is 14bit:
 	wire [13:0] addr_sp;
