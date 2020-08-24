@@ -57,7 +57,7 @@ module simplespi(
 
 	assign sclk = (CPOL == 1'b 1) ? sclk_o : ~sclk_o;
 
-	assign req_next = (bit_count == 8'd0);
+	assign req_next = (bit_count == 8'd0) && ~start_sync;
 
 	reg start_sync;
 	reg [4:0] fsm_state;

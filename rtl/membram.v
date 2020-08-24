@@ -41,7 +41,7 @@ module membram #(
     wire read_sel = !cs_n & !rd_n & wr_n;
     wire write_sel = !cs_n & rd_n & !wr_n;
 
-    assign data_out = (read_sel) ? mem_8[addr] : 8'bz;
+    assign data_out = (read_sel) ? mem_8[addr] : 8'b0;
 
     reg [7:0] mem_8 [0:(1 << ADDR_WIDTH)-1];
     integer j;
