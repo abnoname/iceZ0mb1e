@@ -1,37 +1,5 @@
 ### iceZ0mb1e
 
-This is a fork of: https://github.com/abnoname/iceZ0mb1e
-
-Changes:
-
-* Changed 'do' to 'data_out' to be compatible with SystemVerilog (SV added a do-loop and 'do' is now a reserved word)
-* Changed 'di' to 'data_in' to be consistent with above change
-* Added cocotb python tests - gpio loopback and spi test.
-  * `cd cocotb; make -f makefile.firmware; make; gtkwaves iceZ0mb1e.fst`
-* Fixed corner-case bug in spi rtl, that happens when changing spi_clk 
-  frequency from slow to fast.  In this case the clock divider wraps at 256 causing
-  the busy-check polling loop to fail. This was caught with cocotb randomized test 
-  written in python. It most-likely  won't occur in real scenarios, but Murphy's Law
-  says "Anything that can go wrong will go wrong".
-* Add tinyfpba-bx target (tinybx)
-  * modified:   makefile - add tinybx target. change package tp cm81 and pinmap/top
-  * new file:   pinmap/tinybx.pcf - change pins to cm81 package
-  * new file:   top/tinybx.v - new outputs LED & USBPU
-* Replace internal tri-state bus with logic to remove synthesis warning
-  * modified:   rtl/iceZ0mb1e.v
-  * modified:   rtl/membram.v
-  * modified:   rtl/memspram.v
-  * modified:   rtl/simplei2c_wrapper.v
-  * modified:   rtl/simpleio.v
-  * modified:   rtl/simplespi_wrapper.v
-  * modified:   rtl/uart16540_wrapper.v
-
-
-  
-------------------------------------------------------------------------------------------
-
-
-
 iceZ0mb1e aims to build a TV80 based demonstration system-on-chip using complete open source FPGA toolchain flow (http://www.clifford.at/yosys/) including firmware compilation with SDCC.
 
 This is a completely free microcontroller based on customizable open source components.
@@ -72,7 +40,9 @@ The included test firmware will check the RAM size and write some data to IO por
 
 ### Simulate
 * ```make sim TARGET=8k```
-
+* cocotb python tests - gpio loopback and spi test (introduced by jwrr)
+  * `cd cocotb; make -f makefile.firmware; make; gtkwaves iceZ0mb1e.fst`
+  
 ### Running SoC
 <p align="center">
   <img src="https://raw.githubusercontent.com/abnoname/abnoname.github.io/master/img/iceZ0mb1e/Terminal.png" width="350"/>
