@@ -28,7 +28,7 @@ module memspram #(
 ) (
     input clk,
     input reset_n,
-    inout[7:0] data_out,
+    output[7:0] data_out,
     input[7:0] data_in,
     input cs_n,
     input rd_n,

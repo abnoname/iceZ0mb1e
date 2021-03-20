@@ -69,14 +69,14 @@ module iceZ0mb1e  #(
 	wire [7:0]  data_miso;
 	wire [7:0]  data_mosi;
 
-        wire [7:0] data_miso_rom;
-        wire [7:0] data_miso_ram;
-        wire [7:0] data_miso_port;
-        wire [7:0] data_miso_uart;
-        wire [7:0] data_miso_i2c;
-        wire [7:0] data_miso_spi;
-        assign data_miso = data_miso_rom  | data_miso_ram | data_miso_port |
-                           data_miso_uart | data_miso_i2c | data_miso_spi;
+	wire [7:0] data_miso_rom;
+	wire [7:0] data_miso_ram;
+	wire [7:0] data_miso_port;
+	wire [7:0] data_miso_uart;
+	wire [7:0] data_miso_i2c;
+	wire [7:0] data_miso_spi;
+	assign data_miso = data_miso_rom  | data_miso_ram | data_miso_port |
+			data_miso_uart | data_miso_i2c | data_miso_spi;
 
 
 	//Reset Controller:

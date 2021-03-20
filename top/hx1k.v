@@ -39,7 +39,7 @@ module top(
 	inout  i2c_sda,
     output spi_sclk,
 	output spi_mosi,
-	inout  spi_miso,
+	output spi_miso,
     output spi_cs
 );
 
