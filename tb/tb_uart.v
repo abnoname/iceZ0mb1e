@@ -2,7 +2,7 @@
 // iceZ0mb1e - FPGA 8-Bit TV80 SoC for Lattice iCE40
 // with complete open-source toolchain flow using yosys and SDCC
 //
-// Copyright (c) 2018 Franz Neumann (netinside2000@gmx.de)
+// Copyright (c) 2021 Franz Neumann (netinside2000@gmx.de)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a 
 // copy of this software and associated documentation files (the "Software"), 
@@ -25,50 +25,74 @@
 
 `timescale 1us/1us
 
-module tb_iceZ0mb1e;
+module tb_uart;
+
+    reg clk = 0;
+    reg reset = 0;
+
+    wire rx = 0;
+    wire tx;
+
+    reg[7:0] wrdata;
+    reg transmit;
+
+    wire[7:0] rddata;
+    wire received;
+
+    simpleuart uart1 (
+        .clk        (clk),
+	    .reset      (reset),
+
+        .baud_divider   (8'h 10),
+
+        .data_write (wrdata),
+        .transmit   (transmit),
+
+        .data_read  (),
+        .received   (),
+
+        .tx         (tx),
+        .rx         (rx)
+    );
+
+    simpleuart uart2 (
+        .clk        (clk),
+	    .reset      (reset),
+
+        .baud_divider   (8'h 10),
+
+        .data_write (8'h 00),
+        .transmit   (1'b 0),
+
+        .data_read  (rddata),
+        .received   (received),
+
+        .tx         (rx),
+        .rx         (tx)
+    );
+
+    always #1 clk = !clk;
 
     initial begin
         $dumpfile(`__def_vcd_file);
-        $dumpvars(0, tb_iceZ0mb1e);
+        $dumpvars(0, tb_uart);
+
+        # 1 reset = 1;
+        # 1 reset = 0;
+        # 1 reset = 1;
+        # 1 reset = 0;
+
+        # 10 wrdata = 8'h 81;
+        # 1 transmit = 1;
+        # 1 transmit = 0;
+
+        # 400 wrdata = 8'h FF;
+        # 1 transmit = 1;
+        # 1 transmit = 0;
 
         //# 15E3 $finish;
         # 250E3 $finish;
         //# 1E6 $finish;
     end
-
-    reg clk = 0;
-    always #1 clk = !clk;
-
-    inout [7:0] P1_out;
-    inout [7:0] P2_out;
-	wire i2c_scl;
-	wire i2c_sda_out;
-	wire i2c_sda_in;
-	wire i2c_sda_oen;
-    output sclk, cs, mosi;
-    input miso;
-    wire rx = 0;
-    wire tx;
-
-    iceZ0mb1e t1 (
-        .clk        (clk),
-        .uart_txd   (tx),
-        .uart_rxd   (rx),
-		.i2c_scl	(i2c_scl),
-		.i2c_sda_in	(i2c_sda_in),
-		.i2c_sda_out	(i2c_sda_out),
-		.i2c_sda_oen	(i2c_sda_oen),
-    	.spi_sclk	(spi_sclk),
-		.spi_mosi	(spi_mosi),
-		.spi_miso	(spi_miso),
-    	.spi_cs		(spi_cs),
-		.P1_out		(P1_out),
-		.P1_in		(8'h55),
-		.P1_oen		(),
-		.P2_out		(P2_out),
-		.P2_in		(8'hAA),
-		.P2_oen		(),
-		.debug		()
-    );
 
 endmodule

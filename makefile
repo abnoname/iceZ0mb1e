@@ -29,8 +29,9 @@
 SRC  = ./import/tv80/rtl/core/*.v
 SRC += ./import/tv80/rtl/uart/*.v
 SRC += ./rtl/*.v
-TESTBENCH = ./tb/tb_iceZ0mb1e.v
-GTKW_FILE = ./tb/tb_iceZ0mb1e.gtkw
+TESTBENCH = tb_iceZ0mb1e
+TB_FILE = ./tb/$(TESTBENCH).v
+GTKW_FILE = ./tb/$(TESTBENCH).gtkw
 
 ###############################################################################
 # Software
@@ -90,6 +91,7 @@ COMPILE_OUT = $(SIM_DIR)/_compiler.out
 SYNTH_JSON_OUT = $(SYNTH_DIR)/_synth_output.json
 FPGA_ASC_OUT = $(SYNTH_DIR)/_fpga.asc
 FPGA_BIN_OUT = $(SYNTH_DIR)/_fpga.bin
+FPGA_VLOG_OUT = $(SYNTH_DIR)/_fpga.v
 
 ###############################################################################
 # Tools
@@ -99,6 +101,7 @@ SIMULATOR = vvp
 VIEWER = gtkwave
 YOSYS = yosys
 NEXTPNR = nextpnr-ice40
+ICEBOXVLOG = icebox_vlog
 ICEPACK = icepack
 ICEPROG = sudo iceprog
 ICETIME = icetime
@@ -112,7 +115,7 @@ endif
 
 #Tool Options
 YOSYSFLAGS = -f "verilog -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\"" -p "synth_ice40 -json $(SYNTH_JSON_OUT);"
-COFLAGS = -s tb_iceZ0mb1e -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\" -D__def_vcd_file=\"$(VCD_OUT)\"
+COFLAGS = -s $(TESTBENCH) -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\" -D__def_vcd_file=\"$(VCD_OUT)\"
 SFLAGS = -v
 SOUTPUT = -lxt
 
@@ -126,9 +129,9 @@ firmware:
 ###############################################################################
 # Simulation
 ###############################################################################
-$(COMPILE_OUT): $(TESTBENCH)
+$(COMPILE_OUT): $(TB_FILE)
 	-mkdir $(SIM_DIR)
-	$(COMPILER) $(COFLAGS) -o $(COMPILE_OUT) $(TESTBENCH) $(SRC)
+	$(COMPILER) $(COFLAGS) -o $(COMPILE_OUT) $(TB_FILE) $(SRC)
 
 $(VCD_OUT): $(COMPILE_OUT)
 	$(SIMULATOR) $(SFLAGS) $(COMPILE_OUT) $(SOUTPUT)
@@ -143,6 +146,7 @@ fpga: $(SRC) $(FPGA_PINMAP) firmware
 	-mkdir $(SYNTH_DIR)
 	$(YOSYS) -q $(YOSYSFLAGS) $(SRC)
 	$(NEXTPNR) $(PNRFLAGS) --json $(SYNTH_JSON_OUT) --pcf $(FPGA_PINMAP) --asc $(FPGA_ASC_OUT)
+	$(ICEBOXVLOG) $(FPGA_ASC_OUT) > $(FPGA_VLOG_OUT)
 	$(ICEPACK) $(FPGA_ASC_OUT) $(FPGA_BIN_OUT)
 
 time:
@@ -163,6 +167,5 @@ serial:
 
 clean:
 	$(MAKE) -C $(FIRMWARE_DIR) clean
-	rm -f $(SYNTH_JSON_OUT)
 	rm -f $(SIM_DIR)/*
 	rm -f $(SYNTH_DIR)/*
