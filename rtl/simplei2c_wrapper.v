@@ -87,10 +87,6 @@ module simplei2c_wrapper (
 		.clk_en(i2c_clk_en)
 	);
 
-
-	wire req_next;
-	assign reg_status = {7'b0, req_next};
-
 	simplei2c master (
 		.clk			(clk),
 		.clk_i2c_en		(i2c_clk_en),
