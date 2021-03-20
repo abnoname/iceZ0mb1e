@@ -53,25 +53,29 @@ TARGET = 5k
 
 ifeq ($(TARGET),1k)
 	SRC += ./top/hx1k.v
-	ARACHNEFLAGS = -d 1k
+	PNRFLAGS = --hx1k
+	ICETIMEFLAGS = -d hx1k
 	FPGA_PINMAP = ./pinmap/hx1k.pcf
 else ifeq ($(TARGET),icezum)
 	SRC += ./top/icezum.v
-	ARACHNEFLAGS = -d 1k
+	PNRFLAGS = --hx1k
+	ICETIMEFLAGS = -d hx1k
 	FPGA_PINMAP = ./pinmap/icezum.pcf
 else ifeq ($(TARGET),5k)
 	SRC += ./top/upduino.v
-	ARACHNEFLAGS = -d 5k -P sg48
-	ICETIMEFLAGS = -d up5k -P sg48
+	PNRFLAGS = --up5k --package sg48
+	ICETIMEFLAGS = -d up5k
 	FPGA_PINMAP = ./pinmap/upduino.pcf
 	ICEPROG_PARAM = -d i:0x0403:0x6014
 else ifeq ($(TARGET),8k)
 	SRC += ./top/hx8k.v
-	ARACHNEFLAGS = -d 8k -P ct256
+	PNRFLAGS = --hx8k --package ct256
+	ICETIMEFLAGS = -d hx8k
 	FPGA_PINMAP = ./pinmap/hx8k.pcf
 else ifeq ($(TARGET),tinybx)
 	SRC += ./top/tinybx.v
-	ARACHNEFLAGS = -d 8k -P cm81
+	PNRFLAGS = --hx8k --package cm81
+	ICETIMEFLAGS = -d hx8k
 	FPGA_PINMAP = ./pinmap/tinybx.pcf
 else
 endif
@@ -83,10 +87,8 @@ SIM_DIR = ./simulation
 SYNTH_DIR = ./synthesis
 VCD_OUT = $(SIM_DIR)/_test.vcd
 COMPILE_OUT = $(SIM_DIR)/_compiler.out
-SYNTH_OUT = $(SYNTH_DIR)/_synth_output.v
-FPGA_BLIF_OUT = $(SYNTH_DIR)/_fpga.blif
-FPGA_TXT_OUT = $(SYNTH_DIR)/_fpga.txt
-FPGA_EX_OUT = $(SYNTH_DIR)/_fpga.ex
+SYNTH_JSON_OUT = $(SYNTH_DIR)/_synth_output.json
+FPGA_ASC_OUT = $(SYNTH_DIR)/_fpga.asc
 FPGA_BIN_OUT = $(SYNTH_DIR)/_fpga.bin
 
 ###############################################################################
@@ -96,8 +98,7 @@ COMPILER = iverilog
 SIMULATOR = vvp
 VIEWER = gtkwave
 YOSYS = yosys
-ARACHNEPNR = arachne-pnr
-ICEBOXEXPLAIN = icebox_explain
+NEXTPNR = nextpnr-ice40
 ICEPACK = icepack
 ICEPROG = sudo iceprog
 ICETIME = icetime
@@ -110,7 +111,7 @@ ifndef WSLENV
 endif
 
 #Tool Options
-YOSYSFLAGS = -f "verilog -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\"" -p "synth_ice40 -blif $(FPGA_BLIF_OUT);"
+YOSYSFLAGS = -f "verilog -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\"" -p "synth_ice40 -json $(SYNTH_JSON_OUT);"
 COFLAGS = -s tb_iceZ0mb1e -D__def_fw_img=\"$(FIRMWARE_DIR)/$(FIRMWARE_IMG).vhex\" -D__def_vcd_file=\"$(VCD_OUT)\"
 SFLAGS = -v
 SOUTPUT = -lxt
@@ -140,12 +141,12 @@ sim: firmware $(COMPILE_OUT) $(VCD_OUT)
 ###############################################################################
 fpga: $(SRC) $(FPGA_PINMAP) firmware
 	-mkdir $(SYNTH_DIR)
-	$(YOSYS) -q -o $(SYNTH_OUT) $(YOSYSFLAGS) $(SRC)
-	$(ARACHNEPNR) $(ARACHNEFLAGS) -p $(FPGA_PINMAP) $(FPGA_BLIF_OUT) -o $(FPGA_TXT_OUT)
-	$(ICEBOXEXPLAIN) $(FPGA_TXT_OUT) > $(FPGA_EX_OUT)
-	$(ICEPACK) $(FPGA_TXT_OUT) $(FPGA_BIN_OUT)
+	$(YOSYS) -q $(YOSYSFLAGS) $(SRC)
+	$(NEXTPNR) $(PNRFLAGS) --json $(SYNTH_JSON_OUT) --pcf $(FPGA_PINMAP) --asc $(FPGA_ASC_OUT)
+	$(ICEPACK) $(FPGA_ASC_OUT) $(FPGA_BIN_OUT)
+
 time:
-	$(ICETIME) -mt -p $(FPGA_PINMAP) $(ICETIMEFLAGS) $(FPGA_TXT_OUT)
+	$(ICETIME) -mt -p $(FPGA_PINMAP) $(ICETIMEFLAGS) $(FPGA_ASC_OUT)
 
 flash: $(FPGA_BIN_OUT)
 	$(ICEPROG) $(ICEPROG_PARAM) $(FPGA_BIN_OUT)
@@ -162,6 +163,6 @@ serial:
 
 clean:
 	$(MAKE) -C $(FIRMWARE_DIR) clean
-	rm -f $(SYNTH_OUT)
+	rm -f $(SYNTH_JSON_OUT)
 	rm -f $(SIM_DIR)/*
 	rm -f $(SYNTH_DIR)/*

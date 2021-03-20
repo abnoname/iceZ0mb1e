@@ -52,9 +52,9 @@ The included test firmware will check the RAM size and write some data to IO por
 </p>
 
 ### Installing yosys toolchain
-Installation of essentials for running yosys, icestorm and arachne-pnr toolchain (Ubuntu 20.04):
+Installation of essentials for running yosys, icestorm and nextpnr toolchain (Ubuntu 20.04):
 ```
-sudo apt-get install make yosys arachne-pnr fpga-icestorm
+sudo apt-get install make yosys nextpnr-ice40 fpga-icestorm
 ```
 
 ### Installing verilog simulator
