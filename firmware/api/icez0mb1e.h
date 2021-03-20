@@ -36,17 +36,12 @@
 #define SYS_RAM_ADDR    0x8000
 #define SYS_RAM_SIZE    0x2000
 
-__sfr __at 0x18 uart_dm0;
-__sfr __at 0x18 uart_thr;
-__sfr __at 0x18 uart_rbr;
-__sfr __at 0x19 uart_dm1;
-__sfr __at 0x19 uart_ier;
-__sfr __at 0x1a uart_iir;
-__sfr __at 0x1b uart_lcr;
-__sfr __at 0x1c uart_mcr;
-__sfr __at 0x1d uart_lsr;
-__sfr __at 0x1e uart_msr;
-__sfr __at 0x1f uart_scr;
+__sfr __at 0x18 uart_status;
+__sfr __at 0x19 uart_baudlow;
+__sfr __at 0x1a uart_baudhigh;
+__sfr __at 0x1b uart_cmd;
+__sfr __at 0x1c uart_dat_in;
+__sfr __at 0x1d uart_dat_out;
 
 __sfr __at 0x40 port_a;
 __sfr __at 0x41 port_b;

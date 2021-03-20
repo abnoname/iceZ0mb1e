@@ -23,13 +23,13 @@
 // THE SOFTWARE.
 
 module clk_enable(
-    input wire reset,
-	input wire[7:0] divider,
     input wire clk_in,
+    input wire reset,
+	input wire[15:0] divider,
     output reg clk_en
 );
 
-	reg [7:0] count = 0;
+	reg [15:0] count = 0;
 
 	always @(posedge clk_in) begin
 		if (reset == 1) begin

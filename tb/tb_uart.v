@@ -43,10 +43,11 @@ module tb_uart;
         .clk        (clk),
 	    .reset      (reset),
 
-        .baud_divider   (8'h 10),
+        .baud_divider   (16'd 1250),
 
         .data_write (wrdata),
         .transmit   (transmit),
+        .ready (),
 
         .data_read  (),
         .received   (),
@@ -59,10 +60,11 @@ module tb_uart;
         .clk        (clk),
 	    .reset      (reset),
 
-        .baud_divider   (8'h 10),
+        .baud_divider   (16'd 1250),
 
         .data_write (8'h 00),
         .transmit   (1'b 0),
+        .ready (),
 
         .data_read  (rddata),
         .received   (received),
@@ -77,18 +79,23 @@ module tb_uart;
         $dumpfile(`__def_vcd_file);
         $dumpvars(0, tb_uart);
 
-        # 1 reset = 1;
-        # 1 reset = 0;
-        # 1 reset = 1;
-        # 1 reset = 0;
-
-        # 10 wrdata = 8'h 81;
-        # 1 transmit = 1;
         # 1 transmit = 0;
 
-        # 400 wrdata = 8'h FF;
-        # 1 transmit = 1;
-        # 1 transmit = 0;
+        # 5 reset = 0;
+        # 5 reset = 1;
+        # 5 reset = 0;
+
+        # 20 wrdata = 8'h 81;
+        # 5 transmit = 1;
+        # 5 transmit = 0;
+
+        // # 400 wrdata = 8'h FF;
+        // # 1 transmit = 1;
+        // # 1 transmit = 0;
+
+        // # 800 wrdata = 8'h 01;
+        // # 1 transmit = 1;
+        // # 1 transmit = 0;
 
         //# 15E3 $finish;
         # 250E3 $finish;

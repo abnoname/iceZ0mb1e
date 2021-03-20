@@ -26,11 +26,12 @@ module simpleuart(
 	input clk,
 	input reset,
 
-	input[7:0] baud_divider,
+	input[15:0] baud_divider,
 
 	input[7:0] data_write,
     input transmit,
-
+    output ready,
+    
 	output[7:0] data_read,
     output received,
 
@@ -46,7 +47,7 @@ module simpleuart(
     localparam STATE_TX_SEND = 5;
     localparam STATE_TX_STOPBIT = 6;
 
-	reg [4:0] fsm_state;
+	reg [4:0] fsm_state = STATE_IDLE;
 	reg [7:0] bit_count;
 
 	reg [7:0] data_read;
@@ -55,44 +56,59 @@ module simpleuart(
 
 	wire req_next;
     wire clk_baud;
+    wire clk_sample;
 
-    wire rx;
     reg tx;
+    reg rx_sampled;
     reg received;
-
-    reg sync_clkbaud;
+    wire ready = (fsm_state == STATE_IDLE) ? 1'b 1 : 1'b 0;
 
     reg [1:0] sync_rx;
     reg [1:0] sync_transmit;
 
+    reg req_start_transmit;
+
 	clk_enable baud_clock (
-		.reset(sync_clkbaud),
+		.reset(fsm_state == STATE_IDLE),
 		.divider(baud_divider),
 		.clk_in(clk),
 		.clk_en(clk_baud)
 	);
 
+	clk_enable sample_clock (
+		.reset(clk_baud),
+		.divider( {1'b 0, baud_divider[15:1] } ),
+		.clk_in(clk),
+		.clk_en(clk_sample)
+	);
+
 	always @(posedge clk) begin
 		if (reset == 1'b1) begin
 			fsm_state <= STATE_IDLE;
-            input_reg <= 8'h 00;
-            output_reg <= 8'h 00;
 		end	else begin
             sync_rx <= {sync_rx[0], rx};
             sync_transmit <= {sync_transmit[0], transmit};
 
+            if(sync_transmit == 2'b 01)begin
+                req_start_transmit <= 1'b 1;
+            end
+
+            if(clk_sample == 1'b 1) begin
+                rx_sampled <= rx;
+            end
+
             case(fsm_state)
                 STATE_IDLE: begin
-                    bit_count <= 8;
+                    bit_count <= 8'd 8;
                     tx <= 1'b 1;
                     if( sync_rx == 2'b 10 ) begin
                         received <= 1'b 0;
-                        sync_clkbaud <= 1'b 1;
                         input_reg <= 8'h 00;
                         fsm_state <= STATE_RX_STARTBIT;
                     end
-                    if( transmit == 1'b 1) begin
-                        sync_clkbaud <= 1'b 1;
+                    if( req_start_transmit == 1'b 1 ) begin
+                        req_start_transmit <= 1'b 0;
+                        received <= 1'b 0;
                         tx <= 1'b 0;
                         output_reg <= data_write;
                         fsm_state <= STATE_TX_STARTBIT;
@@ -100,18 +116,16 @@ module simpleuart(
                 end
 
                 STATE_RX_STARTBIT: begin
-                    sync_clkbaud <= 1'b 0;
                     if( clk_baud == 1'b 1 ) begin
-                        input_reg = { input_reg[6:0], rx };
                         fsm_state <= STATE_RX_RECEIVE;
                     end
                 end
 
                 STATE_RX_RECEIVE: begin
                     if( clk_baud == 1'b 1 ) begin
-                        input_reg = { input_reg[6:0], rx };
-                        bit_count = bit_count - 1;
-                        if( bit_count == 1 ) begin
+                        input_reg <= { input_reg[6:0], rx_sampled };
+                        bit_count <= bit_count - 8'd 1;
+                        if( bit_count == 8'd 1 ) begin
                             fsm_state <= STATE_RX_STOPBIT; 
                         end
                     end
@@ -127,10 +141,9 @@ module simpleuart(
 
                 STATE_TX_STARTBIT: begin
                     tx <= 1'b 0;
-                    sync_clkbaud <= 1'b 0;
                     if( clk_baud == 1'b 1 ) begin
                         tx <= output_reg[0];
-                        output_reg = { 1'b 0, output_reg[7:1] };
+                        output_reg <= { 1'b 0, output_reg[7:1] };
                         fsm_state <= STATE_TX_SEND;
                     end
                 end
@@ -138,9 +151,9 @@ module simpleuart(
                 STATE_TX_SEND: begin
                     if( clk_baud == 1'b 1 ) begin
                         tx <= output_reg[0];
-                        output_reg = { 1'b 0, output_reg[7:1] };
-                        bit_count = bit_count - 1;
-                        if( bit_count == 0 ) begin
+                        output_reg <= { 1'b 0, output_reg[7:1] };
+                        bit_count <= bit_count - 8'd 1;
+                        if( bit_count == 8'd 1 ) begin
                             tx <= 1'b 1;
                             fsm_state <= STATE_TX_STOPBIT; 
                         end

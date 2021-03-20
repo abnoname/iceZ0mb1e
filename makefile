@@ -27,7 +27,6 @@
 # Hardware
 ###############################################################################
 SRC  = ./import/tv80/rtl/core/*.v
-SRC += ./import/tv80/rtl/uart/*.v
 SRC += ./rtl/*.v
 TESTBENCH = tb_iceZ0mb1e
 TB_FILE = ./tb/$(TESTBENCH).v
@@ -146,7 +145,7 @@ fpga: $(SRC) $(FPGA_PINMAP) firmware
 	-mkdir $(SYNTH_DIR)
 	$(YOSYS) -q $(YOSYSFLAGS) $(SRC)
 	$(NEXTPNR) $(PNRFLAGS) --json $(SYNTH_JSON_OUT) --pcf $(FPGA_PINMAP) --asc $(FPGA_ASC_OUT)
-	$(ICEBOXVLOG) $(FPGA_ASC_OUT) > $(FPGA_VLOG_OUT)
+	#$(ICEBOXVLOG) $(FPGA_ASC_OUT) > $(FPGA_VLOG_OUT)
 	$(ICEPACK) $(FPGA_ASC_OUT) $(FPGA_BIN_OUT)
 
 time:

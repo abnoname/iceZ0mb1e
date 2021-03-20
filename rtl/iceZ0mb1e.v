@@ -197,7 +197,7 @@ endgenerate
 		.P2_oen		(P2_oen)
 	);
 
-	uart16540_wrapper uart0
+	simpleuart_wrapper uart0
 	(
 		.clk		(clk),
 		.reset_n	(reset_n),

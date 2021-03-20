@@ -82,7 +82,7 @@ module simplei2c_wrapper (
 
 	clk_enable i2c_clk_divider (
 		.reset(!reset_n),
-		.divider(reg_clockdiv), //f=12E6/120=100kHz => div=120/2
+		.divider( { 8'h 00, reg_clockdiv } ), //f=12E6/120=100kHz => div=120/2
 		.clk_in(clk),
 		.clk_en(i2c_clk_en)
 	);

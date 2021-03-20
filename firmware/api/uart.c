@@ -27,18 +27,22 @@
 #include "icez0mb1e.h"
 #include "uart.h"
 
+#define UART_CMD_TRANSMIT           0x01
+
+#define UART_STATUS_RECEIVED        0x01
+#define UART_STATUS_READY           0x02
 
 #if defined(__SDCC) && __SDCC_REVISION < 9624
 void putchar(char c)
 {
-    uart_thr = c;
-    while ((uart_lsr & SBIT_THRE) == 0);
+    uart_dat_out = c;
+    while ((uart_status & UART_STATUS_READY) == 0);
 }
 #else
 int putchar(int c)
 {
-    uart_thr = c;
-    while ((uart_lsr & SBIT_THRE) == 0);
+    uart_dat_out = c;
+    while ((uart_status & UART_STATUS_READY) == 0);
     return c;
 }
 #endif
@@ -49,8 +53,8 @@ char getchar()
 int getchar()
 #endif
 {
-    while ((uart_lsr & SBIT_DR) == 0);
-    return uart_rbr;
+    while ((uart_status & UART_STATUS_RECEIVED) == 0);
+    return uart_dat_in;
 }
 
 void uart_write(char *str)
@@ -66,12 +70,8 @@ void uart_write(char *str)
 void uart_initialize(uint16_t baud)
 {
     // set divisor div = 12MHz / (9600 * 16) = 78
-    uint32_t div = (uint32_t)SYS_XTAL_FREQ / ((uint32_t)baud * (uint32_t)16);
+    uint32_t div = (uint32_t)SYS_XTAL_FREQ / (uint32_t)baud;
 
-    uart_lcr = 0x80; /* SET DLAB ON */
-    uart_dm0 = (uint8_t)(div & 0xFF);
-    uart_dm1 = (uint8_t)(div >> 8);
-
-    uart_lcr = 0x03; /* 8 Bits, No Parity, 1 Stop Bit */
-    uart_mcr = 0x00;
+    uart_baudlow = (uint8_t)(div & 0xFF);
+    uart_baudhigh = (uint8_t)(div >> 8);
 }

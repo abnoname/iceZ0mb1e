@@ -23,7 +23,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-module simplespi_wrapper (
+module simpleuart_wrapper (
     input clk,
     input reset_n,
     output[7:0] data_out,
@@ -32,95 +32,74 @@ module simplespi_wrapper (
     input rd_n,
     input wr_n,
     input[2:0] addr,
-    output sclk,
-	output mosi,
-	input  miso,
-    output cs
+    output tx,
+    input rx
 );
 
     wire read_sel = !cs_n & !rd_n & wr_n;
     wire write_sel = !cs_n & rd_n & !wr_n;
 
 	wire[7:0] reg_status;
-	reg[7:0] reg_config = 8'h0;
 	reg[7:0] reg_command = 8'h0;
 	reg[7:0] reg_data_wr = 8'h0;
-	reg[7:0] reg_clockdiv = 8'h0;
+	reg[7:0] reg_baudlow = 8'h0;
+	reg[7:0] reg_baudhigh = 8'h0;
 	wire[7:0] reg_data_rd;
-	wire req_next;
+	wire received;
+	wire ready;
 
     reg[7:0] read_data;
-    reg      err;
+    reg transmit = 1'b 0;
     
 	assign data_out = (read_sel) ? read_data : 8'b0;
-	assign reg_status = {6'b0, err, req_next};
+	assign reg_status = {6'b0, ready, received};
 
     always @(*)
 	begin
 		case(addr)
 			3'h0 : read_data = reg_status;
-			3'h1 : read_data = reg_config;
-			3'h2 : read_data = reg_clockdiv;
+			3'h1 : read_data = reg_baudlow;
+			3'h2 : read_data = reg_baudhigh;
 			3'h3 : read_data = reg_command;
 			3'h4 : read_data = reg_data_rd;
 			3'h5 : read_data = reg_data_wr;
 			default : read_data = 8'h00;
 		endcase
 	end
-
-    always @(posedge clk)
-    begin
-        if (write_sel) begin
-            err <= ~reg_status[0];
-        end
-    end
-    
     
     always @(posedge clk)
     begin
+        transmit <= 1'b 0;
+        
         if ( write_sel ) begin
             case(addr)
-				3'h1 : reg_config <= data_in;
-				3'h2 : reg_clockdiv <= data_in;
+				3'h1 : reg_baudlow <= data_in;
+				3'h2 : reg_baudhigh <= data_in;
 				3'h3 : reg_command <= data_in;
 				3'h5 : reg_data_wr <= data_in;
             endcase
-        end
 
-		if( reg_command[0] == 1'b1 ) begin
-			reg_command[0] <= 1'b0;
-		end
+            if(addr == 3'h5) begin
+                transmit <= 1'b 1;
+            end
+        end
     end
 
-	wire spi_clk_en;
+    simpleuart uart (
+        .clk        (clk),
+	    .reset      (!reset_n),
 
-	clk_enable spi_clk_divider (
-		.reset(!reset_n),
-		.divider({ 8'h 00, reg_clockdiv}), //f=12E6/12=1MHz => div=12/2
-		.clk_in(clk),
-		.clk_en(spi_clk_en)
-	);
+        .baud_divider   ( {reg_baudhigh, reg_baudlow} ),
 
-	simplespi master (
-		.clk			(clk),
-		.clk_spi_en		(spi_clk_en),
-		.reset			(!reset_n),
+        .data_write (reg_data_wr),
+        .transmit   (transmit),
 
-		.req_next		(req_next),
+        .data_read  (reg_data_rd),
+        .received   (received),
+        .ready      (ready),
 
-		.start			(reg_command[0]),
-		.finish			(reg_command[1]),
-
-		.CPOL			(reg_config[1]),
-		.CPHA			(reg_config[0]),
-
-		.data_write		(reg_data_wr),
-		.data_read		(reg_data_rd),
-
-		.sclk			(sclk),
-		.mosi			(mosi),
-		.miso			(miso),
-		.cs				(cs)
-	);
+        .tx         (tx),
+        .rx         (rx)
+    );
 
 endmodule
