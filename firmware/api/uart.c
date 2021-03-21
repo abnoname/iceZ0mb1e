@@ -74,7 +74,6 @@ void uart_write(char *str)
 
 void uart_initialize(uint16_t baud)
 {
-    // set divisor div = 12MHz / (9600 * 16) = 78
     uint32_t div = (uint32_t)SYS_XTAL_FREQ / (uint32_t)baud;
 
     uart_baudlow = (uint8_t)(div & 0xFF);

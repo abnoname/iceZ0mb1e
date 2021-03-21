@@ -55,8 +55,7 @@ module simpleuart(
     wire bitcount_last = (bitcount == 8'd 1) ? 1'b 1 : 1'b 0;
 
 	reg [7:0] data_read;
-    reg [7:0] sr_output;
-    reg [7:0] sr_input;
+    reg [7:0] shiftreg;
 
     wire clken_baud;
     wire clken_sample;
@@ -70,7 +69,7 @@ module simpleuart(
     reg req_start_transmit;
 
 	clk_enable baud_clock (
-		.reset( (fsm_state == STATE_IDLE) && (sync_rx[1:0] == 2'b 10) ),
+		.reset( (fsm_state == STATE_IDLE) ),
 		.divider(baud_divider),
 		.clk_in(clk),
 		.clk_en(clken_baud)
@@ -99,8 +98,7 @@ module simpleuart(
             end
 
             if( clken_baud == 1'b 1) begin
-                sr_input <= { rx_sampled, sr_input[7:1] };  
-                sr_output <= { 1'b 0, sr_output[7:1] };     
+                shiftreg <= { rx_sampled, shiftreg[7:1] };     
                 bitcount <= bitcount - 8'd 1;                 
             end
 
@@ -109,14 +107,13 @@ module simpleuart(
                 tx <= 1'b 1;
                 if( sync_rx[1:0] == 2'b 10 ) begin
                     received <= 1'b 0;
-                    sr_input <= 8'h 00;
                     fsm_state <= STATE_RX_STARTBIT;
                 end
                 if( req_start_transmit == 1'b 1 ) begin
                     req_start_transmit <= 1'b 0;
                     received <= 1'b 0;
-                    tx <= 1'b 0;
-                    sr_output <= data_write;
+                    tx <= 1'b 0; // Startbit
+                    shiftreg <= data_write;
                     fsm_state <= STATE_TX_STARTBIT;
                 end
             end
@@ -139,19 +136,19 @@ module simpleuart(
 
                     STATE_RX_STOPBIT: begin
                         received <= 1'b 1;
-                        data_read <= sr_input;
+                        data_read <= shiftreg;
                         fsm_state <= STATE_IDLE; 
                     end
 
                     STATE_TX_STARTBIT: begin
-                        tx <= sr_output[0];
+                        tx <= shiftreg[0];
                         fsm_state <= STATE_TX_SEND;
                     end
 
                     STATE_TX_SEND: begin
-                        tx <= sr_output[0];
+                        tx <= shiftreg[0];
                         if( bitcount_last ) begin
-                            tx <= 1'b 1;
+                            tx <= 1'b 1; // Stopbit
                             fsm_state <= STATE_TX_STOPBIT; 
                         end
                     end

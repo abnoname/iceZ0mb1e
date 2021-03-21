@@ -1,10 +1,10 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Sun Mar 21 14:34:31 2021
+[*] Sun Mar 21 14:53:03 2021
 [*]
 [dumpfile] "/home/noname/Work/iceZ0mb1e/simulation/_test.vcd"
-[dumpfile_mtime] "Sun Mar 21 14:34:17 2021"
-[dumpfile_size] 23534
+[dumpfile_mtime] "Sun Mar 21 14:52:19 2021"
+[dumpfile_size] 23494
 [savefile] "/home/noname/Work/iceZ0mb1e/tb/tb_uart.gtkw"
 [timestart] 0
 [size] 1920 995
@@ -28,5 +28,20 @@ tb_uart.uart1.transmit[0]
 tb_uart.uart2.received[0]
 tb_uart.uart1.tx[0]
 tb_uart.uart2.rx[0]
+tb_uart.uart2.clken_baud[0]
+tb_uart.uart2.clken_sample[0]
+@c00023
+tb_uart.uart2.shiftreg[7:0]
+@28
+(0)tb_uart.uart2.shiftreg[7:0]
+(1)tb_uart.uart2.shiftreg[7:0]
+(2)tb_uart.uart2.shiftreg[7:0]
+(3)tb_uart.uart2.shiftreg[7:0]
+(4)tb_uart.uart2.shiftreg[7:0]
+(5)tb_uart.uart2.shiftreg[7:0]
+(6)tb_uart.uart2.shiftreg[7:0]
+(7)tb_uart.uart2.shiftreg[7:0]
+@1401201
+-group_end
 [pattern_trace] 1
 [pattern_trace] 0
