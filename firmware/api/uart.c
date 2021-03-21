@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include "icez0mb1e.h"
+#include "cpu.h"
 #include "uart.h"
 
 #define UART_CMD_TRANSMIT           0x01
@@ -35,14 +36,18 @@
 #if defined(__SDCC) && __SDCC_REVISION < 9624
 void putchar(char c)
 {
-    uart_dat_out = c;
+    uart_cmd = 0;
     while ((uart_status & UART_STATUS_READY) == 0);
+    uart_dat_out = c;
+    uart_cmd |= UART_CMD_TRANSMIT;
 }
 #else
 int putchar(int c)
 {
-    uart_dat_out = c;
+    uart_cmd = 0;
     while ((uart_status & UART_STATUS_READY) == 0);
+    uart_dat_out = c;
+    uart_cmd |= UART_CMD_TRANSMIT;
     return c;
 }
 #endif

@@ -49,7 +49,6 @@ module simpleuart_wrapper (
 	wire ready;
 
     reg[7:0] read_data;
-    reg transmit = 1'b 0;
     
 	assign data_out = (read_sel) ? read_data : 8'b0;
 	assign reg_status = {6'b0, ready, received};
@@ -69,8 +68,6 @@ module simpleuart_wrapper (
     
     always @(posedge clk)
     begin
-        transmit <= 1'b 0;
-        
         if ( write_sel ) begin
             case(addr)
 				3'h1 : reg_baudlow <= data_in;
@@ -78,10 +75,6 @@ module simpleuart_wrapper (
 				3'h3 : reg_command <= data_in;
 				3'h5 : reg_data_wr <= data_in;
             endcase
-
-            if(addr == 3'h5) begin
-                transmit <= 1'b 1;
-            end
         end
     end
 
@@ -92,7 +85,7 @@ module simpleuart_wrapper (
         .baud_divider   ( {reg_baudhigh, reg_baudlow} ),
 
         .data_write (reg_data_wr),
-        .transmit   (transmit),
+        .transmit   (reg_command[0]),
 
         .data_read  (reg_data_rd),
         .received   (received),
