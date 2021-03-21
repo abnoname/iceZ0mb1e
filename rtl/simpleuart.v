@@ -66,7 +66,7 @@ module simpleuart(
     reg [1:0] sync_rx;
     reg [1:0] sync_transmit;
 
-    reg req_start_transmit;
+    reg req_start_transmit = 1'b 0;
 
 	clk_enable baud_clock (
 		.reset( (fsm_state == STATE_IDLE) ),
@@ -105,13 +105,12 @@ module simpleuart(
             if( fsm_state == STATE_IDLE )begin
                 bitcount <= 8'd 9;
                 tx <= 1'b 1;
+                received <= 1'b 0;
                 if( sync_rx[1:0] == 2'b 10 ) begin
-                    received <= 1'b 0;
                     fsm_state <= STATE_RX_STARTBIT;
                 end
                 if( req_start_transmit == 1'b 1 ) begin
                     req_start_transmit <= 1'b 0;
-                    received <= 1'b 0;
                     tx <= 1'b 0; // Startbit
                     shiftreg <= data_write;
                     fsm_state <= STATE_TX_STARTBIT;

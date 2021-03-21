@@ -39,7 +39,7 @@ module simpleuart_wrapper (
     wire read_sel = !cs_n & !rd_n & wr_n;
     wire write_sel = !cs_n & rd_n & !wr_n;
 
-	wire[7:0] reg_status;
+	reg[7:0] reg_status = 8'h0;
 	reg[7:0] reg_command = 8'h0;
 	reg[7:0] reg_data_wr = 8'h0;
 	reg[7:0] reg_baudlow = 8'h0;
@@ -51,7 +51,6 @@ module simpleuart_wrapper (
     reg[7:0] read_data;
     
 	assign data_out = (read_sel) ? read_data : 8'b0;
-	assign reg_status = {6'b0, ready, received};
 
     always @(*)
 	begin
@@ -76,6 +75,17 @@ module simpleuart_wrapper (
 				3'h5 : reg_data_wr <= data_in;
             endcase
         end
+
+        if ( read_sel ) begin
+            if( addr == 3'h4 )begin
+                reg_status[0] <= 1'b 0; // clear after read data
+            end
+        end
+        if( received ) begin // is one clk active
+            reg_status[0] <= 1'b 1;
+        end
+
+        reg_status[1] <= ready;
     end
 
     simpleuart uart (
