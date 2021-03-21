@@ -47,22 +47,22 @@ module simpleuart(
     localparam STATE_TX_SEND = 5;
     localparam STATE_TX_STOPBIT = 6;
 
-	reg [4:0] fsm_state = STATE_IDLE;
-	reg [7:0] bit_count;
-    wire last_bit = (bit_count == 8'd 1) ? 1'b 1 : 1'b 0;
+	reg [2:0] fsm_state = STATE_IDLE;
+    wire ready = (fsm_state == STATE_IDLE) ? 1'b 1 : 1'b 0;
+    reg received;
+
+	reg [3:0] bitcount;
+    wire bitcount_last = (bitcount == 8'd 1) ? 1'b 1 : 1'b 0;
 
 	reg [7:0] data_read;
-    reg [7:0] output_reg;
-    reg [7:0] input_reg;
+    reg [7:0] sr_output;
+    reg [7:0] sr_input;
 
-	wire req_next;
-    wire clk_baud;
-    wire clk_sample;
+    wire clken_baud;
+    wire clken_sample;
 
     reg tx;
     reg rx_sampled;
-    reg received;
-    wire ready = (fsm_state == STATE_IDLE) ? 1'b 1 : 1'b 0;
 
     reg [1:0] sync_rx;
     reg [1:0] sync_transmit;
@@ -73,14 +73,14 @@ module simpleuart(
 		.reset( (fsm_state == STATE_IDLE) && (sync_rx[1:0] == 2'b 10) ),
 		.divider(baud_divider),
 		.clk_in(clk),
-		.clk_en(clk_baud)
+		.clk_en(clken_baud)
 	);
 
 	clk_enable sample_clock (
-		.reset(clk_baud),
+		.reset(clken_baud),
 		.divider( {1'b 0, baud_divider[15:1] } ),
 		.clk_in(clk),
-		.clk_en(clk_sample)
+		.clk_en(clken_sample)
 	);
 
 	always @(posedge clk) begin
@@ -94,79 +94,73 @@ module simpleuart(
                 req_start_transmit <= 1'b 1;
             end
 
-            if( clk_sample == 1'b 1) begin
+            if( clken_sample == 1'b 1) begin
                 rx_sampled <= rx;
             end
 
-            if( clk_baud == 1'b 1) begin
-                input_reg <= { input_reg[6:0], rx_sampled };  
-                output_reg <= { 1'b 0, output_reg[7:1] };     
-                bit_count <= bit_count - 8'd 1;                 
+            if( clken_baud == 1'b 1) begin
+                sr_input <= { rx_sampled, sr_input[7:1] };  
+                sr_output <= { 1'b 0, sr_output[7:1] };     
+                bitcount <= bitcount - 8'd 1;                 
             end
 
-            case(fsm_state)
-                STATE_IDLE: begin
-                    bit_count <= 8'd 9;
-                    tx <= 1'b 1;
-                    if( sync_rx[1:0] == 2'b 10 ) begin
-                        received <= 1'b 0;
-                        input_reg <= 8'h 00;
-                        fsm_state <= STATE_RX_STARTBIT;
-                    end
-                    if( req_start_transmit == 1'b 1 ) begin
-                        req_start_transmit <= 1'b 0;
-                        received <= 1'b 0;
-                        tx <= 1'b 0;
-                        output_reg <= data_write;
-                        fsm_state <= STATE_TX_STARTBIT;
-                    end
+            if( fsm_state == STATE_IDLE )begin
+                bitcount <= 8'd 9;
+                tx <= 1'b 1;
+                if( sync_rx[1:0] == 2'b 10 ) begin
+                    received <= 1'b 0;
+                    sr_input <= 8'h 00;
+                    fsm_state <= STATE_RX_STARTBIT;
                 end
+                if( req_start_transmit == 1'b 1 ) begin
+                    req_start_transmit <= 1'b 0;
+                    received <= 1'b 0;
+                    tx <= 1'b 0;
+                    sr_output <= data_write;
+                    fsm_state <= STATE_TX_STARTBIT;
+                end
+            end
 
-                STATE_RX_STARTBIT: begin
-                    if( clk_baud == 1'b 1 ) begin
+            if( clken_baud == 1'b 1 ) begin
+                case(fsm_state)
+                    STATE_IDLE: begin
+                        // done without clk_en
+                    end
+
+                    STATE_RX_STARTBIT: begin
                         fsm_state <= STATE_RX_RECEIVE;
                     end
-                end
 
-                STATE_RX_RECEIVE: begin
-                    if( clk_baud == 1'b 1 ) begin
-                        if( last_bit ) begin
+                    STATE_RX_RECEIVE: begin
+                        if( bitcount_last ) begin
                             fsm_state <= STATE_RX_STOPBIT; 
                         end
                     end
-                end
 
-                STATE_RX_STOPBIT: begin
-                    if( clk_baud == 1'b 1 ) begin
+                    STATE_RX_STOPBIT: begin
                         received <= 1'b 1;
-                        data_read <= input_reg;
+                        data_read <= sr_input;
                         fsm_state <= STATE_IDLE; 
                     end
-                end
 
-                STATE_TX_STARTBIT: begin
-                    if( clk_baud == 1'b 1 ) begin
-                        tx <= output_reg[0];
+                    STATE_TX_STARTBIT: begin
+                        tx <= sr_output[0];
                         fsm_state <= STATE_TX_SEND;
                     end
-                end
 
-                STATE_TX_SEND: begin
-                    if( clk_baud == 1'b 1 ) begin
-                        tx <= output_reg[0];
-                        if( last_bit ) begin
+                    STATE_TX_SEND: begin
+                        tx <= sr_output[0];
+                        if( bitcount_last ) begin
                             tx <= 1'b 1;
                             fsm_state <= STATE_TX_STOPBIT; 
                         end
-                    end 
-                end
+                    end
 
-                STATE_TX_STOPBIT: begin
-                    if( clk_baud == 1'b 1 ) begin
+                    STATE_TX_STOPBIT: begin
                         fsm_state <= STATE_IDLE; 
                     end
-                end
-            endcase
+                endcase
+            end
 		end
 	end
 endmodule

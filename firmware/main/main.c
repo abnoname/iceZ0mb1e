@@ -87,6 +87,7 @@ void main ()
 
     //Initialize:
     uart_initialize(9600);
+    uart_write("BOOT\n");
     spi_config(0, 12); //1MHz
     i2c_config(120); //100kHz
 
