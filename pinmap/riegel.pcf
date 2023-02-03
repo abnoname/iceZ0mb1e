@@ -1,0 +1,23 @@
+set_io clk L5
+
+# PMODA (side)
+set_io D1 J5
+set_io D2 L1
+set_io D3 J3
+set_io D4 G3
+set_io D5 L2
+set_io D6 K5
+set_io D7 H3
+set_io D8 H7
+
+set_io spi_cs K10
+set_io spi_sclk L10
+set_io spi_mosi K9
+set_io spi_miso J9
+
+# PMODB (front)
+set_io uart_rxd H2
+set_io uart_txd J2
+
+set_io i2c_scl K1
+set_io i2c_sda J1

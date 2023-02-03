@@ -1,0 +1,12 @@
+set_io clk L5
+
+set_io spi_cs K10
+set_io spi_sclk L10
+set_io spi_mosi K9
+set_io spi_miso J9
+
+set_io i2c_scl L3
+set_io i2c_sda K5
+
+set_io uart_rxd K3
+set_io uart_txd L1

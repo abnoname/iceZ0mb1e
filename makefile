@@ -72,6 +72,16 @@ else ifeq ($(TARGET),8k)
 	PNRFLAGS = --hx8k --package ct256
 	ICETIMEFLAGS = -d hx8k
 	FPGA_PINMAP = ./pinmap/hx8k.pcf
+else ifeq ($(TARGET),eis)
+	SRC += ./top/eis.v
+	PNRFLAGS = --hx8k --package bg121
+	ICETIMEFLAGS = -d hx8k
+	FPGA_PINMAP = ./pinmap/eis.pcf
+else ifeq ($(TARGET),riegel)
+	SRC += ./top/riegel.v
+	PNRFLAGS = --hx8k --package bg121
+	ICETIMEFLAGS = -d hx8k
+	FPGA_PINMAP = ./pinmap/riegel.pcf
 else ifeq ($(TARGET),tinybx)
 	SRC += ./top/tinybx.v
 	PNRFLAGS = --hx8k --package cm81
